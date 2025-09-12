@@ -15,6 +15,13 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp-relay.brevo.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = '96dc15001@smtp-brevo.com'
+EMAIL_HOST_PASSWORD = 'pFRV3PrGbLMNjW79'
+DEFAULT_FROM_EMAIL = '<nadia.carrasco@est.fi.uncoma.edu.ar>'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -79,7 +86,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'due_date_db',
         'USER': 'root',
-        'PASSWORD': '12345',
+        'PASSWORD': '222Nadia',
         'HOST': '127.0.0.1',
         'PORT': '3306',
         'OPTIONS': {
