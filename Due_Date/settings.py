@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Usuarios',
+    'Interfaz'
 ]
 
 MIDDLEWARE = [
@@ -55,7 +56,7 @@ ROOT_URLCONF = 'Due_Date.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'Interfaz/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -78,7 +79,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'due_date_db',
         'USER': 'root',
-        'PASSWORD': '222Nadia',
+        'PASSWORD': '12345',
         'HOST': '127.0.0.1',
         'PORT': '3306',
         'OPTIONS': {
