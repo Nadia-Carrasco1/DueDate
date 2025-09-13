@@ -3,5 +3,9 @@
 {% block tittle %}Inicio{% endblock %}
 
 {% block content %}
-    <p>Esto es el home</p>
+    {% if is_authenticated %}
+            <p>¡Bienvenido {{ username }}!</p>
+        {% else %}
+            <p>Esto es el home</p>
+    {% endif %}
 {% endblock %}

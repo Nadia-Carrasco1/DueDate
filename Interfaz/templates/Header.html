@@ -1,7 +1,13 @@
 <header>
    <nav>
-        <p>
-            Esto es el header
-        </p>
+        <ul>
+            <li><a href="{% url 'home' %}">Inicio</a></li>
+            {% if is_authenticated %}
+                <li><a href="{% url 'CerrarSesion' %}">Cerrar sesión</a></li>
+            {% else %}
+                <li><a href="{% url 'IniciarSesion' %}">Iniciar sesión</a></li>
+                <li><a href="{% url 'Registrarse' %}">Registrarse</a></li>
+            {% endif %}
+        </ul>
    </nav>
 </header>
