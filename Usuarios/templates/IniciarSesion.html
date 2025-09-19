@@ -1,11 +1,31 @@
 {% extends 'Base.html' %}
-    
+
 {% block content %}
-    <h1>Iniciar Sesión: </h1>
-        {{error}}
-    <form action="" method="POST">
+<div class="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">Iniciar Sesión</h1>
+
+    {% if error %}
+        <p class="text-red-600 text-sm mb-4 text-center">{{ error }}</p>
+    {% endif %}
+
+    <form action="" method="POST" class="space-y-4">
         {% csrf_token %}
-        {{form.as_p}}
-        <button>Confirmar</button>
+
+        {% for field in form %}
+            <div>
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ field.label }}
+                </label>
+                {{ field }}
+                {% if field.errors %}
+                    <p class="text-red-600 text-sm mt-1">{{ field.errors|striptags }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
+            Confirmar
+        </button>
     </form>
-{% endblock %} 
+</div>
+{% endblock %}
