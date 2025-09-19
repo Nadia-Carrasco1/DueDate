@@ -1,12 +1,20 @@
+{% load django_browser_reload %}
+{% load static %}
+{% django_browser_reload_script %}
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        {% load tailwind_tags %}
+        <link rel="stylesheet" href="{% static 'css/output.css' %}">
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{% block tittle %}{% endblock %}</title>
     </head>
     <body>
-        {% include 'Header.html' %}
+        <div class="bg-blue-900">
+            {% include 'Header.html' %}
+        </div>
         <main>
             {% block content %}{% endblock %}
         </main>
