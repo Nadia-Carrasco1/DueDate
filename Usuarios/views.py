@@ -1,60 +1,48 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.forms import  AuthenticationForm
-from django.contrib.auth import login, logout, authenticate
-from django.db import IntegrityError
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login, logout
 from django.core.mail import send_mail
+from django.contrib.auth.decorators import login_required
 from .forms import RegistroForm
 
 
 def Registrarse(request):
-      
-    if request.method == 'GET':
-        return render(request, 'Registrarse.html',{
-        'form': RegistroForm()
-        })
-    else:
-        form = RegistroForm(request.POST)
-        if form.is_valid():
-            try:
-                user = form.save()
-                login(request, user)
+    form = RegistroForm(request.POST or None)
 
-                # Enviar correo de bienvenida
-                send_mail(
-                    subject='Bienvenida a Due_Date',
-                    message='Tu cuenta fue creada exitosamente.',
-                    from_email='Due Date <nadia.carrasco@est.fi.uncoma.edu.ar>',
-                    recipient_list=[user.email],
-                    fail_silently=False,
-                )
+    if request.method == 'POST' and form.is_valid():
+        user = form.save()
+        login(request, user)
 
-                return redirect('home')
-            except IntegrityError:
-                return render(request, 'Registrarse.html', {
-                    'form': RegistroForm(),
-                    "error": 'El usuario ya existe'
-                })
-        return render(request, 'Registrarse.html', {
-            'form': form,
-            "error": 'Las contraseñas no coinciden o el formulario es inválido'
-        })
+        send_mail(
+            subject='Bienvenida a Due_Date',
+            message='Tu cuenta fue creada exitosamente.',
+            from_email='Due Date <nadia.carrasco@est.fi.uncoma.edu.ar>',
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+
+        return redirect('home')
+
+    return render(request, 'Registrarse.html', {'form': form})
 
 def CerrarSesion(request):
     logout(request)
     return redirect('home')
 
 def IniciarSesion(request):
-    if request.method == 'GET':
-        return render(request, 'IniciarSesion.html', {
-            'form': AuthenticationForm,
-        })
-    else:
-        user = authenticate(request, username=request.POST['username'], password=request.POST['password'])
-        if user is None:
-            return render(request, 'IniciarSesion.html', {
-                'form': AuthenticationForm,
-                'error': 'Usuario o contraseña incorrecta'
-            })       
-        else:
-            login(request, user)
-            return redirect('home')
+    form = AuthenticationForm(request, data=request.POST or None)
+
+    if request.method == 'POST' and form.is_valid():
+        login(request, form.get_user())
+        return redirect('home')
+
+    return render(request, 'IniciarSesion.html', {'form': form})
+
+def DesactivarCuenta(request):
+    if  request.method == 'POST':
+        user = request.user
+        user.is_active = False
+        user.save()
+
+        return redirect('home')
+    return render(request, 'DesactivarCuenta.html')

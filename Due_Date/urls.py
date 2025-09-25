@@ -25,5 +25,6 @@ urlpatterns = [
     path('Registrarse/', views.Registrarse, name='Registrarse'),
     path('IniciarSesion/', views.IniciarSesion, name='IniciarSesion'),
     path('CerrarSesion/', views.CerrarSesion, name='CerrarSesion'),
+    path('DesactivarCuenta/', views.DesactivarCuenta, name='DesactivarCuenta'),
     path("__reload__/", include("django_browser_reload.urls")),
 ]
