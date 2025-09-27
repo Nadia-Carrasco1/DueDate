@@ -1,6 +1,4 @@
-{% load django_browser_reload %}
 {% load static %}
-{% django_browser_reload_script %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -11,12 +9,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{% block tittle %}{% endblock %}</title>
     </head>
-    <body>
-        <div class="bg-blue-900">
-            {% include 'Header.html' %}
-        </div>
-        <main>
+    <body class="text-white flex flex-col min-h-screen">
+    {% include 'Header.html' %}
+        <main class="bg-neutral-800 flex-grow">
             {% block content %}{% endblock %}
+            <div class="min-h-80"></div>
         </main>
         {% include 'Footer.html' %}
     </body>
