@@ -9,11 +9,11 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{% block tittle %}{% endblock %}</title>
     </head>
-    <body class="text-white flex flex-col min-h-screen">
-    {% include 'Header.html' %}
-        <main class="bg-neutral-800 flex-grow">
+    <body class="bg-neutral-800 text-white flex flex-col min-h-screen">
+        {% include 'Header.html' %}
+        <main class="flex-grow">
+            <!--<div class="bg-neutral-700 w-16 min-h-screen">sdsd</div>-->
             {% block content %}{% endblock %}
-            <div class="min-h-80"></div>
         </main>
         {% include 'Footer.html' %}
     </body>
