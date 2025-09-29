@@ -78,6 +78,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'Interfaz.context_processors.navbar_context',
+                'Usuarios.context_processors.perfil_global',
             ],
         },
     },
@@ -157,3 +158,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles_collected'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 NPM_BIN_PATH = 'C:\\Program Files\\nodejs\\npm.cmd'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
