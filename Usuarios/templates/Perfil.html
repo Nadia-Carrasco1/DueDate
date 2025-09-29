@@ -5,8 +5,7 @@
 <div class="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
     <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Tu perfil</h2>
 
-    <!-- Foto de perfil -->
-    <div class="flex flex-col items-center mb-6">
+  <div class="flex flex-col items-center mb-6">
         {% if perfil.foto %}
             <img src="{{ perfil.foto.url }}" alt="Foto de perfil" class="w-32 h-32 rounded-full object-cover mb-4" id="foto-actual">
         {% else %}
@@ -43,39 +42,42 @@
         </div>
     </div>
 
-    {% if not modo_edicion %}
-        <!-- Datos como texto -->
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
+    <!-- Nombre de usuario -->
+    <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
+        <div id="username-display" class="{% if campo_con_error == 'username' %}hidden{% endif %} flex items-center justify-between">
             <p class="text-gray-800 font-semibold">{{ request.user.username }}</p>
+            <button onclick="toggleEdit('username')" class="p-2 bg-gray-700 hover:bg-gray-800 rounded text-white">✎</button>
         </div>
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <p class="text-gray-800">{{ request.user.email }}</p>
-        </div>
-        <a href="?editar=1" class="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
-            Editar datos
-        </a>
-    {% else %}
-        <!-- Formulario de edición -->
-        <form method="POST" enctype="multipart/form-data" class="space-y-4">
+        <form method="POST" {% if campo_con_error == 'username' %} {% else %}class="hidden"{% endif %} id="username-form">
             {% csrf_token %}
-
-            <!-- Campo de usuario -->
-            <div>
-                <label for="{{ user_form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                    {{ user_form.username.label }}
-                </label>
-                {{ user_form.username }}
-                {% if user_form.username.errors %}
-                    <p class="text-red-600 text-sm mt-1">{{ user_form.username.errors|striptags }}</p>
-                {% endif %}
+            <input type="hidden" name="editar_usuario" value="1">
+            {{ user_form.username }}
+            {% if user_form.username.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ user_form.username.errors|striptags }}</p>
+            {% endif %}
+            <div class="flex gap-2 mt-2">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-1 px-3 rounded">Guardar</button>
+                <button type="button" onclick="toggleEdit('username')" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded">Cancelar</button>
             </div>
+        </form>
+    </div>
 
-            <!-- Campos de contraseña -->
+    <!-- Contraseña -->
+    <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+        <div id="password-display" class="{% if campo_con_error == 'password' %}hidden{% endif %} flex items-center justify-between">
+            <p class="text-gray-800">••••••••</p>
+            <button onclick="toggleEdit('password')" class="p-2 bg-gray-700 hover:bg-gray-800 rounded text-white">✎</button>
+        </div>
+        <form method="POST" {% if campo_con_error == 'password' %} {% else %}class="hidden"{% endif %} id="password-form" class="mt-4 space-y-4">
+            {% csrf_token %}
+            <input type="hidden" name="editar_contraseña" value="1">
+
+            <!-- Contraseña actual -->
             <div>
                 <label for="{{ password_form.old_password.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                    {{ password_form.old_password.label }}
+                    Contraseña actual
                 </label>
                 {{ password_form.old_password }}
                 {% if password_form.old_password.errors %}
@@ -83,9 +85,10 @@
                 {% endif %}
             </div>
 
+            <!-- Contraseña nueva -->
             <div>
                 <label for="{{ password_form.new_password1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                    {{ password_form.new_password1.label }}
+                    Contraseña nueva
                 </label>
                 {{ password_form.new_password1 }}
                 {% if password_form.new_password1.errors %}
@@ -93,9 +96,10 @@
                 {% endif %}
             </div>
 
+            <!-- Confirmación -->
             <div>
                 <label for="{{ password_form.new_password2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
-                    {{ password_form.new_password2.label }}
+                    Contraseña nueva (confirmación)
                 </label>
                 {{ password_form.new_password2 }}
                 {% if password_form.new_password2.errors %}
@@ -103,46 +107,39 @@
                 {% endif %}
             </div>
 
-            <div class="flex flex-col sm:flex-row gap-2 mt-2">
-                <button type="submit" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
-                    Guardar cambios
-                </button>
-                <a href="{% url 'Perfil' %}" class="w-full sm:w-auto text-center bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded">
-                    Cancelar
-                </a>
+            <!-- Botones -->
+            <div class="flex gap-2 mt-2">
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-1 px-3 rounded">Guardar</button>
+                <button type="button" onclick="toggleEdit('password')" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded">Cancelar</button>
             </div>
-
         </form>
-    {% endif %}
+    </div>
 
-    <!-- Sección para desactivar cuenta -->
+    <!-- Email -->
+    <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <p class="text-gray-800">{{ request.user.email }}</p>
+    </div>
+
+    <!-- Eliminar cuenta -->
     <div class="mt-10 border-t pt-6 text-center">
-        <h3 class="text-lg font-semibold text-gray-800 mb-2">Desactivar cuenta</h3>
-        <p class="text-sm text-gray-600 mb-4">No vas a poder iniciar sesión hasta que se reactive.</p>
-
-        <button onclick="document.getElementById('modal').classList.remove('hidden')" 
-                class="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-2 px-4 rounded">
-            Desactivar cuenta
-        </button>
-    </div>
-</div>
-
-<!-- Modal de confirmación -->
-<div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-    <div class="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
-        <h2 class="text-lg font-bold text-gray-800 mb-4">¿Estás segura?</h2>
-        <p class="text-gray-600 mb-6">Esta acción desactivará tu cuenta.</p>
-
-        <form method="POST" action="{% url 'Perfil' %}">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">Eliminar cuenta</h3>
+        <form method="POST">
             {% csrf_token %}
-            <button type="submit" name="desactivar_cuenta" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded mr-2">
-                Sí, desactivar
-            </button>
-            <button type="button" onclick="document.getElementById('modal').classList.add('hidden')" 
-                    class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded">
-                Cancelar
+            <button type="submit" name="desactivar_cuenta" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded">
+                Confirmar
             </button>
         </form>
     </div>
 </div>
+
+<!-- Script para mostrar/ocultar formularios -->
+<script>
+function toggleEdit(field) {
+    const display = document.getElementById(`${field}-display`);
+    const form = document.getElementById(`${field}-form`);
+    display.classList.toggle('hidden');
+    form.classList.toggle('hidden');
+}
+</script>
 {% endblock %}

@@ -95,7 +95,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'due_date_db',
         'USER': 'root',
-        'PASSWORD': '12345',
+        'PASSWORD': 'DueDate123',
         'HOST': '127.0.0.1',
         'PORT': '3306',
         'OPTIONS': {
@@ -161,3 +161,6 @@ NPM_BIN_PATH = 'C:\\Program Files\\nodejs\\npm.cmd'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+LOGIN_URL = '/IniciarSesion/'
+LOGIN_REDIRECT_URL = '/Perfil/'
