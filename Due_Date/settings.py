@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'tailwind',
     'django_browser_reload',
     'Usuarios',
-    'Interfaz'
+    'Interfaz',
+    'Eventos',
 ]
 
 TAILWIND_APP_NAME = 'Interfaz'

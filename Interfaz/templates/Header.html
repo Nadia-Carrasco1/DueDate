@@ -1,5 +1,5 @@
-{% load static %}
-<nav class="bg-neutral-900 h-16 flex items-center font-normal">
+        {% load static %}
+        <nav class="bg-neutral-900 h-16 flex items-center font-normal">
             <ul class="flex w-full items-center *:inline-block">
                 <li class="px-4 py-4"><a href="{% url 'home' %}">Inicio</a></li>
 
@@ -7,29 +7,27 @@
                     <li class="ml-auto relative mr-4">
                         <div id="dropdown-boton" class="cursor-pointer rounded-full h-12 w-12" aria-expanded="false">
                             {% if perfil.foto %}
-                                <img src="{{ perfil.foto.url }}" alt="Foto de perfil" class="w-full h-full object-cover rounded-full">
+                                <img src="{{ perfil.foto.url }}" alt="Foto de perfil" class="w-full h-full object-cover rounded-full hover:opacity-75">
                             {% else %}
-                                <img src="{% static 'img/sin-foto-perfil.jpg' %}" alt="Foto de perfil" class="w-full h-full object-cover rounded-full">
+                                <img src="{% static 'img/sin-foto-perfil.jpg' %}" alt="Foto de perfil" class="w-full h-full object-cover rounded-full hover:opacity-75">
                             {% endif %}
                         </div>
 
                         <div id="dropdown-menu" class="absolute right-0 top-full mt-3 w-40 p-2 text-sm bg-neutral-700 rounded-md shadow-lg z-50 font-normal hidden">
                             <ul class="flex flex-col text-white/75">
                                 <a href="{% url 'Perfil' %}" class="py-1 px-2 hover:bg-neutral-600">
-                                    <li class="block w-full  rounded-sm"></li>
-                                    Perfil
+                                    <li>Perfil</li>
                                 </a>
                                 <hr class="border-neutral-600">
                                 <a href="{% url 'CerrarSesion' %}" class="py-1 px-2 hover:bg-neutral-600">
-                                    <li class="block w-full  rounded-sm"></li>
-                                    Cerrar sesión
+                                    <li>Cerrar sesión</li>
                                 </a>
                             </ul>
                         </div>
                     </li>
                 {% else %}
-                    <li class="ml-auto boton-nav"><a href="{% url 'IniciarSesion' %}">Iniciar sesión</a></li>
-                    <li class="mx-3 boton-nav"><a href="{% url 'Registrarse' %}">Registrarse</a></li>
+                    <a href="{% url 'IniciarSesion' %}" class="ml-auto boton-nav"><li>Iniciar sesión</li></a>
+                    <a href="{% url 'Registrarse' %}" class="mx-3 boton-nav"><li>Registrarse</li></a>
                 {% endif %}
             </ul>
         </nav>
