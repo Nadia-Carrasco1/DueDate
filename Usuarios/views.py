@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
-from django.contrib.auth import login, logout, update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import login, logout, update_session_auth_hash, authenticate
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
 from .forms import RegistroForm, UsuarioForm, PerfilForm, FotoPerfilForm, LoginForm
@@ -17,17 +17,22 @@ def Registrarse(request):
     if request.method == 'POST' and form.is_valid():
         user = form.save()
         Perfil.objects.create(user=user)
-        login(request, user)
+        username = form.cleaned_data.get('username')
+        password = form.cleaned_data.get('password1')
+        user = authenticate(request, username=username, password=password)
 
-        send_mail(
-            subject='Bienvenida a Due_Date',
-            message='Tu cuenta fue creada exitosamente.',
-            from_email='Due Date <nadia.carrasco@est.fi.uncoma.edu.ar>',
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
+        if user is not None:
+            login(request, user)
 
-        return redirect('home')
+            send_mail(
+                subject='Bienvenida a Due_Date',
+                message='Tu cuenta fue creada exitosamente.',
+                from_email='Due Date <nadia.carrasco@est.fi.uncoma.edu.ar>',
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+
+            return redirect('home')
 
     return render(request, 'Registrarse.html', {'form': form})
 
