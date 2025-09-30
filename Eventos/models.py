@@ -10,7 +10,7 @@ class ListaPendientes(models.Model):
     )
     fechaCreacion = models.DateTimeField(auto_now_add=True)
     fechaFin = models.DateTimeField(null=True, blank=None)
-    titulo = models.CharField(max_length=50)
+    titulo = models.CharField(max_length=50, default="Tareas pendientes")
 
     def __str__(self):
         return f"{self.titulo}"

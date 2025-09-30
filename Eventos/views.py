@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from Eventos.models import ListaPendientes
 from Eventos.forms import TareaForm
 
-MAX_TAREAS = 10 
+maxTareas = 10 
 
 @login_required
 def mostrarLista(request, pk):
@@ -22,9 +22,9 @@ def mostrarLista(request, pk):
     if request.method == 'POST':
         form = TareaForm(request.POST)
         
-        if tareas.count() >= MAX_TAREAS:
+        if tareas.count() >= maxTareas:
             form = TareaForm()
-            error_message = f"🚫 Límite de {MAX_TAREAS} tareas alcanzado."
+            error_message = f"🚫 Límite de {maxTareas} tareas alcanzado."
         
         elif form.is_valid():
             nueva_tarea = form.save(commit=False) 
