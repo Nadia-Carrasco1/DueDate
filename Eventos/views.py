@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from Eventos.models import ListaPendientes
@@ -42,3 +43,11 @@ def mostrarLista(request, pk):
     }
 
     return render(request, 'mostrarLista.html', contexto)
+
+@login_required
+def acceso_lista_unica(request):
+    lista, created = ListaPendientes.objects.get_or_create(
+        user=request.user
+    )
+    
+    return redirect(reverse('mostrarLista', kwargs={'pk': lista.pk}))

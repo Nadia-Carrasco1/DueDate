@@ -568,8 +568,6 @@ video {
 
 .bottom-2 {
   bottom: 0.5rem;
-.bottom-2 {
-  bottom: 0.5rem;
 }
 
 .right-0 {
@@ -650,6 +648,10 @@ video {
   display: block;
 }
 
+.inline-block {
+  display: inline-block;
+}
+
 .flex {
   display: flex;
 }
@@ -660,10 +662,6 @@ video {
 
 .hidden {
   display: none;
-}
-
-.h-1\/2 {
-  height: 50%;
 }
 
 .h-1\/2 {
@@ -858,14 +856,19 @@ video {
   border-color: rgb(82 82 82 / var(--tw-border-opacity, 1));
 }
 
-.bg-gray-700 {
+.bg-blue-600 {
   --tw-bg-opacity: 1;
-  background-color: rgb(55 65 81 / var(--tw-bg-opacity, 1));
+  background-color: rgb(37 99 235 / var(--tw-bg-opacity, 1));
 }
 
 .bg-gray-700 {
   --tw-bg-opacity: 1;
   background-color: rgb(55 65 81 / var(--tw-bg-opacity, 1));
+}
+
+.bg-green-100 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(220 252 231 / var(--tw-bg-opacity, 1));
 }
 
 .bg-green-600 {
@@ -922,10 +925,6 @@ video {
   padding: 0.25rem;
 }
 
-.p-1 {
-  padding: 0.25rem;
-}
-
 .p-2 {
   padding: 0.5rem;
 }
@@ -936,10 +935,6 @@ video {
 
 .p-4 {
   padding: 1rem;
-}
-
-.p-6 {
-  padding: 1.5rem;
 }
 
 .p-6 {
@@ -1013,22 +1008,6 @@ video {
   padding-top: 1.5rem;
 }
 
-.pb-2 {
-  padding-bottom: 0.5rem;
-}
-
-.pb-3 {
-  padding-bottom: 0.75rem;
-}
-
-.pl-10 {
-  padding-left: 2.5rem;
-}
-
-.pb-6 {
-  padding-bottom: 1.5rem;
-}
-
 .text-center {
   text-align: center;
 }
@@ -1082,6 +1061,11 @@ video {
 .text-gray-800 {
   --tw-text-opacity: 1;
   color: rgb(31 41 55 / var(--tw-text-opacity, 1));
+}
+
+.text-green-800 {
+  --tw-text-opacity: 1;
+  color: rgb(22 101 52 / var(--tw-text-opacity, 1));
 }
 
 .text-neutral-400 {
@@ -1164,9 +1148,7 @@ video {
 }
 
 .hover\:bg-gray-800:hover {
-.hover\:bg-gray-800:hover {
   --tw-bg-opacity: 1;
-  background-color: rgb(31 41 55 / var(--tw-bg-opacity, 1));
   background-color: rgb(31 41 55 / var(--tw-bg-opacity, 1));
 }
 
@@ -1201,6 +1183,18 @@ video {
 
 .hover\:opacity-75:hover {
   opacity: 0.75;
+}
+
+.disabled\:pointer-events-none:disabled {
+  pointer-events: none;
+}
+
+.disabled\:cursor-not-allowed:disabled {
+  cursor: not-allowed;
+}
+
+.disabled\:opacity-50:disabled {
+  opacity: 0.5;
 }
 
 @media (min-width: 640px) {

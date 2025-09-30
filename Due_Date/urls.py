@@ -31,6 +31,7 @@ urlpatterns = [
     path('Perfil/', views.verPerfil, name='Perfil'),
     path('ListaPendientes/', eventos_views.ListaPendientes, name="ListaPendientes"),
     path('Lista/<int:pk>/', eventos_views.mostrarLista, name="mostrarLista"),
+    path('MiLista/', eventos_views.acceso_lista_unica, name='acceso_lista_unica'),
     path('reenviar-confirmacion/', views.reenviar_confirmacion, name='reenviar_confirmacion'),
     path('confirmar/<uidb64>/<token>/', views.confirmar_registro, name='confirmar_registro'),
     path("__reload__/", include("django_browser_reload.urls")),
