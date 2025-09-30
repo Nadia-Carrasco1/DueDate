@@ -9,6 +9,9 @@ from .models import Perfil
 
 
 def Registrarse(request):
+    if request.user.is_authenticated:
+        return redirect('home')  
+
     form = RegistroForm(request.POST or None)
 
     if request.method == 'POST' and form.is_valid():
@@ -27,6 +30,7 @@ def Registrarse(request):
         return redirect('home')
 
     return render(request, 'Registrarse.html', {'form': form})
+
 
 def CerrarSesion(request):
     logout(request)
