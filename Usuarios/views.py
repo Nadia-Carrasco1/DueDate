@@ -60,6 +60,7 @@ def confirmar_registro(request, uidb64, token):
         perfil = Perfil.objects.get(user=user)
         perfil.confirmado = True
         perfil.save()
+        user.backend = 'Usuarios.backends.EmailOrUsernameModelBackend'
         login(request, user)
         return redirect('home')
     else:
