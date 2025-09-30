@@ -1,9 +1,12 @@
         {% load static %}
         <nav class="bg-neutral-900 h-16 flex items-center font-normal">
             <ul class="flex w-full items-center *:inline-block">
-                <li class="px-4 py-4"><a href="{% url 'home' %}">Inicio</a></li>
+                <li class="px-4 py-4"><a href="{% url 'home' %}">🟣</a></li>
 
                 {% if is_authenticated %}
+                    <li>
+                        <a href="{% url 'mostrarLista' pk=user.id %}">To-Do List</a>
+                    </li>
                     <li class="ml-auto relative mr-4">
                         <div id="dropdown-boton" class="cursor-pointer rounded-full h-12 w-12" aria-expanded="false">
                             {% if perfil.foto %}

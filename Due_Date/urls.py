@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from Usuarios import views
 from Interfaz import views as interfaz_views
+from Eventos import views as eventos_views
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -28,6 +29,8 @@ urlpatterns = [
     path('IniciarSesion/', views.IniciarSesion, name='IniciarSesion'),
     path('CerrarSesion/', views.CerrarSesion, name='CerrarSesion'),
     path('Perfil/', views.verPerfil, name='Perfil'),
+    path('ListaPendientes/', eventos_views.ListaPendientes, name="ListaPendientes"),
+    path('Lista/<int:pk>/', eventos_views.mostrarLista, name="mostrarLista"),
     path("__reload__/", include("django_browser_reload.urls")),
 ]
 

@@ -1,0 +1,22 @@
+{% extends 'Base.html' %}
+
+{% block tittle %}To-Do List{% endblock %}
+
+{% block content %}
+    <div class="bg-neutral-600 ">
+        {% if listas %}
+            <ul>
+                {% for lista in listas%}
+                    <li>
+                        <a href="{% url 'mostrarLista' pk=lista.id %}">
+                            <strong>{{ lista.titulo }}</strong>
+                        </a>
+                        (Creada el {{ lista.fechaCreacion|date:"d M, Y" }})
+
+                        - {{ lista.tareas.count }} tareas
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+{% endblock %}

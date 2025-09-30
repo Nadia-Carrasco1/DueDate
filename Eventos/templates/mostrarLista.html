@@ -1,0 +1,49 @@
+{% extends 'Base.html' %}
+
+{% block tittle %}To-Do List{% endblock %}
+
+{% block content %}
+<div class="flex justify-center min-h-screen h-fit p-6">
+    <div class="bg-neutral-700 p-4 rounded-md w-1/3 relative">
+        <h1 class="p-1 pl-0">{{ lista.titulo }}</h1>
+        <p>Creada el {{ lista.fechaCreacion|date:"d M, Y" }}</p>
+        {% if error_message %}
+            <span class="text-sm text-red p-1 pl-0">{{ error_message }}</span>
+        {% endif %}
+        <hr>
+
+        <h2 class="pt-1">Tareas ({{ tareas|length }})</h2>
+        
+        {% if tareas %}
+            <ul class="pt-2 *:p-2 *:pl-0">
+                {% for tarea in tareas %}
+                    <li>
+                        {% if tarea.completada %}
+                            ✅<span style="text-decoration: line-through; color: gray;"> {{ tarea.descripcion }}</span>
+                            <hr class="border-neutral-600">
+                        {% else %}
+                            <span>⬜ {{ tarea.descripcion }}</span> ⏳
+                            <hr class="border-neutral-600">
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>¡No hay tareas en esta lista!</p>
+        {% endif %}
+        <form method="POST" action="{% url 'mostrarLista' pk=lista.pk %}" class="absolute bottom-2">
+            {% csrf_token %}
+            
+            <div class="flex items-center space-x-2"> 
+                <div class="flex-grow pt-2"> 
+                    {{ form.descripcion }}
+                </div>
+                
+                <button type="submit" class="content-center bg-indigo-700 hover:bg-indigo-600 text-white font-bold py-1 px-2 rounded-full w-8 h-8">
+                    +
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

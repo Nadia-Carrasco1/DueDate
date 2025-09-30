@@ -6,6 +6,7 @@ module.exports = {
     './templates/**/*.html',  
     './Interfaz/**/*.py',
     './Usuarios/**/*.py',
+    './Eventos/templates/**/*.html',
   ],
   theme: {
     extend: {},
