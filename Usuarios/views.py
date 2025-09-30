@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import login, logout, update_session_auth_hash, authenticate
 from django.core.mail import send_mail
@@ -79,6 +80,7 @@ def verPerfil(request):
             foto_form = FotoPerfilForm(request.POST, request.FILES, instance=request.user.perfil)
             if foto_form.is_valid():
                 foto_form.save()
+                messages.success(request, "Foto de perfil actualizada correctamente.")
                 return redirect('Perfil')
 
         elif 'eliminar_foto' in request.POST:
@@ -86,6 +88,7 @@ def verPerfil(request):
             perfil.foto.delete(save=False)
             perfil.foto = None
             perfil.save()
+            messages.success(request, "Foto de perfil eliminada correctamente.")
             return redirect('Perfil')
 
         elif 'desactivar_cuenta' in request.POST:
@@ -95,8 +98,10 @@ def verPerfil(request):
 
         elif 'editar_usuario' in request.POST:
             user_form = UsuarioForm(request.POST, instance=request.user)
-            if user_form.is_valid() and user_form.has_changed():
-                user_form.save()
+            if user_form.is_valid():
+                if user_form.has_changed():
+                    user_form.save()
+                    messages.success(request, "Nombre de usuario actualizado correctamente.")
                 return redirect('Perfil')
             else:
                 campo_con_error = 'username'
@@ -110,19 +115,13 @@ def verPerfil(request):
             if password_form.is_valid():
                 password_form.save()
                 update_session_auth_hash(request, request.user)
+                messages.success(request, "Contraseña actualizada correctamente.")
                 return redirect('Perfil')
             else:
                 campo_con_error = 'password'
 
-        elif 'editar_perfil' in request.POST:
-            perfil_form = PerfilForm(request.POST, request.FILES, instance=request.user.perfil)
-            if perfil_form.is_valid() and perfil_form.has_changed():
-                perfil_form.save()
-                return redirect('Perfil')
-
     return render(request, 'Perfil.html', {
         'user_form': user_form,
-        'perfil_form': perfil_form,
         'password_form': password_form,
         'foto_form': foto_form,
         'perfil': request.user.perfil,
