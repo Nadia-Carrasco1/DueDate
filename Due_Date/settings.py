@@ -164,3 +164,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 LOGIN_URL = '/IniciarSesion/'
+
+AUTHENTICATION_BACKENDS = [
+    'Usuarios.backends.EmailOrUsernameModelBackend',
+    'django.contrib.auth.backends.ModelBackend',  
+]

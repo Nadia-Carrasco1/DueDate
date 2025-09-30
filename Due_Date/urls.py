@@ -28,6 +28,8 @@ urlpatterns = [
     path('IniciarSesion/', views.IniciarSesion, name='IniciarSesion'),
     path('CerrarSesion/', views.CerrarSesion, name='CerrarSesion'),
     path('Perfil/', views.verPerfil, name='Perfil'),
+    path('reenviar-confirmacion/', views.reenviar_confirmacion, name='reenviar_confirmacion'),
+    path('confirmar/<uidb64>/<token>/', views.confirmar_registro, name='confirmar_registro'),
     path("__reload__/", include("django_browser_reload.urls")),
 ]
 
