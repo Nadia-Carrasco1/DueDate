@@ -34,16 +34,26 @@ def CerrarSesion(request):
 
 def IniciarSesion(request):
     form = LoginForm(request, data=request.POST or None)
+    next_url = request.GET.get('next') or request.POST.get('next') or 'home'
 
     if request.method == 'POST' and form.is_valid():
-        login(request, form.get_user())
-        return redirect('home')
+        user = form.get_user()
+        if not user.is_active:
+            form.add_error(None, 'Tu cuenta está desactivada.')
+        else:
+            login(request, user)
+            return redirect(next_url)
 
-    return render(request, 'IniciarSesion.html', {'form': form})
+    return render(request, 'IniciarSesion.html', {
+        'form': form,
+        'next': next_url
+    })
+
 
 @login_required
 def verPerfil(request):
     modo_edicion = request.GET.get('editar') == '1'
+    campo_con_error = None
 
     user_form = UsuarioForm(instance=request.user)
     perfil_form = PerfilForm(instance=request.user.perfil)
@@ -72,23 +82,33 @@ def verPerfil(request):
         elif 'desactivar_cuenta' in request.POST:
             request.user.is_active = False
             request.user.save()
-            return redirect('home')  
+            return redirect('home')
 
-        else:
+        elif 'editar_usuario' in request.POST:
             user_form = UsuarioForm(request.POST, instance=request.user)
-            perfil_form = PerfilForm(request.POST, request.FILES, instance=request.user.perfil)
-            password_form = PasswordChangeForm(request.user, request.POST)
+            if user_form.is_valid() and user_form.has_changed():
+                user_form.save()
+                return redirect('Perfil')
+            else:
+                campo_con_error = 'username'
 
+        elif 'editar_contraseña' in request.POST:
+            password_form = PasswordChangeForm(request.user, request.POST)
             for field in password_form.fields.values():
                 field.widget.attrs.update({
                     'class': 'w-full px-3 py-2 border rounded text-gray-800'
                 })
+            if password_form.is_valid():
+                password_form.save()
+                update_session_auth_hash(request, request.user)
+                return redirect('Perfil')
+            else:
+                campo_con_error = 'password'
 
-            if user_form.is_valid() and perfil_form.is_valid() and password_form.is_valid():
-                user_form.save()
+        elif 'editar_perfil' in request.POST:
+            perfil_form = PerfilForm(request.POST, request.FILES, instance=request.user.perfil)
+            if perfil_form.is_valid() and perfil_form.has_changed():
                 perfil_form.save()
-                user = password_form.save()
-                update_session_auth_hash(request, user)
                 return redirect('Perfil')
 
     return render(request, 'Perfil.html', {
@@ -97,5 +117,7 @@ def verPerfil(request):
         'password_form': password_form,
         'foto_form': foto_form,
         'perfil': request.user.perfil,
-        'modo_edicion': modo_edicion
+        'modo_edicion': modo_edicion,
+        'campo_con_error': campo_con_error
     })
+
