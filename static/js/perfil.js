@@ -20,13 +20,12 @@ document.addEventListener('DOMContentLoaded', function () {
         fileInput.addEventListener('change', function () {
             if (fileInput.files.length > 0) {
                 subirBtn.classList.remove('hidden');
-                activarCambioFoto(); // 👈 Asegura que todo se oculte si el usuario selecciona directamente
+                activarCambioFoto(); 
             } else {
                 subirBtn.classList.add('hidden');
             }
         });
 
-        // 👇 Si ya hay un archivo seleccionado (por ejemplo, tras recarga), activamos el modo cambio
         if (fileInput.files.length > 0) {
             activarCambioFoto();
         }
