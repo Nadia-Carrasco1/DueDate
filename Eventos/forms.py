@@ -10,6 +10,7 @@ class TareaForm(forms.ModelForm):
             'descripcion': forms.TextInput(attrs={
                 'autocomplete': 'off',
                 'name': 'task_input',
+                'maxlength': '20',
                 'class': 'w-full bg-neutral-800 text-white p-2 rounded-md border border-neutral-600 focus:outline-none focus:border-indigo-500',
                 'placeholder': 'Agregar nueva tarea...',
             })
