@@ -47,9 +47,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'tailwind',
     'django_browser_reload',
+    'widget_tweaks',
     'Usuarios',
     'Interfaz',
     'Eventos',
+    'Cronometro.apps.CronometroConfig',
 ]
 
 TAILWIND_APP_NAME = 'Interfaz'
@@ -128,11 +130,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'es-ar'  # Idioma por defecto: español argentino
 
+USE_TZ = True
 TIME_ZONE = 'America/Argentina/Buenos_Aires'
 
 USE_I18N = True
 USE_L10N = True
-USE_TZ = True
 
 # Idiomas disponibles
 from django.utils.translation import gettext_lazy as _

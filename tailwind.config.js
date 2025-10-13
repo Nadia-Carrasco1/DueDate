@@ -7,6 +7,7 @@ module.exports = {
     './Interfaz/**/*.py',
     './Usuarios/**/*.py',
     './Eventos/templates/**/*.html',
+    './Cronometro/templates/**/*.html',
   ],
   theme: {
     extend: {},

@@ -1,0 +1,96 @@
+{% extends 'Base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block tittle %}Cronómetro de estudio{% endblock %}
+
+{% block content %}
+    <div class="flex min-h-screen">
+        <!-- Panel lateral -->
+        <div class="bg-neutral-900 w-1/6 p-3 rounded-lg">
+            <div class="flex justify-between">
+                <h3 class="font-bold">Panel</h3>
+                <img src="{% static 'img/burger-menu.svg' %}" alt="Icono de menu" class="h-6 w-6 hover:text-white transition duration-200">
+            </div>
+            <br>
+            <ul class="*:p-1 *:pl-0">
+                <li><a href="{% url 'acceso_lista_unica' %}" ><h3 class="hover:underline">To-Do List 📝</h3></a></li>
+                <li><a href="{% url 'cronometro' %}" ><h3 class="hover:underline">Cronómetro ⏱</h3></a></li>
+                <li>Item 3</li>
+            </ul>
+        </div>
+
+        <!-- Cronómetro -->
+        <div class="w-full flex flex-col items-center justify-center p-4 bg-gradient-to-r from-indigo-700 from-10% via-indigo-800 via-30% to-indigo-900 to-90%">
+            <p id="cronometro" class="text-4xl font-mono mb-20">
+                00:00:00
+            </p>
+            {% if repeticiones > 0 %}
+                <p id="repeticiones">Rep: 0/{{ repeticiones }}</p>
+                <p id="modo-actual">Modo estudio</p>
+            {% endif %}
+
+            <!-- Botones de control -->
+            <div class="flex justify-center space-x-4 mb-6">
+                <button id="btn-iniciar" class="bg-black/30 text-white px-4 py-2 rounded">▶</button>
+                <button id="btn-pausar" class="bg-black/30 text-white px-4 py-2 rounded">⏸</button>
+                <button class="bg-black/30 text-white px-4 py-2 rounded">Definir tiempos</button>
+                <button class="bg-black/30 text-white px-4 py-2 rounded">Sonidos</button>
+            </div>
+
+            <form method="POST" action="{% url 'crear_sesion_estudio' %}" class="bg-neutral-900 p-6 rounded-md w-full max-w-xl mx-auto">
+                {% csrf_token %}
+
+                <div class="flex flex-col md:flex-row gap-6">
+                    <!-- Radios -->
+                    <div class="md:w-2/3">
+                        <label for="{{ form.opciones_radio.id_for_label }}" class="block text-sm font-medium text-white mb-2">
+                            {{ form.opciones_radio.label }}
+                        </label>
+                        <div id="id_opciones_radio" class="space-y-1">
+                            {% for radio in form.opciones_radio %}
+                                <label class="flex items-center p-2 rounded-md border border-neutral-700 hover:bg-neutral-800 cursor-pointer w-full text-white">
+                                    {{ radio.tag }}
+                                    <span class="ml-2">{{ radio.choice_label }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Repeticiones -->
+                    <div class="md:w-1/3">
+                        <label for="{{ form.repeticiones.id_for_label }}" class="block text-sm font-medium text-white mb-2">
+                            {{ form.repeticiones.label }}
+                        </label>
+                        {{ form.repeticiones|add_class:"w-full px-3 py-2 rounded-md bg-neutral-800 text-white border border-neutral-700 cursor-pointer" }}
+                    </div>
+                </div>
+
+                {% if form.errors %}
+                    <div class="text-red-500 text-sm mt-4">
+                        {{ form.errors }}
+                    </div>
+                {% endif %}
+
+                <!-- Botón abajo alineado a la derecha -->
+                <div class="pt-6 text-right">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded">
+                        Aceptar
+                    </button>
+                </div>
+            </form>
+
+        </div>
+
+        <div 
+            id="cronometro-data"
+            data-tiempo-estudio="{{ tiempo_estudio_segundos }}"
+            data-tiempo-descanso="{{ tiempo_descanso_segundos }}"
+            data-repeticiones="{{ repeticiones }}"
+            data-sesion-id="{{ sesion }}"
+            data-csrf-token="{{ csrf_token }}"
+            data-finalizar-url="{% url 'finalizar_sesion' %}"
+        ></div>
+        <script src="{% static 'js/cronometro.js' %}"></script>
+    </div>
+{% endblock %}
