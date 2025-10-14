@@ -320,6 +320,12 @@
           document.getElementById('modalConfirmarEliminar').classList.add('hidden');
         });
       }
+      const btnConfirmarEliminar = document.getElementById('confirmarEliminarBtn');
+      if (btnConfirmarEliminar) {
+        btnConfirmarEliminar.addEventListener('click', () => {
+          formEliminar.submit();
+        });
+      }
 
       document.querySelectorAll('.mensaje-django').forEach(msg => {
         setTimeout(() => {
