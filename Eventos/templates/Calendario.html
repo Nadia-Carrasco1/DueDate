@@ -1,0 +1,359 @@
+{% extends 'Base.html' %}
+
+{% block tittle %}Calendario{% endblock %}
+
+{% block content %}
+
+
+
+
+{% if messages %}
+  <div id="djangoMessages" class="max-w-4xl mx-auto mb-4">
+    {% for message in messages %}
+      <div class="mensaje-django p-3 rounded text-white shadow transition-opacity duration-500
+                  {% if message.tags == 'success' %}bg-green-600
+                  {% elif message.tags == 'error' %}bg-red-600
+                  {% elif message.tags == 'info' %}bg-blue-600
+                  {% else %}bg-gray-600{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div class="container mx-auto p-4">
+  <div id="calendar" class="bg-purple-100 text-purple-900 p-4 rounded shadow max-w-4xl h-[80vh] overflow-auto mx-auto"></div>
+</div>
+
+<!-- MODAL CREAR -->
+<div id="modalCrearEvento" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-neutral-900 text-white p-6 rounded w-full max-w-md shadow-lg relative">
+    <button id="cerrarModalBtn" class="cerrar-modal absolute top-2 right-2 text-white">&times;</button>
+    <h2 class="text-xl font-bold mb-4 text-purple-400">Nuevo Evento</h2>
+    <form id="eventoForm" method="POST" action="{% url 'calendario' %}">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="text-red-500 mb-2">
+          {{ form.non_field_errors }}
+        </div>
+      {% endif %}
+      {{ form.as_p }}
+      <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded mt-2">Guardar</button>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL VER -->
+<div id="modalVerEvento" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-neutral-900 text-white p-6 rounded w-full max-w-md shadow-lg relative">
+    <button id="cerrarVerModalBtn" class="cerrar-modal absolute top-2 right-2 text-white">&times;</button>
+    <h2 class="text-xl font-bold mb-4 text-purple-400">Evento</h2>
+    <div id="detalleEvento" class="mb-4">
+      <p><strong>Título:</strong> <span id="eventoTitulo"></span></p>
+      <p><strong>Inicio:</strong> <span id="eventoInicio"></span></p>
+      <p><strong>Fin:</strong> <span id="eventoFin"></span></p>
+      <p><strong>Descripción:</strong> <span id="eventoDescripcion"></span></p>
+      <p><strong>Recordatorio:</strong> <span id="eventoRecordatorio"> </span><span id="eventoRecordatorioFecha"></span></p>
+      <p><strong>Repetición:</strong> <span id="eventoRepeticion"></span></p>
+    </div>
+    <div class="flex gap-2">
+      <button id="abrirEditarModalBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">Editar</button>
+      <form id="formEliminarEvento" method="POST" action="{% url 'eliminar_evento' %}">
+        {% csrf_token %}
+        <input type="hidden" name="evento_id" id="eventoIdEliminar">
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">Eliminar</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR -->
+<div id="modalEditarEvento" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-neutral-900 text-white p-6 rounded w-full max-w-md shadow-lg relative">
+    <button id="cerrarEditarModalBtn" class="cerrar-modal absolute top-2 right-2 text-white">&times;</button>
+    <h2 class="text-xl font-bold mb-4 text-purple-400">Editar Evento</h2>
+
+    <div class="form-wrapper"></div>
+
+    <div id="mensajeErrorEditar" class="hidden text-red-500 text-sm mt-2"></div>
+    <div id="mensajeSinCambios" class="hidden text-yellow-400 text-sm mt-2"></div>
+  </div>
+</div>
+
+
+<!-- MODAL CONFIRMAR ELIMINAR -->
+<div id="modalConfirmarEliminar" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-neutral-900 text-white p-6 rounded w-full max-w-sm shadow-lg text-center">
+    <h2 class="text-lg font-bold text-red-400 mb-4">Eliminar evento</h2>
+    <p class="mb-4">¿Quieres ejecutar esta acción?</p>
+    <div class="flex justify-center gap-4">
+      <button id="cancelarEliminarBtn" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded">Cancelar</button>
+      <button id="confirmarEliminarBtn" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">Eliminar</button>
+    </div>
+  </div>
+</div>
+{% block extra_scripts %}
+  <script src="https://unpkg.com/@popperjs/core@2"></script>
+  <script src="https://unpkg.com/tippy.js@6"></script>
+  <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/light.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/rrule@2.6.8/dist/es5/rrule.min.js"></script>
+  <script>window.RRule = window.RRule;</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.8/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.8/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/list@6.1.8/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/interaction@6.1.8/index.global.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/rrule@6.1.8/index.global.min.js"></script>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const formEliminar = document.getElementById('formEliminarEvento');
+      const modalConfirmar = document.getElementById('modalConfirmarEliminar');
+
+      if (formEliminar) {
+        formEliminar.addEventListener('submit', function (e) {
+          e.preventDefault(); 
+          modalConfirmar.classList.remove('hidden'); 
+        });
+      }
+      const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+        initialView: 'dayGridMonth',
+        timeZone: 'local',
+        locale: 'es',
+        editable: true,
+        eventResizableFromStart: true,
+        events: '/eventos_json/',
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
+        },
+        buttonText: {
+          today: 'Hoy',
+          month: 'Mes',
+          week: 'Semana',
+          day: 'Día'
+        },
+        dateClick: function(info) {
+          const modal = document.getElementById('modalCrearEvento');
+          const fiInput = document.querySelector('input[name="fecha_inicio"]');
+          const ffInput = document.querySelector('input[name="fecha_fin"]');
+          const recInput = document.querySelector('input[name="recordatorio_fecha_hora"]');
+          const fechaInicio = new Date(info.dateStr + "T12:00");
+          const fechaFin = new Date(fechaInicio.getTime() + 60 * 60 * 1000);
+          const formatoLocal = fecha => fecha.toISOString().slice(0, 16);
+
+          fiInput.value = formatoLocal(fechaInicio);
+          ffInput.value = formatoLocal(fechaFin);
+          ffInput.min = fiInput.value;
+
+          if (recInput) {
+            recInput.max = fiInput.value;
+            if (recInput.value > fiInput.value) {
+              recInput.value = fiInput.value;
+            }
+          }
+
+          modal.classList.remove('hidden');
+        },
+        eventClick: function(info) {
+          const evento = info.event;
+          const modal = document.getElementById('modalVerEvento');
+          const opciones = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false };
+          const esRecurrente = evento._def.recurringDef != null;
+
+          document.getElementById('eventoRepeticion').textContent = esRecurrente ? 'Este evento se repite cada año' : '—';
+          document.getElementById('eventoTitulo').textContent = evento.title;
+          document.getElementById('eventoInicio').textContent = evento.start.toLocaleString('es-AR', opciones);
+          document.getElementById('eventoFin').textContent = evento.end ? evento.end.toLocaleString('es-AR', opciones) : evento.start.toLocaleString('es-AR', opciones);
+          document.getElementById('eventoDescripcion').textContent = evento.extendedProps.descripcion || '—';
+          document.getElementById('eventoRecordatorio').textContent = evento.extendedProps.recordatorio_fecha_hora ? 'activado - ' : 'no activado';
+          document.getElementById('eventoRecordatorioFecha').textContent = evento.extendedProps.recordatorio_fecha_hora
+            ? new Date(evento.extendedProps.recordatorio_fecha_hora).toLocaleString('es-AR', opciones)
+            : '';
+          document.getElementById('eventoIdEliminar').value = evento.id;
+
+          document.getElementById('abrirEditarModalBtn').onclick = function () {
+            fetch(`/obtener-formulario-edicion/${evento.id}/`)
+              .then(response => response.text())
+              .then(html => {
+                const wrapper = document.querySelector('#modalEditarEvento .form-wrapper');
+                wrapper.innerHTML = html;
+                const form = wrapper.querySelector('form');
+                const originalData = new FormData(form);
+                form.dataset.original = JSON.stringify(Object.fromEntries(originalData));
+
+                const fiInput = form.querySelector('input[name="fecha_inicio"]');
+                const ffInput = form.querySelector('input[name="fecha_fin"]');
+                const recInput = form.querySelector('input[name="recordatorio_fecha_hora"]');
+
+                if (fiInput && ffInput) {
+                  ffInput.min = fiInput.value;
+
+                  if (ffInput.value < fiInput.value) {
+                    ffInput.value = fiInput.value;
+                  }
+
+                  fiInput.addEventListener('change', () => {
+                    ffInput.min = fiInput.value;
+                    if (ffInput.value < fiInput.value) {
+                      ffInput.value = fiInput.value;
+                    }
+
+                    if (recInput) {
+                      recInput.max = fiInput.value;
+                      if (recInput.value > fiInput.value) {
+                        recInput.value = fiInput.value;
+                      }
+                    }
+                  });
+                }
+
+                if (recInput && fiInput) {
+                  recInput.max = fiInput.value;
+
+                  recInput.addEventListener('change', () => {
+                    if (recInput.value > fiInput.value) {
+                      recInput.value = fiInput.value;
+                    }
+                  });
+                }
+
+                form.addEventListener('submit', function (e) {
+                  e.preventDefault();
+                  const csrftoken = getCookie('csrftoken');
+                  const formData = new FormData(form);
+                  const mensajeError = document.getElementById('mensajeErrorEditar');
+                  const mensajeSinCambios = document.getElementById('mensajeSinCambios');
+
+                  mensajeError.textContent = '';
+                  mensajeError.classList.add('hidden');
+                  mensajeSinCambios.textContent = '';
+                  mensajeSinCambios.classList.add('hidden');
+
+                  fetch(`/editar_evento/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrftoken },
+                    body: formData
+                  })
+                  .then(resp => resp.json())
+                  .then(data => {
+                    if (data.status === 'ok') {
+                      document.getElementById('modalEditarEvento').classList.add('hidden');
+                      calendar.refetchEvents();
+                    } else {
+                      if (data.message === 'sin_cambios') {
+                        mensajeSinCambios.textContent = 'No se realizaron cambios en el evento.';
+                        mensajeSinCambios.classList.remove('hidden');
+                      } else {
+                        let msg = data.message;
+                        try {
+                          const parsed = JSON.parse(msg);
+                          msg = Object.values(parsed).map(val => val[0].message).join('\n');
+                        } catch (e) {}
+                        mensajeError.textContent = msg || 'Ocurrió un error al guardar.';
+                        mensajeError.classList.remove('hidden');
+                      }
+                    }
+                  })
+                  .catch(() => {
+                    mensajeError.textContent = 'Error de red. Intente nuevamente.';
+                    mensajeError.classList.remove('hidden');
+                  });
+
+                });
+
+                document.getElementById('modalVerEvento').classList.add('hidden');
+                document.getElementById('modalEditarEvento').classList.remove('hidden');
+              });
+          };
+          modal.classList.remove('hidden');
+        },
+        eventDrop: function(info) {
+          fetch(`/actualizar-fecha/${info.event.id}/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+              fecha_inicio: info.event.start.toISOString(),
+              fecha_fin: info.event.end ? info.event.end.toISOString() : null
+            })
+          }).then(() => calendar.refetchEvents());
+        },
+        eventResize: function(info) {
+          fetch(`/actualizar-fecha/${info.event.id}/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+              fecha_inicio: info.event.start.toISOString(),
+              fecha_fin: info.event.end.toISOString()
+            })
+          }).then(() => calendar.refetchEvents());
+        },
+        eventDidMount: function(info) {
+          if (info.event.extendedProps.descripcion) {
+            tippy(info.el, {
+              content: info.event.extendedProps.descripcion,
+              placement: 'top',
+              theme: 'light'
+            });
+          }
+        }
+      });
+      document.querySelectorAll('.cerrar-modal').forEach(btn => {
+        btn.addEventListener('click', () => {
+          btn.closest('.fixed').classList.add('hidden');
+        });
+      });
+
+      const btnCancelar = document.getElementById('cancelarEliminarBtn');
+      if (btnCancelar) {
+        btnCancelar.addEventListener('click', () => {
+          document.getElementById('modalConfirmarEliminar').classList.add('hidden');
+        });
+      }
+
+      document.querySelectorAll('.mensaje-django').forEach(msg => {
+        setTimeout(() => {
+          msg.classList.add('opacity-0');
+        }, 4000);
+      });
+      calendar.render();
+    });
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+          cookie = cookie.trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+  </script>
+
+  {% if form.errors %}
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        var modal = document.getElementById('modalCrearEvento');
+        if (modal) {
+          modal.classList.remove('hidden');
+        }
+      });
+    </script>
+  {% endif %}
+{% endblock %}
+{% endblock %}

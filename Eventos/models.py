@@ -26,3 +26,18 @@ class Tarea(models.Model):
 
     def __str__(self):
         return f"Tarea: {self.descripcion[:20]}..."
+    
+
+class Evento(models.Model):
+    titulo = models.CharField(max_length=200)
+    fecha_inicio = models.DateTimeField()
+    fecha_fin = models.DateTimeField(null=True, blank=True)
+    descripcion = models.TextField(blank=True)
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    recordatorio_fecha_hora = models.DateTimeField(null=True, blank=True)
+    recordatorio_enviado = models.BooleanField(default=False)
+    repetir_anualmente = models.BooleanField(default=False, verbose_name="Repetir cada año")
+
+    def __str__(self):
+        return self.titulo
