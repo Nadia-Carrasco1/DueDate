@@ -5,3 +5,7 @@
 .boton-nav {
     @apply px-2 py-2 bg-indigo-700/50 hover:bg-indigo-700/80 rounded-md;
 }
+
+.boton-cronometro {
+    @apply bg-black/30 text-white px-4 py-2 hover:bg-black/60
+}

@@ -4,7 +4,7 @@ from datetime import timedelta
 
 class SesionEstudioForm(forms.ModelForm):
     ESTUDIO_OPCIONES=[
-        ("1-0", "1m estudio - 0m descanso"),
+        ("1-1", "1m estudio - 1m descanso"),
         ("10-5", "10m estudio - 5m descanso"),
         ("20-5", "20m estudio - 5m descanso"),
         ("40-8", "40m estudio - 8m descanso"),

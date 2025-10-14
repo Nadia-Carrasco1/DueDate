@@ -7,7 +7,7 @@
 {% block content %}
     <div class="flex min-h-screen">
         <!-- Panel lateral -->
-        <div class="bg-neutral-900 w-1/6 p-3 rounded-lg">
+        <div class="bg-neutral-900 w-1/6 p-3">
             <div class="flex justify-between">
                 <h3 class="font-bold">Panel</h3>
                 <img src="{% static 'img/burger-menu.svg' %}" alt="Icono de menu" class="h-6 w-6 hover:text-white transition duration-200">
@@ -21,8 +21,8 @@
         </div>
 
         <!-- Cronómetro -->
-        <div class="w-full flex flex-col items-center justify-center p-4 bg-gradient-to-r from-indigo-700 from-10% via-indigo-800 via-30% to-indigo-900 to-90%">
-            <p id="cronometro" class="text-4xl font-mono mb-20">
+        <div class="w-full flex flex-col items-center justify-center relative p-4 bg-gradient-to-r from-indigo-700 from-10% via-indigo-800 via-30% to-indigo-900 to-90%">
+            <p id="cronometro" class="bg-black/30 rounded-lg w-1/2 font-mono flex justify-center p-7 text-4xl font-semibold mb-40 text-7xl">
                 00:00:00
             </p>
             {% if repeticiones > 0 %}
@@ -30,56 +30,85 @@
                 <p id="modo-actual">Modo estudio</p>
             {% endif %}
 
+            <!-- Audios -->
+            <audio id="audio-fin-estudio" src="{% static 'audios/fin-estudio.mp3' %}"></audio>
+            <audio id="audio-fin-descanso" src="{% static 'audios/fin-descanso.mp3' %}"></audio>
+            <audio id="audio-fin-sesion-estudio" src="{% static 'audios/fin-sesion-estudio.mp3' %}"></audio>
+
             <!-- Botones de control -->
             <div class="flex justify-center space-x-4 mb-6">
-                <button id="btn-iniciar" class="bg-black/30 text-white px-4 py-2 rounded">▶</button>
-                <button id="btn-pausar" class="bg-black/30 text-white px-4 py-2 rounded">⏸</button>
-                <button class="bg-black/30 text-white px-4 py-2 rounded">Definir tiempos</button>
-                <button class="bg-black/30 text-white px-4 py-2 rounded">Sonidos</button>
+                <button id="btn-iniciar" class="boton-cronometro rounded-full"><img src="{% static 'img/play.svg' %}" alt="Boton play" class="h-5 w-5"></button>
+                <button id="btn-pausar" class="boton-cronometro rounded-full"><img src="{% static 'img/pausar.svg' %}" alt="Boton pausar" class="h-5 w-5"></button>
+                <button id="btn-definir-tiempos" class="boton-cronometro rounded">Definir tiempos</button>
+                <!-- <button class="boton-cronometro rounded">Sonidos</button> -->
             </div>
 
-            <form method="POST" action="{% url 'crear_sesion_estudio' %}" class="bg-neutral-900 p-6 rounded-md w-full max-w-xl mx-auto">
-                {% csrf_token %}
+            <div id="modal-definir-tiempos" class="absolute inset-0 bg-black/40 flex items-center justify-center z-30 hidden">
+                <form method="POST" action="{% url 'crear_sesion_estudio' %}" id="form-definir-tiempos" class="bg-neutral-900 p-6 rounded-md w-full max-w-xl mx-auto hidden">
+                    {% csrf_token %}
 
-                <div class="flex flex-col md:flex-row gap-6">
-                    <!-- Radios -->
-                    <div class="md:w-2/3">
-                        <label for="{{ form.opciones_radio.id_for_label }}" class="block text-sm font-medium text-white mb-2">
-                            {{ form.opciones_radio.label }}
-                        </label>
-                        <div id="id_opciones_radio" class="space-y-1">
-                            {% for radio in form.opciones_radio %}
-                                <label class="flex items-center p-2 rounded-md border border-neutral-700 hover:bg-neutral-800 cursor-pointer w-full text-white">
-                                    {{ radio.tag }}
-                                    <span class="ml-2">{{ radio.choice_label }}</span>
-                                </label>
-                            {% endfor %}
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <!-- Radios -->
+                        <div class="md:w-2/3">
+                            <label for="{{ form.opciones_radio.id_for_label }}" class="block text-sm font-medium text-white mb-2">
+                                {{ form.opciones_radio.label }}
+                            </label>
+                            <div id="id_opciones_radio" class="space-y-1">
+                                {% for radio in form.opciones_radio %}
+                                    <label class="flex items-center p-2 rounded-md border border-neutral-700 hover:bg-neutral-800 cursor-pointer w-full text-white">
+                                        {{ radio.tag }}
+                                        <span class="ml-2">{{ radio.choice_label }}</span>
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Repeticiones -->
+                        <div class="md:w-1/3">
+                            <label for="{{ form.repeticiones.id_for_label }}" class="block text-sm font-medium text-white mb-2">
+                                {{ form.repeticiones.label }}
+                            </label>
+                            {{ form.repeticiones|add_class:"w-full px-3 py-2 rounded-md bg-neutral-800 text-white border border-neutral-700 cursor-pointer" }}
                         </div>
                     </div>
 
-                    <!-- Repeticiones -->
-                    <div class="md:w-1/3">
-                        <label for="{{ form.repeticiones.id_for_label }}" class="block text-sm font-medium text-white mb-2">
-                            {{ form.repeticiones.label }}
-                        </label>
-                        {{ form.repeticiones|add_class:"w-full px-3 py-2 rounded-md bg-neutral-800 text-white border border-neutral-700 cursor-pointer" }}
+                    {% if form.errors %}
+                        <div class="text-red-500 text-sm mt-4">
+                            {{ form.errors }}
+                        </div>
+                    {% endif %}
+
+                    <!-- Botón abajo alineado a la derecha -->
+                    <div class="pt-6 text-right">
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded">
+                            Aceptar
+                        </button>
+                        <button id="cerrar-form" class="bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-6 rounded">
+                            Cancelar
+                        </button>
                     </div>
+                </form>
+            </div>
+
+            <audio id="sonido-lluvia" src="{% static 'audios/lluvia.mp3' %}"></audio>
+            <audio id="sonido-chimenea" src="{% static 'audios/chimenea.mp3' %}"></audio>
+            <audio id="sonido-naturaleza" src="{% static 'audios/naturaleza.mp3' %}"></audio>
+            <audio id="sonido-ambiente" src="{% static 'audios/ambiente.mp3' %}"></audio>
+
+            <div id="barra-sonido" class="w-full absolute bottom-12 mb-3 z-20 flex justify-between min-h-12 bg-neutral-900/80 p-4">
+                <div id="barra-sonido-dinamica">
                 </div>
 
-                {% if form.errors %}
-                    <div class="text-red-500 text-sm mt-4">
-                        {{ form.errors }}
+                 <div class="flex items-center justify-between">
+                    <span class="pl-1"><input type="radio" name="sonido-ambiente" id="lluvia"> Lluvia</span>
+                    <span class="pl-1"><input type="radio" name="sonido-ambiente" id="chimenea"> Chimenea</span>
+                    <span class="pl-1"><input type="radio" name="sonido-ambiente" id="naturaleza"> Naturaleza</span>
+                    <span class="pl-1"><input type="radio" name="sonido-ambiente" id="ambiente"> Ambiente</span>
+                    <div class="pl-6">
+                        <img id="icono-pantalla-completa" src="{% static 'img/pantalla-completa.svg' %}" alt="Icono pantalla completa" class="h-6 w-6 cursor-pointer">
                     </div>
-                {% endif %}
-
-                <!-- Botón abajo alineado a la derecha -->
-                <div class="pt-6 text-right">
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded">
-                        Aceptar
-                    </button>
                 </div>
-            </form>
-
+            </div>
         </div>
 
         <div 
@@ -91,6 +120,15 @@
             data-csrf-token="{{ csrf_token }}"
             data-finalizar-url="{% url 'finalizar_sesion' %}"
         ></div>
+        <script>
+            window.rutaPlaySvg = "{% static 'img/play.svg' %}";
+            window.rutaConVolumen = "{% static 'img/con-volumen.svg' %}";
+            window.rutaSinVolumen = "{% static 'img/sin-volumen.svg' %}";
+            window.rutaPlay = "{% static 'img/play.svg' %}";
+            window.rutaPausar = "{% static 'img/pausar.svg' %}";
+        </script>
         <script src="{% static 'js/cronometro.js' %}"></script>
+        <script src="{% static 'js/sonidos-ambiente-cronometro.js' %}"></script>
+        <script src="{% static 'js/mostrar-form-definir-tiempos.js' %}"></script>
     </div>
 {% endblock %}

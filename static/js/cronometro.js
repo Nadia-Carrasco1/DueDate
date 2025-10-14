@@ -23,6 +23,9 @@
     const cronometro = document.getElementById('cronometro');
     const btnIniciar = document.getElementById('btn-iniciar');
     const btnPausar = document.getElementById('btn-pausar');
+    const audioFinEstudio = document.getElementById('audio-fin-estudio')
+    const audioFinDescanso = document.getElementById('audio-fin-descanso')
+    const audioFinSesionEstudio = document.getElementById('audio-fin-sesion-estudio')
 
     function actualizarVista() {
         const horas = Math.floor(tiempoRestante / 3600);
@@ -74,6 +77,8 @@
         btnIniciar.disabled = false;
 
         if (esModoEstudio) {
+            audioFinDescanso.play();
+
             visorModo.innerHTML = "Modo <span>estudio</span>";
             tiempoRestante = tiempoEstudioInicial;
             iniciarTemporizador()
@@ -81,11 +86,15 @@
             repeticionesSesionActual++;
             
             if (repeticionesSesionActual < repeticionesTotales) {
+                audioFinEstudio.play();
+
                 visorRepeticiones.innerHTML = `${repeticionesSesionActual}/${repeticionesTotales}`;
                 tiempoRestante = tiempoDescansoInicial;
                 visorModo.innerHTML = "Modo <span>descanso</span>";
                 iniciarTemporizador()
             } else {
+                audioFinSesionEstudio.play();
+
                 visorRepeticiones.innerHTML = "";
                 cronometro.innerHTML = "00:00:00";
                 visorModo.innerHTML = `${repeticionesSesionActual}/${repeticionesTotales} <span>Sesión finalizada ✅</span>`;
@@ -93,7 +102,6 @@
                 btnPausar.disabled = true;
                 finalizarSesion();
             }
-            console.log('rep: ' + repeticionesSesionActual, ' tiempo: ' + tiempoEstudioInicial)
         }
         actualizarVista();
     }
