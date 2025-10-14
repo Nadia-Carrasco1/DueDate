@@ -43,7 +43,14 @@ urlpatterns = [
     # Cronómetro
     path('Cronometro/', cronometro_views.mostrar_cronometro, name='cronometro'),
     path('CrearSesionEstudio/', cronometro_views.crear_sesion_estudio, name='crear_sesion_estudio'),
-    path('finalizar-sesion/', cronometro_views.finalizar_sesion, name='finalizar_sesion')
+    path('finalizar-sesion/', cronometro_views.finalizar_sesion, name='finalizar_sesion'),
+    # Calendario
+    path('calendario/', eventos_views.calendario_view, name='calendario'),
+    path('eventos_json/', eventos_views.eventos_json, name='eventos_json'),
+    path('editar_evento/', eventos_views.editar_evento, name='editar_evento'),    
+    path('obtener-formulario-edicion/<int:evento_id>/', eventos_views.obtener_formulario_edicion, name='obtener_formulario_edicion'),
+    path('eliminar-evento/', eventos_views.eliminar_evento, name='eliminar_evento'),
+    path('actualizar-fecha/<int:evento_id>/', eventos_views.actualizar_fecha, name='actualizar_fecha'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
