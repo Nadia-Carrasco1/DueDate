@@ -1,6 +1,6 @@
 $(document).ready(function() {
+    //const tareasTotales = document.getElementById('tareas-totales');
     const $cantTareasPendientes = $('#cant_tareas_pendientes');
-    
     function revertirCambios($checkbox, $elementoSpan, $contadorSpan, noChecked, contadorAnterior) {
         $checkbox.prop('checked', !noChecked); 
         $contadorSpan.text(contadorAnterior);
@@ -12,6 +12,8 @@ $(document).ready(function() {
     }
 
     $('.tarea-checkbox').on('change', function() {
+        console.log($cantTareasPendientes);
+
         var $checkbox = $(this);
         var $elementoSpan = $checkbox.closest('label').find('span');
         var tareaId = $checkbox.data('tarea-id'); 
@@ -24,12 +26,12 @@ $(document).ready(function() {
         if (estaChecked) {
             var nuevoValor = contadorActual > 0 ? contadorActual - 1 : 0;
 
-            $cantTareasPendientes.text(nuevoValor + '/10');
+            $cantTareasPendientes.text(nuevoValor);
             $elementoSpan.css({'text-decoration': 'line-through', 'color': 'gray'});
         } else {
             var nuevoValor = contadorActual + 1;
 
-            $cantTareasPendientes.text(nuevoValor + '/10');
+            $cantTareasPendientes.text(nuevoValor);
             $elementoSpan.css({'text-decoration': 'none', 'color': 'inherit'});
         }
 

@@ -22,7 +22,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = '96dc15001@smtp-brevo.com'
 EMAIL_HOST_PASSWORD = 'pFRV3PrGbLMNjW79'
-DEFAULT_FROM_EMAIL = '<nadia.carrasco@est.fi.uncoma.edu.ar>'
+DEFAULT_FROM_EMAIL = 'nadia.carrasco@est.fi.uncoma.edu.ar'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
