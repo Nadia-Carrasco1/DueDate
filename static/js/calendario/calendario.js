@@ -1,4 +1,3 @@
-
 import { getCookie } from './utils.js';
 
 export function initCalendar() {
@@ -34,23 +33,35 @@ export function initCalendar() {
       const fiInput = document.querySelector('input[name="fecha_inicio"]');
       const ffInput = document.querySelector('input[name="fecha_fin"]');
       const recInput = document.querySelector('input[name="recordatorio_fecha_hora"]');
+      const formatoLocal = fecha => fecha.toISOString().slice(0, 16);
+
+      // Fecha inicio a mediodía, fin 1 hora después
       const fechaInicio = new Date(info.dateStr + "T12:00");
       const fechaFin = new Date(fechaInicio.getTime() + 60 * 60 * 1000);
-      const formatoLocal = fecha => fecha.toISOString().slice(0, 16);
 
       fiInput.value = formatoLocal(fechaInicio);
       ffInput.value = formatoLocal(fechaFin);
-      ffInput.min = fiInput.value;
 
-      if (recInput) {
-        recInput.max = fiInput.value;
-        if (recInput.value > fiInput.value) {
+      // **Establecer límites para que no se puedan seleccionar horas inválidas**
+      ffInput.min = fiInput.value;        // La fecha fin no puede ser menor que inicio
+      recInput && (recInput.max = fiInput.value);  // El recordatorio no puede ser posterior a inicio
+
+      // Actualizar límites dinámicamente si cambia fecha inicio
+      fiInput.addEventListener('change', () => {
+        if (ffInput.value < fiInput.value) {
+          ffInput.value = fiInput.value;
+        }
+        ffInput.min = fiInput.value;
+
+        if (recInput && recInput.value > fiInput.value) {
           recInput.value = fiInput.value;
         }
-      }
+        if (recInput) recInput.max = fiInput.value;
+      });
 
       modal.classList.remove('hidden');
     },
+
     eventClick: function(info) {
       document.dispatchEvent(new CustomEvent('calendar:eventClick', { detail: info.event }));
     },
@@ -82,8 +93,9 @@ export function initCalendar() {
       const rect = downloadBtn.getBoundingClientRect();
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
-      dropdown.style.top = (rect.bottom + scrollTop + 4) + 'px';
-      dropdown.style.left = (rect.left + scrollLeft - 115) + 'px';
+  
+      dropdown.style.left = (rect.left + scrollLeft) + 'px';
+      dropdown.style.top = (rect.bottom + scrollTop) + 'px';
     });
 
     document.addEventListener('click', (event) => {
