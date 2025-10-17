@@ -1,0 +1,76 @@
+{% extends 'Base.html' %}
+{% load static %}
+
+{% block tittle %}Estadísticas{% endblock %}
+
+{% block content %}
+    <div>
+        <button id="semana-actual">Semana actual</button>
+        <button id="semana">Semanas</button>
+        <button id="mes">Mes</button>
+        <button id="elegir-fechas">Elegir fechas</button>
+
+        <canvas id="grafico-estudio" width="600" height="300"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+    let chart;
+
+    function cargarDatosEstudio(periodo = "semana") {
+        fetch(`/estadisticas/datos/?periodo=${periodo}`)
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                const ctx = document.getElementById('grafico-estudio').getContext('2d');
+
+                if (chart) {
+                    chart.destroy();
+                }
+
+                chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Minutos de estudio',
+                            data: data.data,
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Minutos'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: periodo.charAt(0).toUpperCase() + periodo.slice(1)
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+    }
+
+    cargarDatosEstudio("semana");
+
+    document.getElementById("semana").addEventListener("click", () => cargarDatosEstudio("semana"));
+    document.getElementById("mes").addEventListener("click", () => cargarDatosEstudio("mes"));
+    document.getElementById("semana-actual").addEventListener("click", () => cargarDatosEstudio("semana-actual"));
+    
+    document.getElementById("elegir-fechas").addEventListener("click", () => {
+        alert("Próximamente: Selector de fechas");
+    });
+    </script>
+
+{% endblock %}

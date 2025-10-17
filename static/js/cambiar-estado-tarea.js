@@ -24,12 +24,12 @@ $(document).ready(function() {
         if (estaChecked) {
             var nuevoValor = contadorActual > 0 ? contadorActual - 1 : 0;
 
-            $cantTareasPendientes.text(nuevoValor + '/10');
+            $cantTareasPendientes.text(nuevoValor);
             $elementoSpan.css({'text-decoration': 'line-through', 'color': 'gray'});
         } else {
             var nuevoValor = contadorActual + 1;
 
-            $cantTareasPendientes.text(nuevoValor + '/10');
+            $cantTareasPendientes.text(nuevoValor);
             $elementoSpan.css({'text-decoration': 'none', 'color': 'inherit'});
         }
 
