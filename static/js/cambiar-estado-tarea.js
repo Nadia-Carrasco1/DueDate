@@ -1,6 +1,6 @@
 $(document).ready(function() {
+    //const tareasTotales = document.getElementById('tareas-totales');
     const $cantTareasPendientes = $('#cant_tareas_pendientes');
-    
     function revertirCambios($checkbox, $elementoSpan, $contadorSpan, noChecked, contadorAnterior) {
         $checkbox.prop('checked', !noChecked); 
         $contadorSpan.text(contadorAnterior);
@@ -12,6 +12,8 @@ $(document).ready(function() {
     }
 
     $('.tarea-checkbox').on('change', function() {
+        console.log($cantTareasPendientes);
+
         var $checkbox = $(this);
         var $elementoSpan = $checkbox.closest('label').find('span');
         var tareaId = $checkbox.data('tarea-id'); 

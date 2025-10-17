@@ -13,6 +13,16 @@ document.addEventListener('DOMContentLoaded', () => {
             sonidos[i].loop = true;
         }
 
+        const iconoPantallaCompleta = document.getElementById('icono-pantalla-completa');
+                    
+        iconoPantallaCompleta.addEventListener('click', () => {
+            if(document.fullscreenElement) {
+                document.exitFullscreen();
+            } else {
+                document.documentElement.requestFullscreen();
+            }
+        })
+
         const radios = document.querySelectorAll('input[name="sonido-ambiente"]');
 
         radios.forEach(radio => {
@@ -49,15 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const botonPlayPausa = document.getElementById('boton-play-pausa');
                     const iconoPlayPausa = document.getElementById('icono-play-pausa');
-                    const iconoPantallaCompleta = document.getElementById('icono-pantalla-completa');
-                    
-                    iconoPantallaCompleta.addEventListener('click', () => {
-                        if(document.fullscreenElement) {
-                            document.exitFullscreen();
-                        } else {
-                            document.documentElement.requestFullscreen();
-                        }
-                    })
 
                     botonPlayPausa.addEventListener('click', () => {
                         if (sonidoSeleccionado.paused) {
