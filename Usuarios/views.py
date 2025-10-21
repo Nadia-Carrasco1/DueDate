@@ -128,7 +128,7 @@ def verPerfil(request):
 
     for field in password_form.fields.values():
         field.widget.attrs.update({
-            'class': 'w-full px-3 py-2 border rounded text-gray-800'
+            'class': 'w-full px-3 py-2 border rounded  text-white bg-neutral-800'
         })
 
     if request.method == 'POST':
@@ -166,7 +166,7 @@ def verPerfil(request):
             password_form = PasswordChangeForm(request.user, request.POST)
             for field in password_form.fields.values():
                 field.widget.attrs.update({
-                    'class': 'w-full px-3 py-2 border rounded text-gray-800'
+                    'class': 'w-full px-3 py-2 border rounded  text-white bg-neutral-800'
                 })
             if password_form.is_valid():
                 password_form.save()
