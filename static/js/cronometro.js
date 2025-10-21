@@ -75,9 +75,10 @@
     function cambiarModo() {
         esModoEstudio = !esModoEstudio;
         btnIniciar.disabled = false;
-
         if (esModoEstudio) {
-            audioFinDescanso.play();
+            if (tiempoDescansoInicial) {
+                audioFinDescanso.play();
+            }
 
             visorModo.innerHTML = "Modo <span>estudio</span>";
             tiempoRestante = tiempoEstudioInicial;
@@ -85,7 +86,7 @@
         } else {
             repeticionesSesionActual++;
             
-            if (repeticionesSesionActual < repeticionesTotales) {
+            if ((repeticionesSesionActual < repeticionesTotales) & repeticionesSesionActual != 0) {
                 audioFinEstudio.play();
 
                 visorRepeticiones.innerHTML = `${repeticionesSesionActual}/${repeticionesTotales}`;
@@ -93,7 +94,9 @@
                 visorModo.innerHTML = "Modo <span>descanso</span>";
                 iniciarTemporizador()
             } else {
-                audioFinSesionEstudio.play();
+                if (repeticionesSesionActual == repeticionesTotales) {
+                    audioFinSesionEstudio.play();
+                }
 
                 visorRepeticiones.innerHTML = "";
                 cronometro.innerHTML = "00:00:00";
@@ -160,6 +163,6 @@
     });
 
     if (performance.getEntriesByType("navigation")[0].type === "back_forward") {
-    window.location.reload();
-}
+        window.location.reload();
+    }
 })();

@@ -77,7 +77,6 @@ def eliminar_tarea(request, pk_lista, pk_tarea):
 
     tarea.delete()
 
-    # Redirijo al us a la vista
     return redirect('mostrarLista', pk=lista_pk)
 
 @login_required
