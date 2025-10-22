@@ -41,7 +41,9 @@
                 text = "Semana actual";
                 break;
             case "mes":
-                text = fechaHoy.toLocaleString('default', { month: 'long' }) + " - " + fechaHoy.getFullYear();
+                let mes = fechaHoy.toLocaleString('default', { month: 'long' });
+                mes = mes.charAt(0).toUpperCase() + mes.slice(1);
+                text = mes + " - " + fechaHoy.getFullYear();
                 break;
             case "anio":
                 text = fechaHoy.getFullYear()

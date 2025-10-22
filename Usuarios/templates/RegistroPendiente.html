@@ -1,17 +1,105 @@
-{% extends 'Base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Correo de confirmación</title>
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+</head>
+<body class="bg-neutral-800 text-white flex items-center justify-center min-h-screen backdrop-blur-sm bg-opacity-80">
 
-{% block content %}
-<div class="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md text-center">
-    <h1 class="text-2xl font-bold text-gray-800 mb-4">¡Revisá tu correo!</h1>
-    <p class="text-gray-700">Te enviamos un enlace de confirmación a <strong>{{ email }}</strong>.</p>
-    <p class="text-gray-600 mt-2">Si no lo ves, revisá tu carpeta de spam.</p>
+    <main class="w-full max-w-md p-6 bg-neutral-900 rounded-xl shadow-2xl border border-neutral-700 bg-opacity-95 text-center">
+        <h1 class="text-3xl font-bold text-indigo-500 mb-4">¡Revisá tu correo!</h1>
+        <p class="text-gray-300">Te enviamos un enlace de confirmación a <strong class="text-white">{{ email }}</strong>.</p>
+        <p class="text-gray-400 mt-2">Si no lo ves, revisá tu carpeta de spam.</p>
 
-    <form method="post" action="{% url 'reenviar_confirmacion' %}" class="mt-6">
-        {% csrf_token %}
-        <input type="hidden" name="email" value="{{ email }}">
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            Reenviar correo de confirmación
-        </button>
-    </form>
-</div>
-{% endblock %}
+        <form id="resend-form" class="mt-6">
+            {% csrf_token %}
+            <input type="hidden" name="email" value="{{ email }}">
+            <button id="resend-btn" type="submit" disabled class="bg-indigo-600 text-white font-semibold px-4 py-2 rounded-lg transition duration-150 shadow-md opacity-50 cursor-not-allowed">
+                Reenviar correo de confirmación (60s)
+            </button>
+        </form>
+        <p id="status-msg" class="mt-4 text-sm text-gray-400"></p>
+
+      
+
+       <script>
+            const form = document.getElementById("resend-form");
+            const button = document.getElementById("resend-btn");
+            const statusMsg = document.getElementById("status-msg");
+
+            const cooldownKey = "resendCooldown";
+            const cooldownDuration = 60;
+            const originalText = "Reenviar correo de confirmación";
+
+            function startCooldown(secondsLeft) {
+                button.disabled = true;
+                button.classList.add("opacity-50", "cursor-not-allowed");
+
+                const interval = setInterval(() => {
+                    button.textContent = `${originalText} (${secondsLeft}s)`;
+                    secondsLeft--;
+
+                    if (secondsLeft < 0) {
+                        clearInterval(interval);
+                        button.disabled = false;
+                        button.classList.remove("opacity-50", "cursor-not-allowed");
+                        button.textContent = originalText;
+                        localStorage.removeItem(cooldownKey);
+                    }
+                }, 1000);
+            }
+
+            const savedTimestamp = localStorage.getItem(cooldownKey);
+            const now = Math.floor(Date.now() / 1000);
+
+            if (savedTimestamp) {
+                const secondsLeft = parseInt(savedTimestamp) - now;
+                if (secondsLeft > 0) {
+                    startCooldown(secondsLeft);
+                } else {
+                    button.disabled = false;
+                    button.classList.remove("opacity-50", "cursor-not-allowed");
+                    button.textContent = originalText;
+                }
+            } else {
+                localStorage.setItem(cooldownKey, now + cooldownDuration);
+                startCooldown(cooldownDuration);
+            }
+
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                const now = Math.floor(Date.now() / 1000);
+                const savedTimestamp = localStorage.getItem(cooldownKey);
+
+                if (savedTimestamp && now < parseInt(savedTimestamp)) {
+                    statusMsg.textContent = "Esperá antes de reenviar el correo.";
+                    return;
+                }
+
+                localStorage.setItem(cooldownKey, now + cooldownDuration);
+                startCooldown(cooldownDuration);
+
+                fetch("{% url 'reenviar_confirmacion' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: `email=${encodeURIComponent(document.querySelector('[name=email]').value)}`
+                }).then(response => {
+                    if (response.ok) {
+                        statusMsg.textContent = "Correo reenviado correctamente.";
+                    } else {
+                        statusMsg.textContent = "Hubo un error al reenviar el correo.";
+                    }
+                }).catch(() => {
+                    statusMsg.textContent = "No se pudo conectar con el servidor.";
+                });
+            });
+        </script>
+    </main>
+</body>
+</html>
