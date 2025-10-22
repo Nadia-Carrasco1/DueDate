@@ -1,0 +1,129 @@
+{% extends 'Base.html' %}
+{% load static %}
+
+{% block tittle %}Estadísticas{% endblock %}
+
+{% block content %}
+    <div class="flex min-h-screen">
+        <div class="bg-neutral-900 w-1/6 p-3">
+            <div class="flex justify-between">
+                <h3 class="font-bold">Panel</h3>
+                <img src="{% static 'img/burger-menu.svg' %}" alt="Icono de menu" class="h-6 w-6">
+            </div>
+            <br>
+            <ul class="*:p-1 *:pl-0">
+                <li><a href="{% url 'acceso_lista_unica' %}" ><h3 class="hover:underline">To-Do List 📝</h3></a></li>
+                <li><a href="{% url 'cronometro' %}" ><h3 class="hover:underline">Cronómetro ⏱</h3></a></li>
+                <li><a href="{% url 'calendario' %}"><h3 class="hover:underline">Calendario 📅</h3></a></li>
+            </ul>
+        </div>
+
+        <div class="w-full flex flex-col items-center justify-center">
+            <div class="flex items-start">
+                <button id="semana-actual" class="px-4 py-2 rounded hover:bg-indigo-800 transition">Semana actual</button>
+                <button id="mes" class="px-4 py-2 hover:bg-indigo-800 transition">Mes</button>
+                <button id="anio" class="px-4 py-2 rounded hover:bg-indigo-800 transition">Año</button>
+            </div>
+
+            <canvas id="grafico-estudio" width="600" height="300"></canvas>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+    let chart;
+
+    function cargarDatosEstudio(periodo = "semana-actual") {
+        const fechaHoy = new Date();
+
+        switch(periodo) {
+            case "semana-actual":
+                text = "Semana actual";
+                break;
+            case "mes":
+                text = fechaHoy.toLocaleString('default', { month: 'long' }) + " - " + fechaHoy.getFullYear();
+                break;
+            case "anio":
+                text = fechaHoy.getFullYear()
+        }
+
+        fetch(`/estadisticas/datos/?periodo=${periodo}`)
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                const ctx = document.getElementById('grafico-estudio').getContext('2d');
+
+                if (chart) {
+                    chart.destroy();
+                }
+
+                chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Tiempo de estudio',
+                            data: data.data,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.4)',
+                                'rgba(255, 159, 64, 0.4)',
+                                'rgba(255, 205, 86, 0.4)',
+                                'rgba(75, 192, 192, 0.4)',
+                                'rgba(54, 162, 235, 0.4)',
+                                'rgba(153, 102, 255, 0.4)',
+                                'rgba(201, 203, 207, 0.4)'
+                                ],
+                            borderColor: [
+                                'rgb(255, 99, 132)',
+                                'rgb(255, 159, 64)',
+                                'rgb(255, 205, 86)',
+                                'rgb(75, 192, 192)',
+                                'rgb(54, 162, 235)',
+                                'rgb(153, 102, 255)',
+                                'rgb(201, 203, 207)'
+                                ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const index = context.dataIndex;
+                                        return data.tiempos_formateados[index];
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Minutos'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: text
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+    }
+
+    cargarDatosEstudio("semana-actual");
+
+    document.getElementById("semana-actual").addEventListener("click", () => cargarDatosEstudio("semana-actual"));
+    document.getElementById("mes").addEventListener("click", () => cargarDatosEstudio("mes"));
+    document.getElementById("anio").addEventListener("click", () => cargarDatosEstudio("anio"));
+    
+    /*document.getElementById("elegir-fechas").addEventListener("click", () => {
+    });*/
+    </script>
+{% endblock %}

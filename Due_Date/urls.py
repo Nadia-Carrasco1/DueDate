@@ -44,6 +44,9 @@ urlpatterns = [
     path('Cronometro/', cronometro_views.mostrar_cronometro, name='cronometro'),
     path('CrearSesionEstudio/', cronometro_views.crear_sesion_estudio, name='crear_sesion_estudio'),
     path('finalizar-sesion/', cronometro_views.finalizar_sesion, name='finalizar_sesion'),
+    # Estadísticas
+    path('Estadisticas/', cronometro_views.mostrar_estadisticas, name='estadisticas'),
+    path('estadisticas/datos/', cronometro_views.datos_estadisticas_estudio, name='datos_estadisticas_estudio'),
     # Calendario
     path('calendario/', eventos_views.calendario_view, name='calendario'),
     path('eventos_json/', eventos_views.eventos_json, name='eventos_json'),
