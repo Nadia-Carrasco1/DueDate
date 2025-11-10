@@ -9,10 +9,10 @@ export function initExportacion(calendar) {
       if (selectorSemana.value) {
         btnDescargarSemana.disabled = false;
         btnDescargarSemana.classList.remove('bg-gray-500', 'cursor-not-allowed', 'border', 'border-gray-400');
-        btnDescargarSemana.classList.add('bg-purple-600', 'hover:bg-purple-700', 'cursor-pointer');
+        btnDescargarSemana.classList.add('bg-indigo-700', 'hover:bg-indigo-600', 'cursor-pointer');
       } else {
         btnDescargarSemana.disabled = true;
-        btnDescargarSemana.classList.remove('bg-purple-600', 'hover:bg-purple-700', 'cursor-pointer');
+        btnDescargarSemana.classList.remove('bg-indigo-700', 'hover:bg-indigo-600', 'cursor-pointer');
         btnDescargarSemana.classList.add('bg-gray-500', 'cursor-not-allowed', 'border', 'border-gray-400');
       }
     });

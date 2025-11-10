@@ -52,14 +52,14 @@
                 {% csrf_token %}
                 <input type="hidden" name="editar_contraseña" value="1">
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Contraseña actual:</label>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Actual:</label>
                     {{ password_form.old_password }}
                     {% if password_form.old_password.errors %}
                     <p class="text-red-400 text-sm mt-1">{{ password_form.old_password.errors|striptags }}</p>
                     {% endif %}
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Contraseña nueva:</label>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Nueva:</label>
                     {{ password_form.new_password1 }}
                     {% if password_form.new_password1.errors %}
                     <p class="text-red-400 text-sm mt-1">{{ password_form.new_password1.errors|striptags }}</p>
