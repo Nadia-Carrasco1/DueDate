@@ -27,6 +27,24 @@
     const audioFinDescanso = document.getElementById('audio-fin-descanso')
     const audioFinSesionEstudio = document.getElementById('audio-fin-sesion-estudio')
 
+    const estadoGuardado = JSON.parse(localStorage.getItem('estado_cronometro'));
+
+    if (estadoGuardado && estadoGuardado.sesionId === sesionId) {
+        const tiempoTranscurrido = Math.floor((Date.now() - estadoGuardado.timestamp) / 1000);
+        tiempoRestante = Math.max(estadoGuardado.tiempoRestante - tiempoTranscurrido, 0);
+        esModoEstudio = estadoGuardado.esModoEstudio;
+        repeticionesSesionActual = estadoGuardado.repeticionesSesionActual;
+        segundosEstudiados = estadoGuardado.segundosEstudiados + tiempoTranscurrido;
+
+        visorModo.innerHTML = esModoEstudio ? "Modo <span>estudio</span>" : "Modo <span>descanso</span>";
+        if (visorRepeticiones) {
+            visorRepeticiones.innerHTML = `${repeticionesSesionActual}/${repeticionesTotales}`;
+        }
+
+        actualizarVista();
+        iniciarTemporizador();
+    }
+
     function actualizarVista() {
         const horas = Math.floor(tiempoRestante / 3600);
         const minutos = Math.floor((tiempoRestante % 3600) / 60);
@@ -40,6 +58,7 @@
         if (tiempoRestante > 0) {
             tiempoRestante--;
             actualizarVista();
+            guardarEstadoCronometro();
 
             if (esModoEstudio) {
                 segundosEstudiados++
@@ -86,10 +105,10 @@
         } else {
             repeticionesSesionActual++;
             
-            if ((repeticionesSesionActual < repeticionesTotales) & repeticionesSesionActual != 0) {
+            if ((repeticionesSesionActual < repeticionesTotales) && repeticionesSesionActual != 0) {
                 audioFinEstudio.play();
 
-                visorRepeticiones.innerHTML = `${repeticionesSesionActual}/${repeticionesTotales}`;
+                visorRepeticiones.innerHTML = `Rep: ${repeticionesSesionActual}/${repeticionesTotales}`;
                 tiempoRestante = tiempoDescansoInicial;
                 visorModo.innerHTML = "Modo <span>descanso</span>";
                 iniciarTemporizador()
@@ -100,7 +119,7 @@
 
                 visorRepeticiones.innerHTML = "";
                 cronometro.innerHTML = "00:00:00";
-                visorModo.innerHTML = `${repeticionesSesionActual}/${repeticionesTotales} <span>Sesión finalizada ✅</span>`;
+                visorModo.innerHTML = `<p class="text-center">Rep: ${repeticionesSesionActual}/${repeticionesTotales}<p> <p>Sesión finalizada ✅</p>`;
                 btnIniciar.disabled = true;
                 btnPausar.disabled = true;
                 finalizarSesion();
@@ -132,7 +151,10 @@
     function finalizarSesion() {
         if (sesionFinalizada) return;
         sesionFinalizada = true;
-
+        localStorage.removeItem('sonidoId');
+        localStorage.removeItem('sonidoActivo');
+        localStorage.removeItem('estado_cronometro');
+        console.log('asdadasdadasddadas');
         const minutosEstudiados = (repeticionesSesionActual * tiempoEstudioInicial) / 60;
 
         const data = new FormData();
@@ -148,7 +170,7 @@
         });
     }
 
-    window.addEventListener('unload', function () {
+    /*window.addEventListener('unload', function () {
         if (sesionId && sesionId !== "None" && !sesionFinalizada) {
             const minutosEstudiados = segundosEstudiados / 60;
 
@@ -160,9 +182,42 @@
 
             navigator.sendBeacon(finalizarSesionUrl, data);
         }
+    });*/
+
+    let navegacionInterna = false;
+
+    // Detecta navegación interna (clic en enlaces o formularios)
+    document.addEventListener('click', function (e) {
+        const target = e.target.closest('a, form');
+        if (target && target.href && target.href.includes(window.location.origin)) {
+            navegacionInterna = true;
+        }
+    });
+
+    // Detecta cierre de pestaña o ventana (no navegación ni recarga)
+    window.addEventListener('pagehide', function (event) {
+        const esRecarga = performance.getEntriesByType("navigation")[0]?.type === "reload";
+        const cerrandoVentana = document.visibilityState === 'hidden' && !navegacionInterna && !esRecarga;
+
+        if (cerrandoVentana) {
+            localStorage.clear();                
+            finalizarSesion();
+        }
     });
 
     if (performance.getEntriesByType("navigation")[0].type === "back_forward") {
         window.location.reload();
+    }
+
+    function guardarEstadoCronometro() {
+        const estado = {
+            tiempoRestante,
+            esModoEstudio,
+            repeticionesSesionActual,
+            segundosEstudiados,
+            timestamp: Date.now(),
+            sesionId
+        };
+        localStorage.setItem('estado_cronometro', JSON.stringify(estado));
     }
 })();

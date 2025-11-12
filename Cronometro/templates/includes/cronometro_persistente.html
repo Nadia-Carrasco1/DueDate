@@ -1,0 +1,40 @@
+{% load static %}
+
+<div id="cronometro-wrapper" class="fixed bottom-4 right-4 z-50 bg-neutral-900 p-1 rounded-full shadow-lg opacity-60 hover:opacity-100">
+        <!-- Cronómetro -->
+        <div class="w-full flex flex-col items-center justify-center relative rounded-full p-4 bg-gradient-to-r from-indigo-700 from-10% via-indigo-800 via-30% to-indigo-900 to-90%">
+            <p id="cronometro" class="font-mono flex justify-center p-5 pb-1 text-4xl font-semibold text-[26px]">
+                00:00:00
+            </p>
+            {% if repeticiones > 0 %}
+                <p id="repeticiones" class="text-sm">Rep: 0/{{ repeticiones }}</p>
+                <p id="modo-actual" class="text-sm">Modo estudio</p>
+            {% endif %}
+
+            <!-- Audios -->
+            <audio id="audio-fin-estudio" src="{% static 'audios/fin-estudio.mp3' %}"></audio>
+            <audio id="audio-fin-descanso" src="{% static 'audios/fin-descanso.mp3' %}"></audio>
+            <audio id="audio-fin-sesion-estudio" src="{% static 'audios/fin-sesion-estudio.mp3' %}"></audio>
+
+            <!-- Botones de control -->
+            <div class="flex justify-center space-x-2 my-2">
+                <button id="btn-iniciar" class="bg-black/30 text-white px-3 py-2 hover:bg-black/60 rounded-full"><img src="{% static 'img/play.svg' %}" alt="Boton play" class="h-3 w-3"></button>
+                <button id="btn-pausar" class="bg-black/30 text-white px-3 py-2 hover:bg-black/60 rounded-full"><img src="{% static 'img/pausar.svg' %}" alt="Boton pausar" class="h-3 w-3"></button>
+                <button id="toggle-sonido" class="hidden">
+                    <img id="icono-sonido" src="{% static 'img/sin-volumen.svg' %}" alt="Icono sonido" class="h-5 w-5">
+                </button>
+            </div>
+        </div>
+
+        <div 
+            id="cronometro-data"
+            data-tiempo-estudio="{{ tiempo_estudio_segundos }}"
+            data-tiempo-descanso="{{ tiempo_descanso_segundos }}"
+            data-repeticiones="{{ repeticiones }}"
+            data-sesion-id="{{ sesion }}"
+            data-csrf-token="{{ csrf_token }}"
+            data-finalizar-url="{% url 'finalizar_sesion' %}"
+        ></div>
+        <script src="{% static 'js/cronometro.js' %}"></script>
+        <script src="{% static 'js/sonidos-ambiente-cronometro.js' %}"></script>
+</div>

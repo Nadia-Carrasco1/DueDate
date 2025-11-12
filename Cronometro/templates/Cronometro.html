@@ -2,7 +2,7 @@
 {% load static %}
 {% load widget_tweaks %}
 
-{% block tittle %}Cronómetro de estudio{% endblock %}
+{% block title %}Cronómetro de estudio{% endblock %}
 
 {% block content %}
     <div class="flex min-h-screen">
@@ -21,7 +21,7 @@
         </div>
 
         <!-- Cronómetro -->
-        <div class="w-full flex flex-col items-center justify-center relative p-4 bg-gradient-to-r from-indigo-700 from-10% via-indigo-800 via-30% to-indigo-900 to-90%">
+        <div id="cronometro-grande" class="w-full flex flex-col items-center justify-center relative p-4 bg-gradient-to-r from-indigo-700 from-10% via-indigo-800 via-30% to-indigo-900 to-90%">
             <p id="cronometro" class="bg-black/30 rounded-lg w-1/2 font-mono flex justify-center p-7 text-4xl font-semibold mb-40 text-7xl">
                 00:00:00
             </p>
@@ -90,11 +90,6 @@
                 </form>
             </div>
 
-            <audio id="sonido-lluvia" src="{% static 'audios/lluvia.mp3' %}"></audio>
-            <audio id="sonido-chimenea" src="{% static 'audios/chimenea.mp3' %}"></audio>
-            <audio id="sonido-naturaleza" src="{% static 'audios/naturaleza.mp3' %}"></audio>
-            <audio id="sonido-ambiente" src="{% static 'audios/ambiente.mp3' %}"></audio>
-
             <div id="barra-sonido" class="w-full absolute bottom-12 mb-3 z-20 flex justify-between min-h-12 bg-neutral-900/80 p-4">
                 <div id="barra-sonido-dinamica">
                 </div>
@@ -120,15 +115,7 @@
             data-csrf-token="{{ csrf_token }}"
             data-finalizar-url="{% url 'finalizar_sesion' %}"
         ></div>
-        <script>
-            window.rutaPlaySvg = "{% static 'img/play.svg' %}";
-            window.rutaConVolumen = "{% static 'img/con-volumen.svg' %}";
-            window.rutaSinVolumen = "{% static 'img/sin-volumen.svg' %}";
-            window.rutaPlay = "{% static 'img/play.svg' %}";
-            window.rutaPausar = "{% static 'img/pausar.svg' %}";
-        </script>
         <script src="{% static 'js/cronometro.js' %}"></script>
-        <script src="{% static 'js/sonidos-ambiente-cronometro.js' %}"></script>
         <script src="{% static 'js/mostrar-form-definir-tiempos.js' %}"></script>
     </div>
 {% endblock %}

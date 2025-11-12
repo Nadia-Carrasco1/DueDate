@@ -174,3 +174,46 @@ def datos_estadisticas_estudio(request):
         "data": data,
         "tiempos_formateados": tiempos_formateados
     })
+
+@login_required
+def datos_estadisticas_exito(request):
+    usuario = request.user
+    periodo = request.GET.get("periodo", "semana-actual")
+
+    hoy_local = localtime(now()).date()
+    anio, mes = hoy_local.year, hoy_local.month
+    primer_dia_mes = date(anio, mes, 1)
+    ultimo_dia_mes = date(anio, mes, calendar.monthrange(anio, mes)[1])
+
+    if periodo == "semana-actual":
+        inicio = hoy_local - timedelta(days=hoy_local.weekday())
+        fin = inicio + timedelta(days=6)
+    elif periodo == "mes":
+        inicio, fin = primer_dia_mes, ultimo_dia_mes
+    else:
+        inicio = date(anio, 1, 1)
+        fin = date(anio, 12, 31)
+
+    sesiones = SesionEstudio.objects.filter(
+        user=usuario,
+        fecha_creacion__date__range=(inicio, fin)
+    )
+
+    total = sesiones.count()
+    exitosas = sesiones.filter(porcentaje_exito=100).count()
+    no_exitosas = total - exitosas
+
+    labels = ["Exitosas", "No exitosas"]
+    data = [exitosas, no_exitosas]
+    porcentajes = [
+        f"{(exitosas / total * 100):.1f}%" if total else "0%",
+        f"{(no_exitosas / total * 100):.1f}%" if total else "0%"
+    ]
+
+    return JsonResponse({
+        "labels": labels,
+        "data": data,
+        "porcentajes": porcentajes,
+        "total_sesiones": total,
+        "exito_sesiones": exitosas
+    })

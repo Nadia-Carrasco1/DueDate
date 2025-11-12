@@ -47,6 +47,7 @@ urlpatterns = [
     # Estadísticas
     path('Estadisticas/', cronometro_views.mostrar_estadisticas, name='estadisticas'),
     path('estadisticas/datos/', cronometro_views.datos_estadisticas_estudio, name='datos_estadisticas_estudio'),
+    path('estadisticas/exito/', cronometro_views.datos_estadisticas_exito, name='datos_estadisticas_exito'),
     # Calendario
     path('calendario/', eventos_views.calendario_view, name='calendario'),
     path('eventos_json/', eventos_views.eventos_json, name='eventos_json'),

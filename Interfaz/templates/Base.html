@@ -9,22 +9,40 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{% block tittle %}{% endblock %}</title>
     </head>
-    <body class="bg-neutral-800 text-white flex flex-col min-h-screen">
+    <body class="bg-neutral-800 text-white flex flex-col min-h-screen relative">
         {% csrf_token %}
         {% include 'Header.html' %}
         <main class="flex-grow min-h-screen">
             {% block content %}{% endblock %}
         </main>
         {% include 'Footer.html' %}
-
+        {% if is_authenticated and tiempo_estudio_segundos and mostrar_cronometro %}
+            {% include 'includes/cronometro_persistente.html' %}
+        {% endif %}
+        <div id="sonidos-globales" class="hidden">
+            <audio id="sonido-lluvia" src="{% static 'audios/lluvia.mp3' %}" loop></audio>
+            <audio id="sonido-chimenea" src="{% static 'audios/chimenea.mp3' %}" loop></audio>
+            <audio id="sonido-naturaleza" src="{% static 'audios/naturaleza.mp3' %}" loop></audio>
+            <audio id="sonido-ambiente" src="{% static 'audios/ambiente.mp3' %}" loop></audio>
+        </div>
+        <script>
+            window.rutaConVolumen = "{% static 'img/con-volumen.svg' %}";
+            window.rutaSinVolumen = "{% static 'img/sin-volumen.svg' %}";
+            window.rutaPlay = "{% static 'img/play.svg' %}";
+            window.rutaPausar = "{% static 'img/pausar.svg' %}";
+        </script>
+        
         <script>
             CSRF_TOKEN = document.querySelector('[name=csrfmiddlewaretoken]').value; 
         </script>
-
         <script src="{% static 'js/perfil.js' %}"></script>
-        <script src="{% static 'js/dropdown-menu-perfil.js' %}"></script>        
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script> 
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="{% static 'js/cambiar-estado-tarea.js' %}"></script>
+        <script src="{% static 'js/sonidos-ambiente-cronometro.js' %}"></script>
+        <script src="{% static 'js/cronometro.js' %}"></script>
+        {% if is_authenticated %}
+            <script src="{% static 'js/dropdown-menu-perfil.js' %}"></script>        
+        {% endif %}
         {% block extra_scripts %}{% endblock %}
     </body>
 </html>

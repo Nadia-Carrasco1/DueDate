@@ -4,9 +4,6 @@
                 <li class="px-4 py-4"><a href="{% url 'home' %}">🟣</a></li>
 
                 {% if is_authenticated %}
-                    <li>
-                        <a href="{% url 'acceso_lista_unica' %}">To-Do List</a>
-                    </li>
                     <li class="ml-auto relative mr-4">
                         <div id="dropdown-boton" class="cursor-pointer rounded-full h-12 w-12" aria-expanded="false">
                             {% if perfil.foto %}
@@ -25,7 +22,7 @@
                                     <li>Estadísticas</li>
                                 </a>
                                 <hr class="border-neutral-600">
-                                <a href="{% url 'CerrarSesion' %}" class="py-1 px-2 hover:bg-neutral-600">
+                                <a href="{% url 'CerrarSesion' %}" class="py-1 px-2 hover:bg-neutral-600" onclick="localStorage.clear()">
                                     <li>Cerrar sesión</li>
                                 </a>
                             </ul>

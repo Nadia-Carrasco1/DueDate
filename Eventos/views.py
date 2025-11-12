@@ -66,13 +66,12 @@ def acceso_lista_unica(request):
 @login_required
 def eliminar_tarea(request, pk_lista, pk_tarea):
     tarea = get_object_or_404(
-        Tarea, #Busco en Tarea
-        pk=pk_tarea, #Con la pk
-        listaPendiente__pk=pk_lista, #Busca la el campo listaPendiente de Tarea que tenga de valor la pk que le paso listaPendiente__pk != lista_pendiente__pk
-        listaPendiente__user=request.user #Verifica que la lista pertenezca al usuario
+        Tarea,
+        pk=pk_tarea,
+        listaPendiente__pk=pk_lista,
+        listaPendiente__user=request.user
     )
 
-    # Guardo la pk de la lista antes de borrar, para la redirección
     lista_pk = tarea.listaPendiente.pk
 
     tarea.delete()

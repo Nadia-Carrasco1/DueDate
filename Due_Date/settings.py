@@ -82,6 +82,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'Interfaz.context_processors.navbar_context',
                 'Usuarios.context_processors.perfil_global',
+                'Cronometro.context_processors.datos_cronometro',
             ],
         },
     },
