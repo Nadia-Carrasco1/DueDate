@@ -7,28 +7,28 @@ class RegistroForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={
-            'class': 'w-full px-3 py-2 border rounded text-white bg-neutral-900',
+            'class': 'w-full px-3 py-2 border border-neutral-700 rounded text-white bg-neutral-900',
             'placeholder': 'Correo electrónico'
         }),
         label='Correo electrónico:'
     )
     username = forms.CharField(
         widget=forms.TextInput(attrs={
-            'class': 'w-full px-3 py-2 border rounded text-white bg-neutral-900',
+            'class': 'w-full px-3 py-2 border border-neutral-700 rounded text-white bg-neutral-900',
             'placeholder': 'Nombre de usuario'
         }),
         label='Nombre de usuario:'
     )
     password1 = forms.CharField(
         widget=forms.PasswordInput(attrs={
-            'class': 'w-full px-3 py-2 border rounded text-white bg-neutral-900',
+            'class': 'w-full px-3 py-2 border border-neutral-700 rounded text-white bg-neutral-900',
             'placeholder': 'Contraseña'
         }),
         label='Contraseña:'
     )
     password2 = forms.CharField(
         widget=forms.PasswordInput(attrs={
-            'class': 'w-full px-3 py-2 border rounded text-white bg-neutral-900',
+            'class': 'w-full px-3 py-2 border border-neutral-700 rounded text-white bg-neutral-900',
             'placeholder': 'Confirmar contraseña'
         }),
         label='Confirmar contraseña:'
@@ -38,7 +38,7 @@ class RegistroForm(UserCreationForm):
         widget=forms.DateInput(attrs={
             'type': 'date',
             'max': '2018-12-31',
-            'class': 'w-full px-3 py-2 border rounded text-white bg-neutral-900'
+            'class': 'w-full px-3 py-2 border border-neutral-700 rounded text-white bg-neutral-900'
         }),
         label="Fecha de nacimiento:"
     )
@@ -59,14 +59,14 @@ class LoginForm(AuthenticationForm):
         label='Usuario o correo electrónico',
         widget=forms.TextInput(attrs={
             'placeholder': 'Usuario o correo',
-            'class': 'w-full px-3 py-2 border rounded text-white bg-neutral-900'
+            'class': 'w-full px-3 py-2 border border-neutral-700 rounded text-white bg-neutral-900'
         })
     )
     password = forms.CharField(
         label='Contraseña',
         widget=forms.PasswordInput(attrs={
             'placeholder': 'Contraseña',
-            'class': 'w-full px-3 py-2 border rounded text-white bg-neutral-900'
+            'class': 'w-full px-3 py-2 border border-neutral-700 rounded text-white bg-neutral-900'
         })
     )
 
@@ -78,7 +78,7 @@ class UsuarioForm(forms.ModelForm):
         fields = ['username']
         widgets = {
             'username': forms.TextInput(attrs={
-                'class': 'w-full px-3 py-2 border rounded text-white bg-neutral-900'
+                'class': 'w-full px-3 py-2 border border-neutral-700 rounded text-white bg-neutral-900'
             }),
         }
 
@@ -91,11 +91,11 @@ class PerfilForm(forms.ModelForm):
         }
         widgets = {
             'foto': forms.ClearableFileInput(attrs={
-                'class': 'w-full px-3 py-2 border rounded text-gray-800'
+                'class': 'w-full px-3 py-2 border border-neutral-700 rounded text-gray-800'
             }),
         }
         widget=forms.PasswordInput(attrs={
-            'class': 'w-full px-3 py-2 border rounded text-white bg-neutral-900',
+            'class': 'w-full px-3 py-2 border border-neutral-700 rounded text-white bg-neutral-900',
             'placeholder': 'Contraseña'
         }),
 
@@ -108,7 +108,7 @@ class FotoPerfilForm(forms.ModelForm):
         }
         widgets = {
             'foto': forms.FileInput(attrs={
-                'class': 'w-full px-3 py-2 border rounded text-white bg-neutral-900'
+                'class': 'w-full px-3 py-2 border border-neutral-700 rounded text-white bg-neutral-900'
             }),
         }
 
