@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, AuthenticationForm
-from .models import Perfil
+from .models import Perfil, GrupoEstudio
 
 class RegistroForm(UserCreationForm):
     email = forms.EmailField(
@@ -112,5 +112,33 @@ class FotoPerfilForm(forms.ModelForm):
             }),
         }
 
+class GrupoEstudioForm(forms.ModelForm):
+    class Meta:
+        model = GrupoEstudio
+        fields = ['nombre', 'metaCantHoras', 'plazoInicioEstudio', 'plazoFinEstudio']
+        labels = {
+            'nombre': 'Nombre del grupo',
+            'metaCantHoras': 'Meta de horas de estudio',
+            'plazoInicioEstudio': 'Inicio del estudio',
+            'plazoFinEstudio': 'Fin del estudio',
+        }
+        widgets = {
+            'nombre': forms.TextInput(attrs={
+                'class': 'w-full px-3 py-2 border border-neutral-700 rounded text-white bg-neutral-900',
+                'placeholder': 'Nombre del grupo'
+            }),
+            'metaCantHoras': forms.NumberInput(attrs={
+                'class': 'w-full px-3 py-2 border border-neutral-700 rounded text-white bg-neutral-900',
+                'min': 1
+            }),
+            'plazoInicioEstudio': forms.DateTimeInput(attrs={
+                'type': 'datetime-local',
+                'class': 'w-full px-3 py-2 border border-neutral-700 rounded text-white bg-neutral-900'
+            }),
+            'plazoFinEstudio': forms.DateTimeInput(attrs={
+                'type': 'datetime-local',
+                'class': 'w-full px-3 py-2 border border-neutral-700 rounded text-white bg-neutral-900'
+            }),
+        }
 
 

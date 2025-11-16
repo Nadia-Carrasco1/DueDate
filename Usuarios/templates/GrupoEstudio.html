@@ -2,6 +2,220 @@
 {% load static %}
 
 {% block content %}
+<div class="bg-neutral-800 min-h-screen pt-24">
+  <div class="max-w-4xl mx-auto px-3 sm:px-6 py-6 bg-neutral-900 rounded shadow text-white">
+    <h1 class="text-2xl font-bold mb-6 text-center">Grupo de estudio</h1>
 
-<h1>Grupo de estudio</h1>
+    {% if not tiene_grupo %}
+      <div class="text-center mb-6">
+        <p class="text-lg font-semibold">No estás en ningún grupo de estudio.</p>
+        <p class="text-sm text-neutral-400 mb-4">Podés crear uno nuevo e invitar usuarios:</p>
+        <a href="{% url 'crear_grupo' %}" class="inline-block bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded shadow transition">
+          Crear grupo nuevo
+        </a>
+      </div>
+    {% else %}
+     
+    <!-- Encabezado de columnas -->
+
+
+   {% if miembros %}
+<div class="mt-6">
+  <div class="flex flex-col lg:flex-row gap-6">
+    
+    <!-- Columna izquierda: Ranking -->
+    <div class="lg:w-2/3">
+      <h2 class="text-xl font-semibold text-white text-center mb-4">
+        Ranking del grupo <span class="text-indigo-400 font-bold">{{ perfil.grupo.nombre }}</span>
+      </h2>
+
+      <div class="flex items-center mb-2 text-sm font-semibold text-white px-3">
+        <div class="w-10 text-right">#</div>
+        <div class="flex-grow">Usuarios</div>
+        <div class="w-[110px] text-right">Puntajes</div>
+      </div>
+
+      {% for miembro in miembros %}
+      <div class="flex items-center mb-2">
+        <!-- Número de ranking -->
+        <div class="text-white font-bold bg-neutral-900 px-3 py-2 flex-shrink-0 text-right">
+          {{ forloop.counter }}.
+        </div>
+
+        <!-- Bloque de usuario -->
+        <div class="flex items-center justify-between bg-neutral-800 px-3 py-2 mr-1 rounded-lg animate-fade-in flex-grow">
+          <!-- Avatar + nombre -->
+          <div class="flex items-center gap-3 flex-grow min-w-0">
+            {% if miembro.foto %}
+              <img src="{{ miembro.foto.url }}" alt="{{ miembro.user.username }}" class="w-8 h-8 rounded-full object-cover shrink-0">
+            {% else %}
+              <img src="{% static 'img/sin-foto-perfil.jpg' %}" alt="Sin foto de perfil" class="w-8 h-8 rounded-full object-cover shrink-0">
+            {% endif %}
+            <span class="text-white text-sm font-medium truncate">{{ miembro.user.username }}</span>
+          </div>
+
+          <!-- Medalla + puntos -->
+          <div class="flex items-center gap-2 text-white font-semibold text-sm w-[110px]">
+            <span class="inline-block w-8 h-8">
+              {% if forloop.counter == 1 %}
+                <img src="{% static 'img/medalla1.png' %}" alt="Medalla oro" class="w-full h-full object-contain ml-4">
+              {% elif forloop.counter == 2 %}
+                <img src="{% static 'img/medalla2.png' %}" alt="Medalla plata" class="w-full h-full object-contain ml-4">
+              {% elif forloop.counter == 3 %}
+                <img src="{% static 'img/medalla3.png' %}" alt="Medalla bronce" class="w-full h-full object-contain ml-4">
+              {% endif %}
+            </span>
+            <div class="flex items-center justify-end w-[60px]">
+              <span class="text-right tabular-nums w-full">
+                {{ miembro.calcular_puntos_grupo }} <span class="text-neutral-400">pts</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Columna derecha: Datos del grupo -->
+    <div class="lg:w-1/3 bg-neutral-800 rounded-lg p-4 text-white shadow">
+      <h2 class="text-lg font-semibold mb-4 text-center">Datos del grupo</h2>
+      <ul class="space-y-2 text-sm">
+        <li><span class="font-medium text-neutral-300">Nombre:</span> {{ perfil.grupo.nombre }}</li>
+        <li><span class="font-medium text-neutral-300">Cantidad de usuarios:</span> {{ perfil.grupo.cantUsuarios }}</li>
+        <li><span class="font-medium text-neutral-300">Meta de horas:</span> {{ perfil.grupo.metaCantHoras }} hs</li>
+        <li><span class="font-medium text-neutral-300">Inicio del estudio:</span> {{ perfil.grupo.plazoInicioEstudio|date:"d/m/Y H:i" }}</li>
+        <li><span class="font-medium text-neutral-300">Fin del estudio:</span> {{ perfil.grupo.plazoFinEstudio|date:"d/m/Y H:i" }}</li>
+        <li><span class="font-medium text-neutral-300">Planificador líder:</span> {{ perfil.grupo.idPlanificadorLider.username }}</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+{% endif %}
+
+
+
+
+      <!-- Buscador -->
+      <div class="mt-8">
+        <label for="usuario" class="block text-sm font-medium mb-2 text-neutral-200">Buscar usuario</label>
+        <input type="text" id="usuario" class="w-full border border-neutral-600 rounded px-3 py-2 bg-neutral-800 text-white placeholder-neutral-400" placeholder="nombre de usuario">
+        <input type="hidden" id="csrf-token" value="{{ csrf_token }}">
+        <ul id="sugerencias" class="mt-4 space-y-2"></ul>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+document.getElementById('usuario')?.addEventListener('input', function () {
+  const query = this.value;
+  const csrfToken = document.getElementById('csrf-token').value;
+  const contenedor = document.getElementById('sugerencias');
+
+  if (query.length < 1) {
+    contenedor.innerHTML = '';
+    return;
+  }
+
+  fetch(`/sugerencias-usuarios/?q=${encodeURIComponent(query)}`)
+    .then(response => response.json())
+    .then(data => {
+      contenedor.innerHTML = '';
+
+      if (data.length === 0) {
+        contenedor.innerHTML = `<li class="text-neutral-400 text-center">No se encontraron usuarios con ese nombre.</li>`;
+        return;
+      }
+
+      data.forEach(user => {
+        const item = document.createElement('li');
+        item.className = 'flex items-center justify-between bg-neutral-800 p-2 rounded animate-fade-in';
+
+        item.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <img src="${user.foto}" alt="${user.username}" class="w-8 h-8 rounded-full object-cover">
+            <span class="text-white">${user.username}</span>
+          </div>
+          <button data-usuario="${user.username}" class="invitar-btn flex items-center gap-2 bg-indigo-700 hover:bg-indigo-600 text-white px-4 py-1.5 rounded-full shadow transition-all duration-300 ease-in-out">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>Invitar</span>
+          </button>
+        `;
+        contenedor.appendChild(item);
+      });
+
+      document.querySelectorAll('.invitar-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const username = this.dataset.usuario;
+          const boton = this;
+
+          boton.disabled = true;
+          boton.innerHTML = `
+            <svg class="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span>Enviando...</span>
+          `;
+
+          fetch('/invitar-usuario-ajax/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'X-CSRFToken': csrfToken
+            },
+            body: `usuario=${encodeURIComponent(username)}`
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.ok) {
+              boton.innerHTML = `
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Invitado</span>
+              `;
+              boton.classList.remove('bg-indigo-700', 'hover:bg-indigo-600');
+              boton.classList.add('bg-green-600');
+            } else {
+              boton.innerHTML = `
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>Error</span>
+              `;
+              boton.classList.remove('bg-indigo-700');
+              boton.classList.add('bg-red-600');
+              boton.disabled = false;
+            }
+          })
+          .catch(() => {
+            boton.innerHTML = `
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m0-4h.01M12 20h.01" />
+              </svg>
+              <span>Falló</span>
+            `;
+            boton.classList.remove('bg-indigo-700');
+            boton.classList.add('bg-yellow-600');
+            boton.disabled = false;
+          });
+        });
+      });
+    });
+});
+</script>
+
+<style>
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+</style>
 {% endblock %}

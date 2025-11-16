@@ -5,14 +5,16 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, update_session_auth_hash, authenticate
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
-from .forms import RegistroForm, UsuarioForm, PerfilForm, FotoPerfilForm, LoginForm
-from .models import Perfil
+from .forms import RegistroForm, UsuarioForm, PerfilForm, FotoPerfilForm, LoginForm, GrupoEstudioForm
+from .models import Perfil, GrupoEstudio
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.urls import reverse
-
+from django.http import JsonResponse
+from django.templatetags.static import static
+from django.views.decorators.http import require_POST
 
 def Registrarse(request):
     if request.user.is_authenticated:
@@ -185,3 +187,122 @@ def verPerfil(request):
         'campo_con_error': campo_con_error
     })
 
+@login_required
+def vista_grupo_estudio(request):
+    perfil = request.user.perfil
+    tiene_grupo = perfil.grupo is not None
+    miembros = Perfil.objects.filter(grupo=perfil.grupo).select_related('user').order_by('-puntos')[:5]
+    return render(request, 'GrupoEstudio.html', {
+        'tiene_grupo': tiene_grupo,
+        'perfil': perfil,
+        'miembros': miembros,
+    })
+
+@login_required
+@require_POST
+def invitar_usuario_ajax(request):
+    username = request.POST.get('usuario')
+    perfil_lider = request.user.perfil
+    grupo = perfil_lider.grupo
+
+    try:
+        usuario = User.objects.get(username=username)
+        uid = urlsafe_base64_encode(force_bytes(usuario.pk))
+        token = default_token_generator.make_token(usuario)
+
+        link = request.build_absolute_uri(
+            reverse('aceptar_invitacion', kwargs={
+                'uidb64': uid,
+                'token': token,
+                'grupo_id': grupo.id
+            })
+        )
+
+        html_message = f"""
+        <html>
+          <body style="font-family: sans-serif; background-color: #f9f9f9; padding: 20px;">
+            <h2>Te invitaron al grupo <span style="color:#4f46e5;">{grupo.nombre}</span></h2>
+            <p>Hacé clic en el botón para aceptar la invitación y unirte al grupo de estudio:</p>
+            <a href="{link}" style="display:inline-block; background:#4f46e5; color:white; padding:12px 24px; border-radius:6px; text-decoration:none; font-weight:bold;">
+              Aceptar invitación
+            </a>
+          </body>
+        </html>
+        """
+
+        enviado = send_mail(
+            subject='Invitación a grupo de estudio',
+            message=f'Te invitaron al grupo {grupo.nombre}. Aceptá la invitación acá: {link}',
+            html_message=html_message,
+            from_email='Due Date <nadia.carrasco@est.fi.uncoma.edu.ar>',
+            recipient_list=[usuario.email],
+        )
+
+        if enviado:
+            return JsonResponse({'ok': True, 'mensaje': f'Correo enviado a {usuario.email}'})
+        else:
+            return JsonResponse({'ok': False, 'mensaje': 'No se pudo enviar el correo'})
+    except User.DoesNotExist:
+        return JsonResponse({'ok': False, 'mensaje': 'Usuario no encontrado'})
+
+
+@login_required
+def aceptar_invitacion(request, uidb64, token, grupo_id):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+        grupo = GrupoEstudio.objects.get(pk=grupo_id)
+    except (User.DoesNotExist, GrupoEstudio.DoesNotExist):
+        return render(request, 'InvitacionInvalida.html')
+
+    if default_token_generator.check_token(user, token):
+        perfil = user.perfil
+        if not perfil.grupo:
+            perfil.grupo = grupo
+            perfil.save()
+            messages.success(request, f'Te uniste al grupo {grupo.nombre}')
+        return redirect('vista_grupo_estudio')
+    else:
+        return render(request, 'InvitacionInvalida.html')
+
+@login_required
+def sugerencias_usuarios(request):
+    query = request.GET.get('q', '')
+    usuarios = User.objects.filter(username__istartswith=query).exclude(id=request.user.id).order_by('username')[:10]
+
+    data = []
+    for u in usuarios:
+        perfil = getattr(u, 'perfil', None)
+        if perfil and perfil.foto:
+            foto_url = perfil.foto.url
+        else:
+            foto_url = static('img/sin-foto-perfil.jpg')
+
+        data.append({
+            'username': u.username,
+            'foto': foto_url
+        })
+
+    return JsonResponse(data, safe=False)
+
+@login_required
+def crear_grupo(request):
+    perfil = request.user.perfil
+    if perfil.grupo:
+        messages.error(request, "Ya pertenecés a un grupo.")
+        return redirect('vista_grupo_estudio')
+
+    if request.method == 'POST':
+        form = GrupoEstudioForm(request.POST)
+        if form.is_valid():
+            grupo = form.save(commit=False)
+            grupo.idPlanificadorLider = request.user
+            grupo.save()
+            perfil.grupo = grupo
+            perfil.save()
+            messages.success(request, "Grupo creado correctamente.")
+            return redirect('vista_grupo_estudio')
+    else:
+        form = GrupoEstudioForm()
+
+    return render(request, 'CrearGrupo.html', {'form': form})
