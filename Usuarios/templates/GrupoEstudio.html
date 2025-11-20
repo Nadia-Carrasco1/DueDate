@@ -2,7 +2,21 @@
 {% load static %}
 
 {% block content %}
-<div class="bg-neutral-800 min-h-screen pt-24">
+<div class="bg-neutral-800 min-h-screen pt-10 mb-6">
+    {% if messages %}
+      <div id="djangoMessages" class="max-w-4xl mx-auto mb-4">
+        {% for message in messages %}
+          <div class="mensaje-django p-3 rounded text-white shadow transition-opacity duration-500
+                      {% if message.tags == 'success' %}bg-green-600
+                      {% elif message.tags == 'error' %}bg-red-600
+                      {% elif message.tags == 'info' %}bg-blue-600
+                      {% else %}bg-gray-600{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
   <div class="max-w-4xl mx-auto px-3 sm:px-6 py-6 bg-neutral-900 rounded shadow text-white">
     <h1 class="text-2xl font-bold mb-6 text-center">Grupo de estudio</h1>
 
@@ -15,207 +29,346 @@
         </a>
       </div>
     {% else %}
-     
-    <!-- Encabezado de columnas -->
 
-
-   {% if miembros %}
-<div class="mt-6">
-  <div class="flex flex-col lg:flex-row gap-6">
-    
-    <!-- Columna izquierda: Ranking -->
-    <div class="lg:w-2/3">
-      <h2 class="text-xl font-semibold text-white text-center mb-4">
-        Ranking del grupo <span class="text-indigo-400 font-bold">{{ perfil.grupo.nombre }}</span>
-      </h2>
-
-      <div class="flex items-center mb-2 text-sm font-semibold text-white px-3">
-        <div class="w-10 text-right">#</div>
-        <div class="flex-grow">Usuarios</div>
-        <div class="w-[110px] text-right">Puntajes</div>
-      </div>
-
-      {% for miembro in miembros %}
-      <div class="flex items-center mb-2">
-        <!-- Número de ranking -->
-        <div class="text-white font-bold bg-neutral-900 px-3 py-2 flex-shrink-0 text-right">
-          {{ forloop.counter }}.
-        </div>
-
-        <!-- Bloque de usuario -->
-        <div class="flex items-center justify-between bg-neutral-800 px-3 py-2 mr-1 rounded-lg animate-fade-in flex-grow">
-          <!-- Avatar + nombre -->
-          <div class="flex items-center gap-3 flex-grow min-w-0">
-            {% if miembro.foto %}
-              <img src="{{ miembro.foto.url }}" alt="{{ miembro.user.username }}" class="w-8 h-8 rounded-full object-cover shrink-0">
-            {% else %}
-              <img src="{% static 'img/sin-foto-perfil.jpg' %}" alt="Sin foto de perfil" class="w-8 h-8 rounded-full object-cover shrink-0">
-            {% endif %}
-            <span class="text-white text-sm font-medium truncate">{{ miembro.user.username }}</span>
+    {% if miembros %}
+     <div class="mt-6">
+      <div class="mb-6 mr-8">
+        <h2 class="text-lg font-semibold mb-2 ml-4 text-neutral-300">Tu progreso:</h2>
+        <div class="w-full ml-6 bg-neutral-700 rounded-full h-3 overflow-hidden">
+          <div class="bg-green-500 h-full transition-all duration-700 ease-in-out"
+              style="width: {{ porcentaje }}%;">
           </div>
+        </div>
+        <p class="text-sm text-center mt-2 ml-6 text-neutral-300">
+          {{ total_formateado }} / {{ meta_formateada }} ({{ porcentaje }}%)
+        </p>
+        {% if meta_alcanzada %}
+            <p class="text-green-400 font-semibold text-center mt-2 ml-6 animate-pulse">
+                🎉 ¡Meta alcanzada! 🎉
+            </p>
+        {% elif plazo_finalizado %}
+            <p class="text-red-400 font-semibold text-center mt-2 ml-6">
+                😞 No alcanzó la meta
+            </p>
+        {% endif %}
+      </div>
+    </div>
 
-          <!-- Medalla + puntos -->
-          <div class="flex items-center gap-2 text-white font-semibold text-sm w-[110px]">
-            <span class="inline-block w-8 h-8">
-              {% if forloop.counter == 1 %}
-                <img src="{% static 'img/medalla1.png' %}" alt="Medalla oro" class="w-full h-full object-contain ml-4">
-              {% elif forloop.counter == 2 %}
-                <img src="{% static 'img/medalla2.png' %}" alt="Medalla plata" class="w-full h-full object-contain ml-4">
-              {% elif forloop.counter == 3 %}
-                <img src="{% static 'img/medalla3.png' %}" alt="Medalla bronce" class="w-full h-full object-contain ml-4">
+        {% if plazo_finalizado %}
+          <div class="text-center mb-4">
+            <p class="text-yellow-300 font-semibold text-lg">
+              ⏳ Finalizó el tiempo de estudio
+              {% if puesto_actual %}
+                — Obtuvo el puesto N°{{ puesto_actual }}
               {% endif %}
-            </span>
-            <div class="flex items-center justify-end w-[60px]">
-              <span class="text-right tabular-nums w-full">
-                {{ miembro.calcular_puntos_grupo }} <span class="text-neutral-400">pts</span>
-              </span>
+            </p>
+          </div>
+        {% endif %}
+
+        <div class="flex flex-col lg:flex-row gap-6">
+          
+          <!-- Ranking -->
+          <div class="lg:w-2/3">
+            <h2 class="text-xl font-semibold text-white text-center mb-4">
+              Ranking del grupo <span class="text-indigo-400 font-bold">{{ perfil.grupo.nombre }}</span>
+            </h2>
+
+            <div class="flex items-center mb-2 text-sm font-semibold text-white px-3">
+              <div class="w-10 text-right">#</div>
+              <div class="flex-grow">Usuarios</div>
+              <div class="w-[110px] text-right">Puntajes</div>
             </div>
+
+            {% for miembro in miembros %}
+              <div class="flex items-center mb-2">
+                <!-- Número de ranking -->
+                <div class="text-white font-bold bg-neutral-900 px-3 py-2 flex-shrink-0 text-right">
+                  {{ forloop.counter }}.
+                </div>
+
+                <!-- usuarios -->
+                <div class="flex items-center justify-between bg-neutral-800 px-3 py-2 mr-1 rounded-lg animate-fade-in flex-grow">
+                  <!-- Avatar + nombre -->
+                  <div class="flex items-center gap-3 flex-grow min-w-0">
+                    {% if miembro.foto %}
+                      <img src="{{ miembro.foto.url }}" alt="{{ miembro.user.username }}" class="w-8 h-8 rounded-full object-cover shrink-0">
+                    {% else %}
+                      <img src="{% static 'img/sin-foto-perfil.jpg' %}" alt="Sin foto de perfil" class="w-8 h-8 rounded-full object-cover shrink-0">
+                    {% endif %}
+                    <span class="text-white text-sm font-medium truncate">{{ miembro.user.username }}</span>
+                  </div>
+
+                  <!-- puntos -->
+                  <div class="flex items-center gap-2 text-white font-semibold text-sm w-[110px]">
+                    <span class="inline-block w-8 h-8">
+                        {% if not todos_cero %}
+                            {% if forloop.counter == 1 %}
+                              <img src="{% static 'img/medalla1.png' %}" alt="Medalla oro" class="w-full h-full object-contain ml-4">
+                            {% elif forloop.counter == 2 %}
+                              <img src="{% static 'img/medalla2.png' %}" alt="Medalla plata" class="w-full h-full object-contain ml-4">
+                            {% elif forloop.counter == 3 %}
+                              <img src="{% static 'img/medalla3.png' %}" alt="Medalla bronce" class="w-full h-full object-contain ml-4">
+                            {% endif %}
+                        {% endif %}
+                    </span>
+                    <div class="flex items-center justify-end w-[60px]">
+                      <span class="text-right tabular-nums w-full">
+                        {{ miembro.calcular_puntos_grupo }} <span class="text-neutral-400">pts</span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="lg:w-1/2 bg-neutral-800 rounded-lg p-4 text-white shadow flex flex-col justify-center items-center">
+            <h1 class="text-xl font-semibold mb-4 text-center">Datos del grupo</h1>
+            <ul class="space-y-2 text-m mb-4">
+              <li><span class="font-medium text-neutral-300">Nombre:</span> {{ perfil.grupo.nombre }}</li>
+              <li><span class="font-medium text-neutral-300">Cantidad de usuarios:</span> {{ perfil.grupo.cantUsuarios }}</li>
+              <li><span class="font-medium text-neutral-300">Meta de horas:</span> {{ perfil.grupo.metaCantHoras }} hs</li>
+              <li><span class="font-medium text-neutral-300">Inicio del estudio:</span> {{ perfil.grupo.plazoInicioEstudio|date:"d/m/Y H:i" }}</li>
+              <li><span class="font-medium text-neutral-300">Fin del estudio:</span> {{ perfil.grupo.plazoFinEstudio|date:"d/m/Y H:i" }}</li>
+              <li><span class="font-medium text-neutral-300">Planificador líder:</span> {{ perfil.grupo.idPlanificadorLider.username }}</li>
+            </ul>
+            <div class="flex flex-wrap gap-3 justify-center mt-4">
+              {% if plazo_finalizado %}
+                <form method="POST" action="{% url 'salir_grupo' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="text-white bg-red-700 hover:bg-red-600 px-3 py-2 rounded flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                    </svg>
+                    Salir del grupo
+                  </button>
+                </form>
+                <!-- Eliminar grupo lider -->
+                {% if request.user == perfil.grupo.idPlanificadorLider %} 
+                  <form method="POST" action="{% url 'eliminar_grupo' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="text-white bg-red-600 hover:bg-red-500 px-3 py-2 rounded flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                      </svg>
+                      Eliminar grupo
+                    </button>
+                  </form>
+                {% endif %}
+              {% else %}
+                <!-- Invitar participantes -->
+                <button id="abrir-modal" class="text-white bg-indigo-700 hover:bg-indigo-600 px-3 py-2  rounded flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                  </svg>
+                  Participantes
+                </button>
+
+                <!-- Salir del grupo -->
+                <form method="POST" action="{% url 'salir_grupo' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="text-white bg-red-700 hover:bg-red-600 px-3 py-2 rounded flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M22 10.5h-6m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM4 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 10.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+                    </svg>
+                    Salir del grupo
+                  </button>
+                </form>
+
+                {% if request.user == perfil.grupo.idPlanificadorLider %}
+                  <!-- Editar grupo -->
+                  <a href="{% url 'editar_grupo' %}" class="text-white bg-yellow-600 hover:bg-yellow-500 px-3 py-2 rounded flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                    </svg>
+                    Editar grupo
+                  </a>
+
+                  <!-- Eliminar grupo -->
+                  <form method="POST" action="{% url 'eliminar_grupo' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="text-white bg-red-600 hover:bg-red-500 px-3 py-2 rounded flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                      </svg>
+                      Eliminar grupo
+                    </button>
+                  </form>
+                {% endif %} 
+              {% endif %}
+            </div>
+            
           </div>
         </div>
-      </div>
-      {% endfor %}
-    </div>
-
-    <!-- Columna derecha: Datos del grupo -->
-    <div class="lg:w-1/3 bg-neutral-800 rounded-lg p-4 text-white shadow">
-      <h2 class="text-lg font-semibold mb-4 text-center">Datos del grupo</h2>
-      <ul class="space-y-2 text-sm">
-        <li><span class="font-medium text-neutral-300">Nombre:</span> {{ perfil.grupo.nombre }}</li>
-        <li><span class="font-medium text-neutral-300">Cantidad de usuarios:</span> {{ perfil.grupo.cantUsuarios }}</li>
-        <li><span class="font-medium text-neutral-300">Meta de horas:</span> {{ perfil.grupo.metaCantHoras }} hs</li>
-        <li><span class="font-medium text-neutral-300">Inicio del estudio:</span> {{ perfil.grupo.plazoInicioEstudio|date:"d/m/Y H:i" }}</li>
-        <li><span class="font-medium text-neutral-300">Fin del estudio:</span> {{ perfil.grupo.plazoFinEstudio|date:"d/m/Y H:i" }}</li>
-        <li><span class="font-medium text-neutral-300">Planificador líder:</span> {{ perfil.grupo.idPlanificadorLider.username }}</li>
-      </ul>
-    </div>
-
-  </div>
-</div>
-{% endif %}
-
-
-
-
-      <!-- Buscador -->
-      <div class="mt-8">
-        <label for="usuario" class="block text-sm font-medium mb-2 text-neutral-200">Buscar usuario</label>
-        <input type="text" id="usuario" class="w-full border border-neutral-600 rounded px-3 py-2 bg-neutral-800 text-white placeholder-neutral-400" placeholder="nombre de usuario">
-        <input type="hidden" id="csrf-token" value="{{ csrf_token }}">
-        <ul id="sugerencias" class="mt-4 space-y-2"></ul>
       </div>
     {% endif %}
+{% endif %}
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="modal-participante" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden backdrop-blur-sm">
+  <div class="bg-neutral-900 rounded-lg p-6 w-full max-w-md relative shadow-lg">
+    <button id="cerrar-modal" class="absolute top-3 right-3 text-white text-lg font-bold">&times;</button>
+    
+    <h2 class="text-xl font-semibold mb-4 text-center text-white">Agregar participante</h2>
+
+    <label for="usuario-modal" class="block text-sm font-medium mb-2 text-neutral-200">Buscar usuario (cantidad max 10)</label>
+    <input type="text" id="usuario-modal" class="w-full border border-neutral-600 rounded px-3 py-2 bg-neutral-800 text-white placeholder-neutral-400" placeholder="nombre de usuario">
+    <input type="hidden" id="csrf-token-modal" value="{{ csrf_token }}">
+    <ul id="sugerencias-modal" class="mt-4 space-y-2 max-h-64 overflow-y-auto"></ul>
   </div>
 </div>
 
 <script>
-document.getElementById('usuario')?.addEventListener('input', function () {
-  const query = this.value;
-  const csrfToken = document.getElementById('csrf-token').value;
-  const contenedor = document.getElementById('sugerencias');
+document.addEventListener('DOMContentLoaded', function () {
+    const abrirModalBtn = document.getElementById('abrir-modal');
+    const modal = document.getElementById('modal-participante');
+    const inputModal = document.getElementById('usuario-modal');
+    const sugerencias = document.getElementById('sugerencias-modal');
+    const csrfToken = document.getElementById('csrf-token-modal')?.value || '';
+    const cerrarModalBtn = document.getElementById('cerrar-modal');
 
-  if (query.length < 1) {
-    contenedor.innerHTML = '';
-    return;
-  }
+    const djangoMessages = document.getElementById('djangoMessages');
+    if (djangoMessages) {
+      setTimeout(() => {
+        djangoMessages.classList.add('opacity-0');
+        setTimeout(() => djangoMessages.remove(), 500); 
+      }, 5000);
+    }
 
-  fetch(`/sugerencias-usuarios/?q=${encodeURIComponent(query)}`)
-    .then(response => response.json())
-    .then(data => {
-      contenedor.innerHTML = '';
+    if (!abrirModalBtn || !modal || !inputModal || !sugerencias || !cerrarModalBtn) return;
 
-      if (data.length === 0) {
-        contenedor.innerHTML = `<li class="text-neutral-400 text-center">No se encontraron usuarios con ese nombre.</li>`;
-        return;
-      }
+    abrirModalBtn.addEventListener('click', () => { modal.classList.remove('hidden'); inputModal.focus(); });
+    function cerrarModal() { modal.classList.add('hidden'); limpiarSugerencias(); inputModal.value = ''; }
+    cerrarModalBtn.addEventListener('click', cerrarModal);
+    modal.addEventListener('click', e => { if (e.target === modal) cerrarModal(); });
 
-      data.forEach(user => {
-        const item = document.createElement('li');
-        item.className = 'flex items-center justify-between bg-neutral-800 p-2 rounded animate-fade-in';
+    function limpiarSugerencias() { sugerencias.innerHTML = ''; }
 
-        item.innerHTML = `
-          <div class="flex items-center space-x-3">
-            <img src="${user.foto}" alt="${user.username}" class="w-8 h-8 rounded-full object-cover">
-            <span class="text-white">${user.username}</span>
-          </div>
-          <button data-usuario="${user.username}" class="invitar-btn flex items-center gap-2 bg-indigo-700 hover:bg-indigo-600 text-white px-4 py-1.5 rounded-full shadow transition-all duration-300 ease-in-out">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            <span>Invitar</span>
-          </button>
-        `;
-        contenedor.appendChild(item);
-      });
+    function marcarInvitado(username) {
+        const ahora = Date.now();
+        localStorage.setItem(`invited_${username}`, ahora);
+    }
 
-      document.querySelectorAll('.invitar-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-          const username = this.dataset.usuario;
-          const boton = this;
+    function estaInvitado(username) {
+        const tiempo = localStorage.getItem(`invited_${username}`);
+        if (!tiempo) return false;
+        const ahora = Date.now();
+        return (ahora - parseInt(tiempo)) < 60000;
+    }
 
-          boton.disabled = true;
-          boton.innerHTML = `
-            <svg class="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-            </svg>
-            <span>Enviando...</span>
-          `;
+    function invitarUsuario(boton, username) {
+        boton.disabled = true;
+        boton.innerHTML = `<span>Enviando...</span>`;
 
-          fetch('/invitar-usuario-ajax/', {
+        fetch('/invitar-usuario-ajax/', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-              'X-CSRFToken': csrfToken
-            },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': csrfToken },
             body: `usuario=${encodeURIComponent(username)}`
-          })
-          .then(res => res.json())
-          .then(data => {
+        })
+        .then(res => res.json())
+        .then(data => {
             if (data.ok) {
-              boton.innerHTML = `
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Invitado</span>
-              `;
-              boton.classList.remove('bg-indigo-700', 'hover:bg-indigo-600');
-              boton.classList.add('bg-green-600');
+                marcarInvitado(username);
+                boton.innerHTML = `
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Invitado</span>
+                `;
+                boton.classList.remove('bg-indigo-700', 'hover:bg-indigo-600');
+                boton.classList.add('bg-green-600');
+
+                setTimeout(() => {
+                    boton.disabled = false;
+                    boton.innerHTML = `
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                        <span>Invitar</span>
+                    `;
+                    boton.classList.remove('bg-green-600');
+                    boton.classList.add('bg-indigo-700', 'hover:bg-indigo-600');
+                }, 60000);
             } else {
-              boton.innerHTML = `
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                <span>Error</span>
-              `;
-              boton.classList.remove('bg-indigo-700');
-              boton.classList.add('bg-red-600');
-              boton.disabled = false;
+                boton.textContent = 'Error';
+                boton.disabled = false;
+                boton.classList.add('bg-red-600');
             }
-          })
-          .catch(() => {
-            boton.innerHTML = `
-              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m0-4h.01M12 20h.01" />
-              </svg>
-              <span>Falló</span>
-            `;
-            boton.classList.remove('bg-indigo-700');
-            boton.classList.add('bg-yellow-600');
+        })
+        .catch(() => {
+            boton.textContent = 'Falló';
             boton.disabled = false;
-          });
+            boton.classList.add('bg-yellow-600');
         });
-      });
+    }
+
+    inputModal.addEventListener('input', function () {
+        const query = inputModal.value.trim();
+        if (!query) { limpiarSugerencias(); return; }
+
+        fetch(`/sugerencias-usuarios/?q=${encodeURIComponent(query)}`)
+            .then(res => res.json())
+            .then(data => {
+                limpiarSugerencias();
+                if (!data.length) {
+                    sugerencias.innerHTML = `<li class="text-neutral-400 text-center">No se encontraron usuarios.</li>`;
+                    return;
+                }
+
+                data.forEach(user => {
+                    const item = document.createElement('li');
+                    item.className = 'flex items-center justify-between bg-neutral-800 p-2 rounded animate-fade-in';
+                    const invitado = estaInvitado(user.username);
+
+                    item.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <img src="${user.foto}" alt="${user.username}" class="w-8 h-8 rounded-full object-cover">
+                            <span class="text-white">${user.username}</span>
+                        </div>
+                        <button data-usuario="${user.username}" class="invitar-btn flex items-center gap-2 ${invitado ? 'bg-green-600' : 'bg-indigo-700 hover:bg-indigo-600'} text-white px-4 py-1.5 rounded-full shadow transition-all duration-300 ease-in-out" ${invitado ? 'disabled' : ''}>
+                            ${invitado ? `
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Invitado</span>
+                            ` : `
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                                </svg>
+                                <span>Invitar</span>
+                            `}
+                        </button>
+                    `;
+
+                    sugerencias.appendChild(item);
+
+                    const btn = item.querySelector('.invitar-btn');
+                    if (!invitado) {
+                        btn.addEventListener('click', () => invitarUsuario(btn, user.username));
+                    }
+                });
+            });
     });
 });
+
 </script>
 
+
 <style>
+#fondoModal {
+    background: rgba(0,0,0,0.7); 
+    backdrop-filter: blur(6px);
+}
+
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-in {
-  animation: fade-in 0.3s ease-out;
+    animation: fade-in 0.3s ease-out;
 }
 </style>
+
 {% endblock %}

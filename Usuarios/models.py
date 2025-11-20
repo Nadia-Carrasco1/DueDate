@@ -9,7 +9,8 @@ class GrupoEstudio(models.Model):
     metaCantHoras = models.IntegerField()
     plazoInicioEstudio = models.DateTimeField()
     plazoFinEstudio = models.DateTimeField()
-    idPlanificadorLider = models.ForeignKey(User, on_delete=models.CASCADE, related_name='grupos_liderados')
+    idPlanificadorLider = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='grupos_liderados')
+    fechaCreacion = models.DateTimeField(auto_now_add=True) 
 
     def __str__(self):
         return self.nombre
@@ -24,26 +25,31 @@ class Perfil(models.Model):
     fecha_nacimiento = models.DateField(null=True, blank=True)
     confirmado = models.BooleanField(default=False)
     grupo = models.ForeignKey(GrupoEstudio, on_delete=models.SET_NULL, null=True, blank=True, related_name='miembros')
+    fecha_union_grupo = models.DateTimeField(null=True, blank=True)
     puntos = models.IntegerField(default=0)
 
     def __str__(self):
         return f'Perfil de {self.user.username}'
 
     def save(self, *args, **kwargs):
-        self.puntos = self.calcular_puntos_grupo()  # calcular antes de guardar
-        super().save(*args, **kwargs)               # guardar una sola vez
+        self.puntos = self.calcular_puntos_grupo() 
+        super().save(*args, **kwargs)               
         if self.grupo:
             self.grupo.actualizar_cantidad_usuarios()
 
 
     def calcular_puntos_grupo(self):
-            if not self.grupo:
-                return 0
+        grupo = self.grupo
+        if not grupo or not self.fecha_union_grupo:
+            return 0
 
-            inicio = self.grupo.plazoInicioEstudio
-            sesiones = SesionEstudio.objects.filter(
-                user=self.user,
-                fecha_creacion__gte=inicio
-            )
-            total_minutos = sum(s.meta_minutos_alcanzados for s in sesiones)
-            return round(total_minutos)
+        inicio_valido = max(self.fecha_union_grupo, grupo.plazoInicioEstudio)
+
+        sesiones_usuario = SesionEstudio.objects.filter(
+            user=self.user,
+            fecha_creacion__gte=inicio_valido,
+            fecha_creacion__lte=grupo.plazoFinEstudio
+        )
+
+        puntos = sum(s.meta_minutos_alcanzados for s in sesiones_usuario)
+        return int(puntos)
