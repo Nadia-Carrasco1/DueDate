@@ -1,0 +1,45 @@
+{% extends 'Base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="bg-neutral-800 min-h-screen pt-10">
+    <div class="max-w-xl mx-auto p-6 bg-neutral-900 rounded shadow text-white">
+    <h1 class="text-2xl font-bold mb-6 text-center">Editar grupo: {{ grupo.nombre }}</h1>
+
+    <form method="post" novalidate id="form-editar-grupo">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="mb-4">
+          <label for="{{ field.id_for_label }}" class="block text-sm font-medium mb-1 text-neutral-300">
+            {{ field.label }}
+          </label>
+
+          {% if field.name == 'plazoInicioEstudio' or field.name == 'plazoFinEstudio' %}
+            {% with value=field.value|date:"Y-m-d\\TH:i" %}
+              <input type="datetime-local" name="{{ field.name }}" id="{{ field.id_for_label }}" value="{{ value }}" class="w-full bg-neutral-800 border border-neutral-700 rounded px-3 py-2 text-white" />
+            {% endwith %}
+          {% else %}
+            {{ field }}
+          {% endif %}
+
+          {% for error in field.errors %}
+            <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endfor %}
+
+      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded shadow transition">
+        Guardar cambios
+      </button>
+    </form>
+
+    <div class="mt-6 text-center">
+      <a href="{% url 'vista_grupo_estudio' %}" class="text-sm text-indigo-400 hover:underline">
+        Cancelar y volver al panel
+      </a>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'js/grupo-estudio/form-grupo-estudio.js' %}"></script>
+{% endblock %}

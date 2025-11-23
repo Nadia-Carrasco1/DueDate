@@ -1,0 +1,12 @@
+{% extends 'Base.html' %}
+{% block content %}
+<div class="bg-neutral-800 min-h-screen pt-24 text-white text-center px-6">
+  <div class="max-w-md mx-auto bg-neutral-900 p-6 rounded shadow">
+    <h1 class="text-2xl font-bold mb-4">Invitación inválida</h1>
+    <p class="text-neutral-300 mb-4">El enlace de invitación no es válido o ya fue utilizado.</p>
+    <a href="{% url 'vista_grupo_estudio' %}" class="inline-block bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded shadow transition">
+      Volver al grupo
+    </a>
+  </div>
+</div>
+{% endblock %}
