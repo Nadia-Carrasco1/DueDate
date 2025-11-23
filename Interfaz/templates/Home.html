@@ -52,19 +52,17 @@
                         </svg>                
                     </a>
                 </li>
-            <ul class="*:p-1 *:pl-0">
-                <li><a href="{% url 'acceso_lista_unica' %}" ><h3 class="hover:underline">To-Do List 📝</h3></a></li>
-                <li><a href="{% url 'cronometro' %}" ><h3 class="hover:underline">Cronómetro ⏱</h3></a></li>
-                <li><a href="{% url 'calendario' %}"><h3 class="hover:underline">Calendario 📅</h3></a></li>
-                <li class="px-4 py-4">
+                <li>
                     <a href="{% url 'logros' %}">
-                        <div class="flex justifi-center">
-                            <span class="mr-2">Logros</span> 
+                        <div class="flex">
+                            <span class="pr-1">Logros</span>
                             {% if cant_logros_sin_reclamar > 0 %} 
                                 <span class="flex justifi-center bg-neutral-500 rounded-full px-2">
                                     <img src="{% static 'img/gift-solid.svg' %}" alt="Logros" class="px-1">
                                     <span class="font-semibold px-1">{{ cant_logros_sin_reclamar }}</span>
                                 </span> 
+                            {% else %}
+                                <img src="{% static 'img/gift-solid.svg' %}" alt="Logros" class="w-6 h-6 px-1">
                             {% endif %}
                         </div>
                     </a>

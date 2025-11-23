@@ -6,7 +6,6 @@ from django.views.decorators.http import require_POST
 import json
 from .utils import verificar_logros_us_debloqueados
 
-@login_required
 def mostrar_logros(request):
     logros_us = verificar_logros_us_debloqueados(usuario=request.user)
 
