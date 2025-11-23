@@ -7,7 +7,7 @@
         <link rel="stylesheet" href="{% static 'css/output.css' %}">
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block tittle %}{% endblock %}</title>
+        <title>{% block title %}{% endblock %}</title>
     </head>
     <body class="bg-neutral-800 text-white flex flex-col min-h-screen relative">
         {% csrf_token %}
@@ -25,21 +25,27 @@
             <audio id="sonido-naturaleza" src="{% static 'audios/naturaleza.mp3' %}" loop></audio>
             <audio id="sonido-ambiente" src="{% static 'audios/ambiente.mp3' %}" loop></audio>
         </div>
+        <audio id="sonido-notificacion-recompensa" src="{% static 'audios/notificacion-recompensa.mp3' %}"></audio>
         <script>
             window.rutaConVolumen = "{% static 'img/con-volumen.svg' %}";
             window.rutaSinVolumen = "{% static 'img/sin-volumen.svg' %}";
             window.rutaPlay = "{% static 'img/play.svg' %}";
             window.rutaPausar = "{% static 'img/pausar.svg' %}";
+            window.rutaBtnCerrarBarraSonido = "{% static 'img/x-solid.svg' %}";
         </script>
         
         <script>
-            CSRF_TOKEN = document.querySelector('[name=csrfmiddlewaretoken]').value; 
+            CSRF_TOKEN = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const logrosUrl = "{% url 'logros' %}"
+            const finalizarSesionUrl = "{% url 'finalizar_sesion' %}";
         </script>
         <script src="{% static 'js/perfil.js' %}"></script>
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="{% static 'js/cambiar-estado-tarea.js' %}"></script>
+        <script src="{% static 'js/recompensas/notificaciones-recompensas.js' %}"></script>
         <script src="{% static 'js/sonidos-ambiente-cronometro.js' %}"></script>
         <script src="{% static 'js/cronometro.js' %}"></script>
+        <script src="{% static 'js/recompensas/reclamar-recompensa.js' %}"></script>
         {% if is_authenticated %}
             <script src="{% static 'js/dropdown-menu-perfil.js' %}"></script>        
         {% endif %}

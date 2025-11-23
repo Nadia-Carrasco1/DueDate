@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'Usuarios',
     'Interfaz',
     'Eventos',
+    'Recompensas',
     'Cronometro.apps.CronometroConfig',
 ]
 
@@ -81,6 +82,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'Interfaz.context_processors.navbar_context',
+                'Interfaz.context_processors.verificar_logros_us_sin_reclamar',
                 'Usuarios.context_processors.perfil_global',
                 'Cronometro.context_processors.datos_cronometro',
             ],

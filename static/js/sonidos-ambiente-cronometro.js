@@ -89,20 +89,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const btnSonidos = `
             <button id="boton-play-pausa">
-                <img id="icono-play-pausa" src="${window.rutaPausar}" alt="Boton play pausa" class="h-6 w-6">
+                <img id="icono-play-pausa" src="${window.rutaPausar}" alt="Boton play pausa" class="h-4 w-4">
             </button>
         `;
 
         if (barraSonido) {
-              barraSonidoDinamica.innerHTML = `
-                <div class="flex items-center justify-between text-white w-full">
-                    <div class="flex items-center space-x-2">
-                        ${btnSonidos}
-                        <input type="range" id="volumenControl" min="0" max="1" step="0.01" value="${volumenGuardado || 1}">
-                        <img id="icono-volumen" src="${window.rutaConVolumen}" alt="Icono volumen" class="h-6 w-6">
-                        <span id="nombre-sonido" class="font-bold">${sonidoNombre}</span>
-                    </div>
-                </div>
+            barraSonidoDinamica.innerHTML = `
+              <div class="flex items-center justify-between text-white w-full rounded-full bg-black/80 px-3 py-3">
+                  <div class="flex items-center justify-center space-x-2">
+                      <img src="${window.rutaBtnCerrarBarraSonido}" alt="Botón cerrar" id="btn-cerrar-barra-sonido" class="p-1 w-5 h-5 hover:bg-neutral-700/20 hover:rounded-full hover:cursor-pointer" title="Cerrar">
+                      ${btnSonidos}
+                      <input type="range" id="volumenControl" min="0" max="1" step="0.01" class="accent-indigo-700" value="${volumenGuardado || 1}">
+                      <img id="icono-volumen" src="${window.rutaConVolumen}" alt="Icono volumen" class="h-5 w-5">
+                      <span id="nombre-sonido" class="text-sm pr-3">${sonidoNombre}</span>
+                  </div>
+              </div>
             `;
         }
 
@@ -158,26 +159,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const sonidoNombre = radio.id.charAt(0).toUpperCase() + radio.id.slice(1);
                 const btnSonidos = `
-                    <button id="boton-play-pausa">
-                        <img id="icono-play-pausa" src="${window.rutaPausar}" alt="Boton play pausa" class="h-6 w-6">
+                    <button type="button" id="boton-play-pausa">
+                        <img id="icono-play-pausa" src="${window.rutaPausar}" alt="Boton play pausa" class="h-4 w-4">
                     </button>
                 `;
                 
                 barraSonidoDinamica.innerHTML = `
-                    <div class="flex items-center justify-between text-white w-full">
-                        <div class="flex items-center space-x-2">
+                    <div class="flex items-center justify-between text-white w-full rounded-full bg-black/80 px-3 py-3">
+                        <div class="flex items-center justify-center space-x-2">
+                            <img src="${window.rutaBtnCerrarBarraSonido}" alt="Botón cerrar" id="btn-cerrar-barra-sonido" class="p-1 w-5 h-5 hover:bg-neutral-700/20 hover:rounded-full hover:cursor-pointer" title="Cerrar">
                             ${btnSonidos}
-                            <input type="range" id="volumenControl" min="0" max="1" step="0.01" value="${sonidoSeleccionado.volume}">
-                            <img id="icono-volumen" src="${window.rutaConVolumen}" alt="Icono volumen" class="h-6 w-6">
-                            <span id="nombre-sonido" class="font-bold">${sonidoNombre}</span>
+                            <input type="range" id="volumenControl" min="0" max="1" step="0.01" class="accent-indigo-700" value="${sonidoSeleccionado.volume}">
+                            <img id="icono-volumen" src="${window.rutaConVolumen}" alt="Icono volumen" class="h-5 w-5">
+                            <span id="nombre-sonido" class="text-sm pr-3">${sonidoNombre}</span>
                         </div>
                     </div>
                 `;
+
+                barraSonidoDinamica.classList.remove('hidden');
 
                 const volumenSlider = document.getElementById('volumenControl');
                 const iconoVolumen = document.getElementById('icono-volumen');
                 const botonPlayPausa = document.getElementById('boton-play-pausa');
                 const iconoPlayPausa = document.getElementById('icono-play-pausa');
+
+                const btnCerrarBarraSonido = document.getElementById('btn-cerrar-barra-sonido');
+
+                if (btnCerrarBarraSonido) {
+                    btnCerrarBarraSonido.addEventListener('click', () => {
+                        const audio = sonidos[radio.id]; 
+
+                        if (audio) {
+                            audio.pause();
+                            audio.currentTime = 0; 
+                        }
+
+                        barraSonidoDinamica.classList.add('hidden');
+                        localStorage.removeItem('sonidoActivo');
+                        localStorage.removeItem('sonidoId');
+                    });
+                }
 
                 botonPlayPausa.addEventListener('click', () => {
                     if (sonidoSeleccionado.paused) {

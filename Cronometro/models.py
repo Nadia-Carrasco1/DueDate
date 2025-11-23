@@ -8,7 +8,6 @@ class SesionEstudio(models.Model):
     repeticiones = models.IntegerField()
 
     repeticiones_completadas = models.IntegerField(default=0)
-    # Para calcular estadisticas por semana/mes/año
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_fin = models.DateTimeField(null=True, blank=True)
 

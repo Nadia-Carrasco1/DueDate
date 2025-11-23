@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
 from django.http import JsonResponse
 from django.utils.timezone import now
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from Cronometro.forms import SesionEstudioForm
 from .models import SesionEstudio
 from django.db.models import Sum
@@ -10,9 +10,13 @@ from django.http import JsonResponse
 from django.utils.timezone import localtime
 import calendar
 from datetime import date, timedelta
+from Recompensas.utils import verificar_desbloquear_logros, verificar_logros_us_debloqueados
+from Recompensas.models import Logro
+from django.templatetags.static import static 
 
 # Cronómetro
 def mostrar_cronometro(request):
+    logros = verificar_logros_us_debloqueados(usuario=request.user)
     form = SesionEstudioForm()
     
     tiempo_estudio_segundos = 0
@@ -34,11 +38,24 @@ def mostrar_cronometro(request):
         'tiempo_estudio_segundos': tiempo_estudio_segundos,
         'tiempo_descanso_segundos': tiempo_descanso_segundos,
         'repeticiones': repeticiones,
-        'sesion': sesion
+        'sesion': sesion,
+        'logros': logros
     })
+
+def forzar_finalizar_sesion(sesion):
+    if not sesion.fecha_fin:
+        sesion.fecha_fin = now()
+        sesion.save()
 
 @login_required
 def crear_sesion_estudio(request):
+    ultima_sesion = SesionEstudio.objects.filter(user=request.user, fecha_fin__isnull=True).order_by('-fecha_creacion').first()
+    
+    if ultima_sesion:
+        forzar_finalizar_sesion(ultima_sesion)
+
+    verificar_desbloquear_logros(user=request.user, tipo_accion='SESIONES_CREADAS')
+
     if request.method == 'POST':
         form = SesionEstudioForm(request.POST)
         if form.is_valid():
@@ -69,11 +86,48 @@ def finalizar_sesion(request):
 
             sesion.save()
 
-            return JsonResponse({'status': 'ok'})
+            verificar_logros = request.POST.get('verificar_logros')
+
+            logros_desbloqueados = []
+
+            if verificar_logros:
+                logros_desbloqueados = verificar_desbloquear_logros(user=request.user, tipo_accion=verificar_logros)
+
+            return JsonResponse({
+                'status': 'ok',
+                'logros_desbloqueados': logros_desbloqueados
+            })
         except SesionEstudio.DoesNotExist:
             return JsonResponse({'error': 'Sesión no encontrada'}, status=404)
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+# Personalización
+def aplicar_fondo(request):
+    if request.method == 'POST':
+        logro_seleccionado = request.POST.get('recompensa_seleccionada')
+        
+        if logro_seleccionado == 'img/fondo-por-defecto.jpg':
+            recompensa_url = logro_seleccionado
+        else:
+            try:
+                logro = get_object_or_404(Logro, pk=logro_seleccionado)
+                recompensa_url = logro.recompensa_url
+            except Exception as e:
+                print(f"Logro no encontrado o error al procesarlo: {e}")
+                return JsonResponse({'status': 'error', 'message': 'Logro no válido'}, status=400)
+        
+        if recompensa_url:
+            request.session['fondo_seleccionado_url'] = recompensa_url
+            
+            fondo_aplicado_url = static(recompensa_url)
+            
+            return JsonResponse({
+                'status': 'success',
+                'fondo_url': fondo_aplicado_url
+            })
+
+    return JsonResponse({'status': 'error', 'message': 'Petición inválida'}, status=400)
 
 # Estadísticas
 @login_required

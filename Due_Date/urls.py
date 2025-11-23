@@ -20,6 +20,7 @@ from Usuarios import views
 from Interfaz import views as interfaz_views
 from Eventos import views as eventos_views
 from Cronometro import views as cronometro_views
+from Recompensas import views as recompensas_views
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -44,6 +45,7 @@ urlpatterns = [
     path('Cronometro/', cronometro_views.mostrar_cronometro, name='cronometro'),
     path('CrearSesionEstudio/', cronometro_views.crear_sesion_estudio, name='crear_sesion_estudio'),
     path('finalizar-sesion/', cronometro_views.finalizar_sesion, name='finalizar_sesion'),
+    path('aplicar_fondo/', cronometro_views.aplicar_fondo, name='aplicar_fondo'),
     # Estadísticas
     path('Estadisticas/', cronometro_views.mostrar_estadisticas, name='estadisticas'),
     path('estadisticas/datos/', cronometro_views.datos_estadisticas_estudio, name='datos_estadisticas_estudio'),
@@ -55,6 +57,9 @@ urlpatterns = [
     path('obtener-formulario-edicion/<int:evento_id>/', eventos_views.obtener_formulario_edicion, name='obtener_formulario_edicion'),
     path('eliminar-evento/', eventos_views.eliminar_evento, name='eliminar_evento'),
     path('actualizar-fecha/<int:evento_id>/', eventos_views.actualizar_fecha, name='actualizar_fecha'),
+    # Recompensas
+    path('Logros/', recompensas_views.mostrar_logros, name='logros'),
+    path('Logros/<int:pk_recompensa>/reclamar/', recompensas_views.reclamar_recompensa, name="reclamar_recompensa")
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

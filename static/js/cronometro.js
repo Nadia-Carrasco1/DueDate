@@ -1,12 +1,12 @@
 (function() {
     const dataCronometro = document.getElementById('cronometro-data');
 
-    const tiempoEstudioEnSegundos = parseInt(dataCronometro.dataset.tiempoEstudio);
-    const tiempoDescansoEnSegundos = parseInt(dataCronometro.dataset.tiempoDescanso);
-    const repeticionesTotales = parseInt(dataCronometro.dataset.repeticiones);
-    const sesionId = dataCronometro.dataset.sesionId;
-    const csrftoken = dataCronometro.dataset.csrfToken;
-    const finalizarSesionUrl = dataCronometro.dataset.finalizarUrl;
+    const tiempoEstudioEnSegundos = dataCronometro ? parseInt(dataCronometro.dataset.tiempoEstudio) : 0;
+    const tiempoDescansoEnSegundos = dataCronometro ? parseInt(dataCronometro.dataset.tiempoDescanso) : 0;
+    const repeticionesTotales = dataCronometro ? parseInt(dataCronometro.dataset.repeticiones) : 0;
+    const sesionId = dataCronometro ? dataCronometro.dataset.sesionId : null;
+    const csrftoken = dataCronometro ? dataCronometro.dataset.csrfToken : null;
+    const finalizarSesionUrl = dataCronometro ? dataCronometro.dataset.finalizarUrl : null;
 
     let tiempoEstudioInicial = tiempoEstudioEnSegundos;
     let tiempoDescansoInicial = tiempoDescansoEnSegundos;
@@ -23,9 +23,9 @@
     const cronometro = document.getElementById('cronometro');
     const btnIniciar = document.getElementById('btn-iniciar');
     const btnPausar = document.getElementById('btn-pausar');
-    const audioFinEstudio = document.getElementById('audio-fin-estudio')
-    const audioFinDescanso = document.getElementById('audio-fin-descanso')
-    const audioFinSesionEstudio = document.getElementById('audio-fin-sesion-estudio')
+    const audioFinEstudio = document.getElementById('audio-fin-estudio');
+    const audioFinDescanso = document.getElementById('audio-fin-descanso');
+    const audioFinSesionEstudio = document.getElementById('audio-fin-sesion-estudio');
 
     const estadoGuardado = JSON.parse(localStorage.getItem('estado_cronometro'));
 
@@ -51,7 +51,7 @@
         const segundos = tiempoRestante % 60;
         const visor = `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
 
-        cronometro.textContent = visor;
+        if (cronometro) { cronometro.textContent = visor; }
     }
 
     function tic() {
@@ -76,7 +76,7 @@
     function iniciarTemporizador() {
         if (!estaCorriendo) {
             estaCorriendo = true;
-            btnIniciar.disabled = true;
+            if (tiempoEstudioEnSegundos > 0) { btnIniciar.disabled = true; }
             btnPausar.disabled = false;
             intervaloTemporizador = setInterval(tic, 1000);
         }
@@ -117,9 +117,11 @@
                     audioFinSesionEstudio.play();
                 }
 
-                visorRepeticiones.innerHTML = "";
+                if (visorRepeticiones) { visorRepeticiones.innerHTML = ""; }
                 cronometro.innerHTML = "00:00:00";
-                visorModo.innerHTML = `<p class="text-center">Rep: ${repeticionesSesionActual}/${repeticionesTotales}<p> <p>Sesión finalizada ✅</p>`;
+                if (repeticionesTotales) {
+                    visorModo.innerHTML = `<p class="text-center">Rep: ${repeticionesSesionActual}/${repeticionesTotales}<p> <p>Sesión finalizada ✅</p>`;
+                }
                 btnIniciar.disabled = true;
                 btnPausar.disabled = true;
                 finalizarSesion();
@@ -128,8 +130,8 @@
         actualizarVista();
     }
 
-    btnIniciar.addEventListener('click', iniciarTemporizador);
-    btnPausar.addEventListener('click', pausarTemporizador);
+    if (btnIniciar) { btnIniciar.addEventListener('click', iniciarTemporizador); }
+    if (btnPausar) { btnPausar.addEventListener('click', pausarTemporizador); }
 
     actualizarVista();
 
@@ -140,12 +142,9 @@
         data.append('minutos_estudiados', minutos);
         data.append('sesion_id', sesionId);
         data.append('csrfmiddlewaretoken', csrftoken);
+        data.append('verificar_logros', 'MINUTOS_ACUMULADOS');
 
-        fetch(finalizarSesionUrl, {
-            method: 'POST',
-            body: data,
-            credentials: 'same-origin',
-        });
+        fetchVerificaLogros(data);
     }
 
     function finalizarSesion() {
@@ -154,35 +153,17 @@
         localStorage.removeItem('sonidoId');
         localStorage.removeItem('sonidoActivo');
         localStorage.removeItem('estado_cronometro');
-        console.log('asdadasdadasddadas');
         const minutosEstudiados = (repeticionesSesionActual * tiempoEstudioInicial) / 60;
 
         const data = new FormData();
         data.append('minutos_estudiados', minutosEstudiados);
         data.append('sesion_id', sesionId);
+        data.append('verificar_logros', 'SESIONES_COMPLETADAS');
         data.append('csrfmiddlewaretoken', csrftoken);
         data.append('finalizar', 1); // para que Django cierre la sesión
 
-        fetch(finalizarSesionUrl, {
-            method: 'POST',
-            body: data,
-            credentials: 'same-origin',
-        });
+        fetchVerificaLogros(data);
     }
-
-    /*window.addEventListener('unload', function () {
-        if (sesionId && sesionId !== "None" && !sesionFinalizada) {
-            const minutosEstudiados = segundosEstudiados / 60;
-
-            const data = new URLSearchParams();
-            data.append('minutos_estudiados', minutosEstudiados);
-            data.append('sesion_id', sesionId);
-            data.append('csrfmiddlewaretoken', csrftoken);
-            data.append('finalizar', 1); // para que Django cierre la sesión
-
-            navigator.sendBeacon(finalizarSesionUrl, data);
-        }
-    });*/
 
     let navegacionInterna = false;
 

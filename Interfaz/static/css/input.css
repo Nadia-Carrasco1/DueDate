@@ -7,5 +7,35 @@
 }
 
 .boton-cronometro {
-    @apply bg-black/30 text-white px-4 py-2 hover:bg-black/60
+    @apply bg-black/70 text-white px-4 py-2 hover:bg-black/80;
+}
+
+.overlay-transparente {
+    @apply absolute inset-0 bg-black opacity-60 z-10 flex justify-center items-center;
+}
+
+.btn-overlay-transparente {
+    @apply p-1 bg-indigo-700/50 hover:bg-indigo-700/80;
+}
+
+.btn-menu-personalizar {
+    @apply border border-neutral-500 p-1 hover:bg-black/50 hover:text-indigo-500 hover:border-indigo-500;
+}
+
+@layer components {
+    #lista-audios > li {
+        @apply flex items-center py-2 px-3 hover:bg-neutral-700/20 rounded-md;
+    }
+}
+
+@layer components {
+    #lista-audios > li > input {
+        @apply mr-2 cursor-pointer accent-indigo-500 p-1;
+    }
+}
+
+@layer components {
+    #volumenCrontrol {
+        @apply accent-green-500;
+    }
 }
