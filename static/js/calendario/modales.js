@@ -34,8 +34,12 @@ export function initModales(calendar) {
   document.querySelectorAll('.mensaje-django').forEach(msg => {
     setTimeout(() => {
       msg.classList.add('opacity-0');
-    }, 4000);
+      setTimeout(() => {
+        msg.remove(); 
+      }, 500); 
+    }, 4000); 
   });
+
 
   document.addEventListener('calendar:eventClick', function(e) {
     const evento = e.detail;

@@ -4,19 +4,12 @@
 {% block title %}Estadísticas{% endblock %}
 
 {% block content %}
+<div class="flex justify-center">
+    {% include 'Panel.html' %}
+
+  <div class="w-full p-4">
     <div class="flex min-h-screen">
-        <div class="bg-neutral-900 w-1/6 p-3">
-            <div class="flex justify-between">
-                <h3 class="font-bold">Panel</h3>
-                <img src="{% static 'img/burger-menu.svg' %}" alt="Icono de menu" class="h-6 w-6">
-            </div>
-            <br>
-            <ul class="*:p-1 *:pl-0">
-                <li><a href="{% url 'acceso_lista_unica' %}" ><h3 class="hover:underline">To-Do List 📝</h3></a></li>
-                <li><a href="{% url 'cronometro' %}" ><h3 class="hover:underline">Cronómetro ⏱</h3></a></li>
-                <li><a href="{% url 'calendario' %}"><h3 class="hover:underline">Calendario 📅</h3></a></li>
-            </ul>
-        </div>
+       
 
         <!-- Contenido principal -->
         <div class="w-full flex flex-col justify-start min-h-screen">
@@ -42,7 +35,7 @@
             </div>
         </div>
     </div>
-
+</div></div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{% static 'js/estadisticas.js' %}"></script>
 {% endblock %}

@@ -35,18 +35,15 @@ export function initCalendar() {
       const recInput = document.querySelector('input[name="recordatorio_fecha_hora"]');
       const formatoLocal = fecha => fecha.toISOString().slice(0, 16);
 
-      // Fecha inicio a mediodía, fin 1 hora después
       const fechaInicio = new Date(info.dateStr + "T12:00");
       const fechaFin = new Date(fechaInicio.getTime() + 60 * 60 * 1000);
 
       fiInput.value = formatoLocal(fechaInicio);
       ffInput.value = formatoLocal(fechaFin);
 
-      // **Establecer límites para que no se puedan seleccionar horas inválidas**
-      ffInput.min = fiInput.value;        // La fecha fin no puede ser menor que inicio
-      recInput && (recInput.max = fiInput.value);  // El recordatorio no puede ser posterior a inicio
+      ffInput.min = fiInput.value;        
+      recInput && (recInput.max = fiInput.value);  
 
-      // Actualizar límites dinámicamente si cambia fecha inicio
       fiInput.addEventListener('change', () => {
         if (ffInput.value < fiInput.value) {
           ffInput.value = fiInput.value;

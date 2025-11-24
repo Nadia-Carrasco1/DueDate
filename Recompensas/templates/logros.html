@@ -5,18 +5,8 @@
 
 {% block content %}
 <div class="flex justify-center">
-    <div class=" bg-neutral-900 w-1/6 p-3 min-h-screen rounded-tr-lg">
-        <div class="flex justify-between">
-            <h3 class="font-bold">Panel</h3>
-            <img src="{% static 'img/burger-menu.svg' %}" alt="Icono de menu" class="h-6 w-6 hover:text-white transition duration-200">
-        </div>
-        <br>
-        <ul class="*:p-1 *:pl-0">
-            <li><a href="{% url 'acceso_lista_unica' %}" ><h3 class="hover:underline">To-Do List 📝</h3></a></li>
-            <li><a href="{% url 'cronometro' %}" ><h3 class="hover:underline">Cronómetro ⏱</h3></a></li>
-            <li><a href="{% url 'calendario' %}"><h3 class="hover:underline">Calendario 📅</h3></a></li>
-        </ul>
-    </div>
+    {% include 'Panel.html' %}
+    
     <!-- Logros -->
     <ul id="logros" class="w-full p-8">
         <div class="flex justify-between">

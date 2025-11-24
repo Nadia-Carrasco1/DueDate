@@ -20,7 +20,7 @@ class TareaForm(forms.ModelForm):
 class EventoForm(forms.ModelForm):
     repetir_anualmente = forms.BooleanField(
         required=False,
-        label="Repetir cada año",
+        label="Repetir cada año (opcional)",
         widget=forms.CheckboxInput(attrs={'class': 'ml-2 accent-purple-500'})
     )
 
@@ -47,7 +47,7 @@ class EventoForm(forms.ModelForm):
             'descripcion': forms.Textarea(attrs={
                 'rows': 3,
                 'class': 'w-full p-2 rounded bg-neutral-800 text-white border border-neutral-600',
-                'placeholder': 'Descripción (opcional)...',
+                'placeholder': 'Descripción',
             }),
         }
 
@@ -60,6 +60,8 @@ class EventoForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['recordatorio_fecha_hora'].label = "Recordatorio fecha hora (opcional)"
+        self.fields['descripcion'].label = "Descripción (opcional)"
         for field_name in ['fecha_inicio', 'fecha_fin', 'recordatorio_fecha_hora']:
             if self.instance and getattr(self.instance, field_name):
                 self.fields[field_name].initial = getattr(self.instance, field_name).strftime('%Y-%m-%dT%H:%M')
