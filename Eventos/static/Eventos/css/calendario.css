@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*CALENDARIO  */
+
+/* Botones principales (prev, next, month, week, day) */
+.fc-button-primary {
+  @apply bg-neutral-700 text-white hover:bg-indigo-700/80 rounded-md shadow-md px-3 py-1 !important;
+  border: none !important;
+  font-weight: 500 !important;
+}
+
+/* Botón activo (vista seleccionada) */
+.fc-button-primary.fc-button-active {
+  @apply bg-indigo-700/50 shadow-inner !important;
+}
+
+/* Botón "Hoy" */
+.fc-today-button {
+  @apply hover:bg-indigo-800 text-white rounded-md !important;
+}
+
+
+
+/* Título del calendario */
+.fc-toolbar-title {
+  @apply text-white text-xl font-bold tracking-wide !important;
+}
+
+/* Eventos dentro del calendario */
+.fc-event {
+  @apply bg-indigo-700/50 text-white rounded-md px-2 py-1 shadow-sm;
+  font-size: 0.85rem;
+}
+
+.fc-event:hover {
+  @apply bg-indigo-800 cursor-pointer;
+}
+
+.fc-button-primary,
+.fc-today-button,
+.fc-downloadBtn-button {
+  @apply mr-1 text-base !important;
+}
+
+
+
+/* Encabezado de cada día en listWeek */
+.fc-list-day-cushion {
+  @apply bg-neutral-900 text-white font-bold px-3 py-1 rounded-md !important;
+}
+
+/* Para el texto de fecha lateral */
+.fc-list-day-side-text {
+  @apply text-neutral-300 !important;
+}
+
+/* Para el texto del día (lunes, martes, etc.) */
+.fc-list-day-text {
+  @apply text-white font-semibold !important;
+}
+
+
+/* Hover de listWeek */
+.fc-list > tbody > tr.fc-list-event:hover {
+  background-color: rgba(79, 70, 229, 0.4) !important; /* indigo-600/40 */
+  color: white !important;
+}
+
+/* Color del título */
+.fc-list > tbody > tr.fc-list-event:hover .fc-list-event-title a {
+  color: white !important;
+}
+
+/* Color de la hora */
+.fc-list > tbody > tr.fc-list-event:hover .fc-list-event-time {
+  color: white !important;
+}
+
+/* El puntito del evento */
+.fc-list > tbody > tr.fc-list-event:hover .fc-list-event-dot {
+  border-color: white !important;
+}
+
+

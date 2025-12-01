@@ -1,100 +1,86 @@
 export function initExportacion(calendar) {
-  const downloadBtn = document.querySelector('.fc-downloadBtn-button');
-  const dropdown = document.getElementById('dropdown-export');
-  const selectorSemana = document.getElementById('selector-semana');
-  const btnDescargarSemana = document.getElementById('btnDescargarSemana');
+  const selectorSemana = document.getElementById('selector-semana');
+  const btnDescargarSemana = document.getElementById('btnDescargarSemana');
+  
+  cargarSemanasDelMes(calendar);
 
-  if (selectorSemana && btnDescargarSemana) {
-    selectorSemana.addEventListener('change', () => {
-      if (selectorSemana.value) {
-        btnDescargarSemana.disabled = false;
-        btnDescargarSemana.classList.remove('bg-gray-500', 'cursor-not-allowed', 'border', 'border-gray-400');
-        btnDescargarSemana.classList.add('bg-indigo-700', 'hover:bg-indigo-600', 'cursor-pointer');
-      } else {
-        btnDescargarSemana.disabled = true;
-        btnDescargarSemana.classList.remove('bg-indigo-700', 'hover:bg-indigo-600', 'cursor-pointer');
-        btnDescargarSemana.classList.add('bg-gray-500', 'cursor-not-allowed', 'border', 'border-gray-400');
-      }
-    });
+  if (selectorSemana && btnDescargarSemana) {
+    selectorSemana.addEventListener('change', () => {
+      if (selectorSemana.value) {
+        btnDescargarSemana.disabled = false;
+        btnDescargarSemana.classList.remove('bg-neutral-700', 'cursor-not-allowed', 'border', 'border-neutral-600', 'opacity-60');
+        btnDescargarSemana.classList.add('bg-indigo-700/50', 'hover:bg-indigo-700/80', 'cursor-pointer');
+      } else {
+        btnDescargarSemana.disabled = true;
+        btnDescargarSemana.classList.remove('bg-indigo-700/50', 'hover:bg-indigo-700/80', 'cursor-pointer');
+        btnDescargarSemana.classList.add('bg-neutral-700', 'cursor-not-allowed', 'border', 'border-neutral-600', 'opacity-60');
+      }
+    });
 
-    selectorSemana.dispatchEvent(new Event('change'));
-  }
+    selectorSemana.dispatchEvent(new Event('change'));
 
-  downloadBtn.addEventListener('click', function () {
-    dropdown.classList.toggle('hidden');
+    btnDescargarSemana.addEventListener('click', () => {
+      const selectedOption = selectorSemana.options[selectorSemana.selectedIndex];
+      if (!selectedOption || !selectedOption.dataset.start) return;
 
-    cargarSemanasDelMes(calendar);
+      const start = new Date(selectedOption.dataset.start);
+      const end = new Date(selectedOption.dataset.end);
+      const label = selectedOption.textContent;
 
-    const rect = downloadBtn.getBoundingClientRect();
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
-
-    dropdown.style.top = (rect.bottom + scrollTop + 4) + 'px';
-    dropdown.style.left = (rect.left + scrollLeft - 115) + 'px';
-  });
-
-  document.addEventListener('click', function (event) {
-    if (!dropdown.contains(event.target) && !downloadBtn.contains(event.target)) {
-      dropdown.classList.add('hidden');
-    }
-  });
-
-  if (btnDescargarSemana && selectorSemana) {
-    btnDescargarSemana.addEventListener('click', () => {
-      const selectedOption = selectorSemana.options[selectorSemana.selectedIndex];
-      if (!selectedOption || !selectedOption.dataset.start) return;
-
-      const start = new Date(selectedOption.dataset.start);
-      const end = new Date(selectedOption.dataset.end);
-      const label = selectedOption.textContent;
-
-      exportEvents(calendar, {
-        customRange: true,
-        start,
-        end,
-        label
-      });
-    });
-  }
+      exportEvents(calendar, {
+        customRange: true,
+        start,
+        end,
+        label
+      });
+    });
+  }
 }
 
+export function cargarSemanasDelMes(calendar) {
+  const selector = document.getElementById('selector-semana');
+  if (!selector) return;
 
-function cargarSemanasDelMes(calendar) {
-  const selector = document.getElementById('selector-semana');
-  if (!selector) return;
+  selector.innerHTML = '<option disabled selected value="">Seleccionar semana</option>';
 
-  selector.innerHTML = '<option disabled selected value="">Seleccionar semana</option>';
+  try {
+    const startOfMonth = new Date(calendar.view.currentStart);
+    const year = startOfMonth.getFullYear();
+    const month = startOfMonth.getMonth();
 
-  const startOfMonth = new Date(calendar.view.currentStart);
-  const year = startOfMonth.getFullYear();
-  const month = startOfMonth.getMonth();
+    const primerDiaMes = new Date(year, month, 1);
+    const diaSemana = primerDiaMes.getDay(); 
+    
+    const offset = -diaSemana;
 
-  const primerDiaMes = new Date(year, month, 1);
-  const diaSemana = primerDiaMes.getDay(); 
-  const offset = -diaSemana;
+    for (let i = 0; i < 6; i++) {
+        
+        const inicioSemana = new Date(primerDiaMes);
+        inicioSemana.setDate(primerDiaMes.getDate() + offset + i * 7);
+        inicioSemana.setHours(0, 0, 0, 0);
 
-  for (let i = 0; i < 6; i++) {
-    const inicioSemana = new Date(primerDiaMes);
-    inicioSemana.setDate(primerDiaMes.getDate() + offset + i * 7);
-    inicioSemana.setHours(0, 0, 0, 0);
+        const finSemana = new Date(inicioSemana);
+        finSemana.setDate(inicioSemana.getDate() + 6);
+        finSemana.setHours(23, 59, 59, 999);
 
-    const finSemana = new Date(inicioSemana);
-    finSemana.setDate(inicioSemana.getDate() + 6);
-    finSemana.setHours(23, 59, 59, 999);
+        const texto = `Semana del ${inicioSemana.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })} al ${finSemana.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })}`;
 
-    const texto = `Semana del ${inicioSemana.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })} al ${finSemana.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })}`;
+        const option = document.createElement('option');
+        option.value = `${inicioSemana.toISOString().split('T')[0]}_${finSemana.toISOString().split('T')[0]}`;
+        
+        option.dataset.start = inicioSemana.toISOString();
+        option.dataset.end = finSemana.toISOString();
+        option.textContent = texto;
 
-    const option = document.createElement('option');
-    option.value = `${inicioSemana.toISOString().split('T')[0]}_${finSemana.toISOString().split('T')[0]}`;
-    option.dataset.start = inicioSemana.toISOString();
-    option.dataset.end = finSemana.toISOString();
-    option.textContent = texto;
+        selector.appendChild(option);
+    }
 
-    selector.appendChild(option);
-  }
+  } catch (error) {
+    console.error("Error al cargar las semanas del mes:", error);
+  }
 
-  selector.value = '';
-  selector.dispatchEvent(new Event('change'));
+  selector.value = '';
+  selector.dispatchEvent(new Event('change'));
 }
 
 export async function exportEvents(calendar, range = 'week') {

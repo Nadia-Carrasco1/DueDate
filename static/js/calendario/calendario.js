@@ -1,5 +1,5 @@
 import { getCookie } from './utils.js';
-
+import { cargarSemanasDelMes } from './descargarPDF.js';
 export function initCalendar() {
   const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
     initialView: 'dayGridMonth',
@@ -11,23 +11,18 @@ export function initCalendar() {
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek,downloadBtn'
-    },
-    customButtons: {
-      downloadBtn: {
-        text: '📥',
-        click: () => {
-          const dropdown = document.getElementById('dropdown-export');
-          dropdown.classList.toggle('hidden');
-        }
-      }
+      right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
     },
     buttonText: {
       today: 'Hoy',
       month: 'Mes',
       week: 'Semana',
-      day: 'Día'
+      day: 'Día',
+      list: 'Eventos',
     },
+    datesSet: function(info) {
+      cargarSemanasDelMes(calendar); 
+    },
     dateClick: function(info) {
       const modal = document.getElementById('modalCrearEvento');
       const fiInput = document.querySelector('input[name="fecha_inicio"]');
@@ -81,27 +76,8 @@ export function initCalendar() {
 
   calendar.render();
 
-  const downloadBtn = document.querySelector('.fc-downloadBtn-button');
-  const dropdown = document.getElementById('dropdown-export');
-
-  if (downloadBtn && dropdown) {
-    downloadBtn.addEventListener('click', () => {
-      dropdown.classList.toggle('hidden');
-      const rect = downloadBtn.getBoundingClientRect();
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+  cargarSemanasDelMes(calendar);
   
-      dropdown.style.left = (rect.left + scrollLeft) + 'px';
-      dropdown.style.top = (rect.bottom + scrollTop) + 'px';
-    });
-
-    document.addEventListener('click', (event) => {
-      if (!dropdown.contains(event.target) && !downloadBtn.contains(event.target)) {
-        dropdown.classList.add('hidden');
-      }
-    });
-  }
-
   function actualizarFechaEvento(event) {
     fetch(`/actualizar-fecha/${event.id}/`, {
       method: 'POST',

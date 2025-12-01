@@ -5,17 +5,40 @@ from django.core.mail import send_mail
 from django.conf import settings
 from Eventos.models import Evento
 
+
 class Command(BaseCommand):
     help = 'Envía recordatorios por correo electrónico'
 
-    def handle(self, *args, **kwargs):
-        ahora = timezone.now()
-        eventos = Evento.objects.filter(
-            recordatorio_fecha_hora__lte=ahora,
-            recordatorio_enviado=False
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--evento_id',
+            type=int,
+            help='ID de un evento específico para enviar su recordatorio'
         )
 
+    def handle(self, *args, **kwargs):
+        ahora = timezone.now()
+        evento_id = kwargs.get('evento_id')
+
+        if evento_id:
+            eventos = Evento.objects.filter(
+                id=evento_id,
+                recordatorio_enviado=False
+            )
+        else:
+            desde = ahora - timezone.timedelta(minutes=1)
+            hasta = ahora + timezone.timedelta(minutes=1)
+
+            eventos = Evento.objects.filter(
+                recordatorio_fecha_hora__gte=desde,
+                recordatorio_fecha_hora__lte=hasta,
+                recordatorio_enviado=False
+            )
+
         for evento in eventos:
+            if not evento.usuario.email:
+                continue
+
             fecha_local = localtime(evento.fecha_inicio)
             hora_formateada = fecha_local.strftime("%d/%m/%Y %H:%M")
 

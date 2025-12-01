@@ -11,6 +11,7 @@ from .models import Evento
 from django.utils.timezone import localtime
 from django.contrib import messages
 import json
+from .scheduler import programar_recordatorio, scheduler
 from datetime import datetime
 
 maxTareas = 10 
@@ -109,6 +110,8 @@ def calendario_view(request):
             evento = form.save(commit=False)
             evento.usuario = request.user
             evento.save()
+            programar_recordatorio(evento)
+
             messages.success(request, 'Evento agendado correctamente.')
             return redirect('calendario')
     else:
@@ -126,7 +129,12 @@ def editar_evento(request):
 
     if form.has_changed():
         if form.is_valid():
-            form.save()
+            if 'recordatorio_fecha_hora' in form.changed_data:
+                evento.recordatorio_enviado = False
+
+            evento = form.save()
+            programar_recordatorio(evento)
+
             return JsonResponse({'status': 'ok'})
         else:
             errors = form.errors.as_json()
@@ -147,6 +155,12 @@ def obtener_formulario_edicion(request, evento_id):
 def eliminar_evento(request):
     evento_id = request.POST.get('evento_id')
     evento = get_object_or_404(Evento, id=evento_id, usuario=request.user)
+
+    try:
+        scheduler.remove_job(f"recordatorio_{evento.id}", jobstore="default")
+    except Exception:
+        pass
+
     evento.delete()
     messages.success(request, 'El evento fue eliminado correctamente.')
     return redirect('calendario')
@@ -167,6 +181,8 @@ def actualizar_fecha(request, evento_id):
     evento.fecha_inicio = fecha_inicio
     evento.fecha_fin = fecha_fin
     evento.save()
+
+    programar_recordatorio(evento)
 
     return JsonResponse({'status': 'ok'})
 
@@ -194,7 +210,7 @@ def eventos_json(request):
 
             if evento.repetir_anualmente:
                 if not evento.fecha_inicio:
-                    continue  
+                    continue
 
                 duration = timedelta_to_iso(evento.fecha_fin - evento.fecha_inicio) if evento.fecha_fin else "PT1H"
                 data.append({

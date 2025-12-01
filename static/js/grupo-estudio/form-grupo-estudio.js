@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     if (isNaN(meta) || meta <= 0) {
-      mostrarError(inputMeta, "La meta debe ser mayor que 0.");
+      mostrarError(inputMeta, "La meta debe ser un número igual o mayor a 1.");
       enviar = false;
     } else {
       limpiarError(inputMeta);

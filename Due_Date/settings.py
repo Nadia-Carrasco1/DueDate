@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'Eventos',
     'Recompensas',
     'Cronometro.apps.CronometroConfig',
+    'django_apscheduler',
 ]
 
 TAILWIND_APP_NAME = 'Interfaz'
