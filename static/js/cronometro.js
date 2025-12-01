@@ -36,7 +36,7 @@
         segundosEstudiados = estadoGuardado.segundosEstudiados + tiempoTranscurrido;
 
         const ciclos = `<p>Ciclo ${repeticionesSesionActual}/${repeticionesTotales}</p>`
-        visorModo.innerHTML = esModoEstudio ? `${ciclos} Modo <span>estudio</span>` : `${ciclos} Modo <span>descanso</span>`;
+        visorModo.innerHTML = esModoEstudio ? `${ciclos} Modo <span>estudio 📖</span>` : `${ciclos} Modo <span>descanso 😌</span>`;
 
         actualizarVista();
         iniciarTemporizador();
@@ -97,7 +97,7 @@
             }
 
             const ciclos = `<p>Ciclo ${repeticionesSesionActual}/${repeticionesTotales}</p>`
-            visorModo.innerHTML = `${ciclos} Modo <span>estudio</span>`;
+            visorModo.innerHTML = `${ciclos} Modo <span>estudio 📖</span>`;
             tiempoRestante = tiempoEstudioInicial;
             iniciarTemporizador()
         } else {
@@ -108,7 +108,7 @@
                 audioFinEstudio.play();
 
                 tiempoRestante = tiempoDescansoInicial;
-                visorModo.innerHTML = `${ciclos} Modo <span>descanso</span>`;
+                visorModo.innerHTML = `${ciclos} Modo <span>descanso 😌</span>`;
                 iniciarTemporizador()
             } else {
                 if (repeticionesSesionActual == repeticionesTotales) {
@@ -117,7 +117,7 @@
 
                 cronometro.innerHTML = "00:00:00";
                 if (repeticionesTotales) {
-                    visorModo.innerHTML = `<p>${ciclos} Sesión finalizada</p>`;
+                    visorModo.innerHTML = `<p>${ciclos} Sesión finalizada 🙌</p>`;
                 }
                 btnIniciar.disabled = true;
                 btnPausar.disabled = true;
