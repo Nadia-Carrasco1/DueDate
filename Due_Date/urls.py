@@ -1,19 +1,3 @@
-"""
-URL configuration for Due_Date project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path, include
 from Usuarios import views
@@ -49,6 +33,7 @@ urlpatterns = [
     path('ListaPendientes/', eventos_views.ListaPendientes, name="ListaPendientes"),
     path('Lista/<int:pk>/', eventos_views.mostrarLista, name="mostrarLista"),
     path('Lista/<int:pk_lista>/eliminar/<int:pk_tarea>', eventos_views.eliminar_tarea, name='eliminar_tarea'),
+    path('Lista/<int:pk_lista>/eliminar/', eventos_views.eliminar_todas_las_tareas, name='eliminar_todas_las_tareas'),
     path('Tarea/<int:pk_tarea>/estado/', eventos_views.cambiar_estado_tarea, name='cambiar_estado'),
     path('MiLista/', eventos_views.acceso_lista_unica, name='acceso_lista_unica'),
     # Cronómetro
@@ -60,6 +45,7 @@ urlpatterns = [
     path('Estadisticas/', cronometro_views.mostrar_estadisticas, name='estadisticas'),
     path('estadisticas/datos/', cronometro_views.datos_estadisticas_estudio, name='datos_estadisticas_estudio'),
     path('estadisticas/exito/', cronometro_views.datos_estadisticas_exito, name='datos_estadisticas_exito'),
+    path('estadisticas/tareas/<int:pk_lista>', cronometro_views.mostrar_cant_tareas_completadas, name='datos_estadisticas_tareas'),
     # Calendario
     path('calendario/', eventos_views.calendario_view, name='calendario'),
     path('eventos_json/', eventos_views.eventos_json, name='eventos_json'),

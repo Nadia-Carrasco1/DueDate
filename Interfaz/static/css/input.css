@@ -11,7 +11,7 @@
 }
 
 .overlay-transparente {
-    @apply absolute inset-0 bg-black opacity-60 z-10 flex justify-center items-center;
+    @apply absolute inset-0 bg-black opacity-60 z-10 flex justify-center items-center rounded-tr-md rounded-br-md;
 }
 
 .btn-overlay-transparente {

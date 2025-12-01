@@ -5,7 +5,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const iconoSonido = document.getElementById('icono-sonido');
     const sonidoId = localStorage.getItem('sonidoId');
     const sonidoActivo = localStorage.getItem('sonidoActivo');
-    const volumenGuardado = localStorage.getItem('volumenSonido')
+    const volumenGuardado = localStorage.getItem('volumenSonido');
+
+    const sonidoIdStorage = localStorage.getItem('sonidoId');
+    const radioActual = document.getElementById(sonidoIdStorage);
+
+    if (radioActual) {
+        radioActual.checked = true;
+    }
 
     const sonidos = {
         lluvia: document.getElementById('sonido-lluvia'),
@@ -152,6 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem('sonidoActivo', 'true');
 
                 const sonidoSeleccionado = sonidos[radio.id];
+                console.log(sonidoSeleccionado + " aaaaaaaaaaaa");
                 sonidoSeleccionado.volume = 1;
                 sonidoSeleccionado.play();
 
@@ -188,10 +196,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (btnCerrarBarraSonido) {
                     btnCerrarBarraSonido.addEventListener('click', () => {
                         const audio = sonidos[radio.id]; 
+                        const sonidoId = localStorage.getItem('sonidoId');
+                        const radioActual = document.getElementById(sonidoId);
 
                         if (audio) {
                             audio.pause();
                             audio.currentTime = 0; 
+                        }
+
+                        if (radioActual) {
+                            radioActual.checked = false;
                         }
 
                         barraSonidoDinamica.classList.add('hidden');

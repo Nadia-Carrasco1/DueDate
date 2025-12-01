@@ -2,9 +2,13 @@
 {% load static %}
 
 {% block content %}
+<div class="flex justify-center">
+    {% include 'Panel.html' %}
+
+  <div class="w-full p-3 pl-10">
 <div class="bg-neutral-800 min-h-screen pt-10">
     {% if messages %}
-    <div id="djangoMessages" class="max-w-4xl mx-auto mb-4">
+    <div id="djangoMessages" class="w-full mx-auto mb-4">
         {% for message in messages %}
         <div class="mensaje-django p-3 rounded text-white shadow transition-opacity duration-500
                     {% if message.tags == 'success' %}bg-green-600
@@ -48,6 +52,7 @@
     </div>
   </div>
 </div>
+</div></div>
 <script src="{% static 'js/grupo-estudio/form-grupo-estudio.js' %}"></script>
 
 {% endblock %}

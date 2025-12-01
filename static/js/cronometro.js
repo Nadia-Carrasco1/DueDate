@@ -18,7 +18,6 @@
     let sesionFinalizada = false;
     let segundosEstudiados = 0
 
-    const visorRepeticiones = document.getElementById('repeticiones');
     const visorModo = document.getElementById('modo-actual');
     const cronometro = document.getElementById('cronometro');
     const btnIniciar = document.getElementById('btn-iniciar');
@@ -36,10 +35,8 @@
         repeticionesSesionActual = estadoGuardado.repeticionesSesionActual;
         segundosEstudiados = estadoGuardado.segundosEstudiados + tiempoTranscurrido;
 
-        visorModo.innerHTML = esModoEstudio ? "Modo <span>estudio</span>" : "Modo <span>descanso</span>";
-        if (visorRepeticiones) {
-            visorRepeticiones.innerHTML = `${repeticionesSesionActual}/${repeticionesTotales}`;
-        }
+        const ciclos = `<p>Ciclo ${repeticionesSesionActual}/${repeticionesTotales}</p>`
+        visorModo.innerHTML = esModoEstudio ? `${ciclos} Modo <span>estudio</span>` : `${ciclos} Modo <span>descanso</span>`;
 
         actualizarVista();
         iniciarTemporizador();
@@ -99,28 +96,28 @@
                 audioFinDescanso.play();
             }
 
-            visorModo.innerHTML = "Modo <span>estudio</span>";
+            const ciclos = `<p>Ciclo ${repeticionesSesionActual}/${repeticionesTotales}</p>`
+            visorModo.innerHTML = `${ciclos} Modo <span>estudio</span>`;
             tiempoRestante = tiempoEstudioInicial;
             iniciarTemporizador()
         } else {
             repeticionesSesionActual++;
-            
+            const ciclos = `<p>Ciclo ${repeticionesSesionActual}/${repeticionesTotales}</p>`
+
             if ((repeticionesSesionActual < repeticionesTotales) && repeticionesSesionActual != 0) {
                 audioFinEstudio.play();
 
-                visorRepeticiones.innerHTML = `Rep: ${repeticionesSesionActual}/${repeticionesTotales}`;
                 tiempoRestante = tiempoDescansoInicial;
-                visorModo.innerHTML = "Modo <span>descanso</span>";
+                visorModo.innerHTML = `${ciclos} Modo <span>descanso</span>`;
                 iniciarTemporizador()
             } else {
                 if (repeticionesSesionActual == repeticionesTotales) {
                     audioFinSesionEstudio.play();
                 }
 
-                if (visorRepeticiones) { visorRepeticiones.innerHTML = ""; }
                 cronometro.innerHTML = "00:00:00";
                 if (repeticionesTotales) {
-                    visorModo.innerHTML = `<p class="text-center">Rep: ${repeticionesSesionActual}/${repeticionesTotales}<p> <p>Sesión finalizada ✅</p>`;
+                    visorModo.innerHTML = `<p>${ciclos} Sesión finalizada</p>`;
                 }
                 btnIniciar.disabled = true;
                 btnPausar.disabled = true;

@@ -11,7 +11,7 @@ from .models import Evento
 from django.utils.timezone import localtime
 from django.contrib import messages
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 
 maxTareas = 10 
 
@@ -77,6 +77,15 @@ def eliminar_tarea(request, pk_lista, pk_tarea):
     tarea.delete()
 
     return redirect('mostrarLista', pk=lista_pk)
+
+@login_required
+def eliminar_todas_las_tareas(request, pk_lista):
+    tareas = Tarea.objects.filter(listaPendiente_id=pk_lista)
+
+    for tarea in tareas:
+        tarea.delete()
+
+    return redirect('mostrarLista', pk=pk_lista)
 
 @login_required
 @require_POST

@@ -1,13 +1,30 @@
 {% load static %}
 
-<div id="cronometro-wrapper" class="fixed bottom-4 right-4 z-50 bg-neutral-900 p-1 rounded-full shadow-lg opacity-60 hover:opacity-100">
+<div id="cronometro-wrapper" 
+     class="fixed bottom-4 right-4 z-50 
+            bg-neutral-900 p-1 rounded-full shadow-lg opacity-60 hover:opacity-100
+            transition-transform duration-500 ease-in-out">
         <!-- Cronómetro -->
+        <button type="button" 
+            id="btn-ocultar-cronometro" 
+            class="hidden
+                   absolute top-[70px] right-[210px] z-50 
+                   bg-black/30 hover:bg-black/60 rounded-md p-0.5 
+                   opacity-60 hover:opacity-100 cursor-pointer 
+                   translate-x-full transition-transform" 
+            title="Minimizar">
+            
+            <svg id="flecha-ocultar" class="w-6 h-6 p-1" xmlns="http://www.w3.org/2000/svg" height="14" width="14" viewBox="0 0 512 512">
+                <path fill="#ffffff" d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/>
+            </svg>
+        </button>
         <div class="w-full flex flex-col items-center justify-center relative rounded-full p-2 bg-gradient-to-r from-indigo-700 from-10% via-indigo-800 via-30% to-indigo-900 to-90%">
-            <p id="cronometro" class="font-mono flex justify-center p-5 pb-1 text-4xl font-semibold text-[26px]">
-                00:00:00
-            </p>
+            <a href="{% url 'cronometro' %}">
+                <p id="cronometro" class="hover:underline font-mono flex justify-center p-5 pb-1 text-4xl font-semibold text-[26px]">
+                    00:00:00
+                </p>
+            </a>
             {% if repeticiones > 0 %}
-                <p id="repeticiones" class="text-sm">Rep: 0/{{ repeticiones }}</p>
                 <p id="modo-actual" class="text-sm">Modo estudio</p>
             {% endif %}
 

@@ -1,235 +1,256 @@
 {% extends 'Base.html' %}
 {% load static %}
 {% load widget_tweaks %}
+{% load custom_filters %}
 
 {% block title %}Cronómetro{% endblock %}
 
 {% block content %}
-    <div class="flex min-h-screen">
-        <!-- Panel lateral -->
-        <div class="bg-neutral-900 w-1/6 p-3">
-            <div class="flex justify-between">
-                <h3 class="font-bold">Panel</h3>
-                <img src="{% static 'img/burger-menu.svg' %}" alt="Icono de menu" class="h-6 w-6 hover:text-white transition duration-200">
-            </div>
-            <br>
-            <ul class="*:p-1 *:pl-0">
-                <li><a href="{% url 'acceso_lista_unica' %}" ><h3 class="hover:underline">To-Do List 📝</h3></a></li>
-                <li><a href="{% url 'cronometro' %}" ><h3 class="hover:underline">Cronómetro ⏱</h3></a></li>
-                <li><a href="{% url 'calendario' %}"><h3 class="hover:underline">Calendario 📅</h3></a></li>
-            </ul>
-        </div>
-    
-        <!-- Cronómetro -->
-        {% with fondo_url=request.session.fondo_seleccionado_url|default:'img/fondo-por-defecto.jpg' %}
-        
-            <div id="cronometro-grande" 
-                class="w-full flex flex-col items-center justify-center relative p-4 bg-cover bg-center"
-                style="background-image: url('{% static fondo_url %}');"
-                >
+<div class="flex justify-center">
+    {% include 'Panel.html' %}
 
-                <div class="flex justify-center items-center absolute top-2 left-4">
-                    <img id="icono-pantalla-completa" src="{% static 'img/pantalla-completa.svg' %}" alt="Icono pantalla completa" class="h-9 w-9 cursor-pointer bg-black/70 hover:bg-black/80 p-2 rounded-md" title="Pantalla completa">
-                
-                    <!-- Barra de sonidos -->
-                    <div id="barra-sonido" class="w-fit z-20 flex justify-between min-h-12 ml-3">
-                        <div id="barra-sonido-dinamica" class="flex items-center">
+    <div class="w-full">
+        <div class="flex min-h-screen relative">
+
+            {% with fondo_url=request.session.fondo_seleccionado_url|default:'img/fondo-por-defecto.jpg' %}
+
+                <video id="fondo-dinamico-video"
+                    class="absolute inset-0 w-full h-full object-cover z-0 {% if fondo_url|slice:":4" == "vid/" %}block{% else %}hidden{% endif %}"
+                    src="{% if fondo_url|slice:":4" == "vid/" %}{% static fondo_url %}{% endif %}"
+                    loop autoplay muted playsinline>
+                </video>
+
+                <div id="cronometro-grande"
+                    class="w-full min-h-full flex flex-col items-center justify-center relative p-4 bg-cover bg-center z-10"
+                    style="{% if fondo_url|slice:":4" == "vid/" %}background-image: none;{% else %}background-image: url('{% static fondo_url %}');{% endif %}"
+                    >
+
+                    <div class="flex justify-center items-center absolute top-2 left-4 z-20">
+                        <img id="icono-pantalla-completa" src="{% static 'img/pantalla-completa.svg' %}" alt="Icono pantalla completa" class="h-9 w-9 cursor-pointer bg-black/70 hover:bg-black/80 p-2 rounded-md" title="Pantalla completa">
+
+                        <div id="barra-sonido" class="w-fit z-20 flex justify-between min-h-12 ml-3">
+                            <div id="barra-sonido-dinamica" class="flex items-center">
+                            </div>
                         </div>
                     </div>
-                </div>
-                
 
-                <p id="cronometro" class="bg-black/70 rounded-full w-fit font-mono flex justify-center md:px-20 px-7 py-6 font-semibold mb-40 text-7xl">
-                    00:00:00
-                </p>
-                {% if repeticiones > 0 %}
-                    <p id="repeticiones">Rep: 0/{{ repeticiones }}</p>
-                    <p id="modo-actual">Modo estudio</p>
-                {% endif %}
-
-                <!-- Audios -->
-                <audio id="audio-fin-estudio" src="{% static 'audios/fin-estudio.mp3' %}"></audio>
-                <audio id="audio-fin-descanso" src="{% static 'audios/fin-descanso.mp3' %}"></audio>
-                <audio id="audio-fin-sesion-estudio" src="{% static 'audios/fin-sesion-estudio.mp3' %}"></audio>
-
-                <!-- Botones de control -->
-                <div class="flex justify-center space-x-4 mb-6">
-                    <button id="btn-iniciar" class="boton-cronometro rounded-full"><img src="{% static 'img/play.svg' %}" alt="Boton play" class="h-5 w-5"></button>
-                    <button id="btn-pausar" class="boton-cronometro rounded-full"><img src="{% static 'img/pausar.svg' %}" alt="Boton pausar" class="h-5 w-5"></button>
-                    <button id="btn-definir-tiempos" class="boton-cronometro rounded font-semibold">Definir tiempos</button>
-                    <button id="btn-personalizar" class="boton-cronometro rounded font-semibold">Personalizar</button>
-                </div>
-
-                <!-- Personalización -->
-                <div id="modal-personalizar" class="absolute right-0 w-80 h-full bg-black/80 py-5 px-2 max-h-screen overflow-y-auto hidden">
-                    <div class="flex justify-between items-center rounded-md pl-3 text-sm text-neutral-400 mb-2">
-                        <div>
-                            <button type="button" id="btn-fondos" class="btn-menu-personalizar rounded-tl-md rounded-bl-md">Fondos</button>
-                            <button type="button" id="btn-audios" class="btn-menu-personalizar rounded-tr-md rounded-br-md">Audios</button>
+                    <div class="z-20">
+                        <div class="mb-40">
+                            <p id="cronometro" class="bg-black/70 rounded-full w-fit font-mono flex justify-center md:px-20 px-7 py-6 font-semibold text-7xl">
+                                00:00:00
+                            </p>
+                            {% if repeticiones > 0 %}
+                            <div class="flex justify-center m-3 *:bg-black/70 *:rounded-full *:px-6 *:py-1">
+                                <p id="modo-actual" class="w-fit font-bold text-center">Ciclo 0/{{ repeticiones }} <br> Modo estudio</p>
+                            </div>
+                            {% endif %}
                         </div>
-                        <img src="{% static 'img/x-solid.svg' %}" alt="Botón cerrar" id="btn-cerrar-modal-personalizar" class="relative right-0 p-2 w-7 h-7 hover:bg-neutral-700/20 hover:rounded-full hover:cursor-pointer" title="Cerrar">
+
+                        <div class="flex justify-center space-x-4 mb-6">
+                            <button id="btn-iniciar" class="boton-cronometro rounded-full"><img src="{% static 'img/play.svg' %}" alt="Boton play" class="h-5 w-5"></button>
+                            <button id="btn-pausar" class="boton-cronometro rounded-full"><img src="{% static 'img/pausar.svg' %}" alt="Boton pausar" class="h-5 w-5"></button>
+                            <button id="btn-definir-tiempos" class="boton-cronometro rounded font-semibold">Definir tiempos</button>
+                            <button id="btn-personalizar" class="boton-cronometro rounded font-semibold">Personalizar</button>
+                        </div>
                     </div>
 
-                    <form method="POST" action="{% url 'aplicar_fondo' %}" id="form-fondos-personalizar" class="">
-                        {% csrf_token %}
-                        <ul>
-                            <li class="hover:bg-neutral-700/20 rounded-md p-3 relative cursor-pointer"
-                                title='Aplicar'
-                                onclick="seleccionarFondoParaSubmit('fondo-por-defecto')"; 
-                            >
-                                <input type="radio" 
-                                       name="recompensa_seleccionada" 
-                                       id="fondo-por-defecto" 
-                                       value="img/fondo-por-defecto.jpg" 
-                                       class="hidden peer"
-                                       checked
-                                >
+                    <audio id="audio-fin-estudio" src="{% static 'audios/fin-estudio.mp3' %}"></audio>
+                    <audio id="audio-fin-descanso" src="{% static 'audios/fin-descanso.mp3' %}"></audio>
+                    <audio id="audio-fin-sesion-estudio" src="{% static 'audios/fin-sesion-estudio.mp3' %}"></audio>
+
+                    <div id="modal-personalizar" class="absolute right-0 w-80 h-full bg-black/80 py-5 px-2 max-h-screen overflow-y-auto hidden z-20">
+                        <div class="flex justify-between items-center rounded-md pl-3 text-sm text-neutral-400 mb-2">
+                            <div>
+                                <button type="button" id="btn-fondos" class="btn-menu-personalizar rounded-tl-md rounded-bl-md">Fondos</button>
+                                <button type="button" id="btn-audios" class="btn-menu-personalizar rounded-tr-md rounded-br-md">Audios</button>
+                            </div>
+                            <img src="{% static 'img/x-solid.svg' %}" alt="Botón cerrar" id="btn-cerrar-modal-personalizar" class="relative right-0 p-2 w-7 h-7 hover:bg-neutral-700/20 hover:rounded-full hover:cursor-pointer" title="Cerrar">
+                        </div>
+
+                        <form method="POST" action="{% url 'aplicar_fondo' %}" id="form-fondos-personalizar" class="">
+                            {% csrf_token %}
+                            <ul class="space-y-2">
                                 
-                                <div class="p-0 flex justify-stretch z-0">
-                                    
-                                    <div class="relative">
-                                        <img src="{% static 'img/fondo-por-defecto.jpg' %}" 
-                                            alt="Fondo por defecto" 
-                                            class="w-28 h-24 object-cover rounded-sm"> 
-                                        
-                                        </div>
-                                    
-                                    <div class="pl-2 relative z-30">
-                                        <p>Fondo por defecto</p>
-                                    </div>
-                                </div> 
-                            </li>
-                            {% for logro in logros.logros %}
                                 <li class="hover:bg-neutral-700/20 rounded-md p-3 relative cursor-pointer"
-                                    onclick="{% if not logro.fecha_desbloqueo or not logro.reclamado %}
-                                                return false;
-                                            {% else %}
-                                                title='Aplicar'
-                                                seleccionarFondoParaSubmit('recompensa-{{ logro.id }}');
-                                            {% endif %}"
-                                >
-                                                            
-                                    <input type="radio" 
-                                        name="recompensa_seleccionada" 
-                                        id="recompensa-{{ logro.id }}" 
-                                        value="{{ logro.id }}" 
-                                        class="hidden peer">
-
+                                    title='Aplicar'
+                                    onclick="seleccionarFondoParaSubmit('fondo-por-defecto');">
+                                    <input type="radio"
+                                            name="recompensa_seleccionada"
+                                            id="fondo-por-defecto"
+                                            value="img/fondo-por-defecto.jpg"
+                                            class="hidden peer"
+                                            checked>
                                     <div class="p-0 flex justify-stretch z-0">
-                                        
                                         <div class="relative">
-                                            {% if not logro.fecha_desbloqueo or not logro.reclamado %}
-                                                <div class="overlay-transparente absolute inset-0 flex justify-center items-center z-40"> 
-                                                    <img src="{% static 'img/lock-solid.svg' %}" alt="Icono recompensa no reclamada" class="w-6 h-6">
-                                                </div>
-                                            {% endif %}
-                                            {% with recompensa_url=''|add:logro.recompensa_url %}
-                                                <div>
-                                                    <img src="{% static recompensa_url %}" alt="{{ logro.recompensa_descripcion }}" class="w-28 h-24 object-cover rounded-sm"> 
-                                                </div>
-                                            {% endwith %}
+                                            <img src="{% static 'img/fondo-por-defecto.jpg' %}"
+                                                    alt="Fondo por defecto"
+                                                    class="w-28 h-24 object-cover rounded-sm">
                                         </div>
-                                        
-                                        <div class="pl-2 relative z-30">
-                                            <p>{{ logro.recompensa_descripcion }}</p>
-                                            {% if logro.fecha_desbloqueo and not logro.reclamado %}
-                                                <p class="mt-1">
-                                                    <a href="{% url 'logros' %}" 
-                                                    class="bg-indigo-700 text-xs hover:underline hover:bg-indigo-900 p-1 rounded-md text-white font-bold" 
-                                                    title="Ir"
-                                                    onclick="event.stopPropagation();"> 
-                                                        Recompensa disponible
-                                                    </a>
-                                                </p>
-                                            {% elif not logro.fecha_desbloqueo %}
-                                                <p class="text-xs text-neutral-400">Logro necesario: {{ logro.nombre }}</p>
-                                            {% endif %}
-                                        </div>
-                                    </div> 
+                                        <div class="pl-2 relative z-30"><p>Fondo por defecto</p></div>
+                                    </div>
                                 </li>
-                            {% endfor %}
-                        </ul>
-                    </form>
 
-                    <!-- Sonidos -->
-                    <div id="audios-personalizar" class="flex items-center justify-between hidden w-full">
-                        <ul id="lista-audios" class="w-full">
-                            <li>
-                                <input type="radio" name="sonido-ambiente" id="lluvia"> Lluvia
-                            </li>
-                            <li>
-                                <input type="radio" name="sonido-ambiente" id="chimenea"> Chimenea
-                            </li>
-                            <li>
-                                <input type="radio" name="sonido-ambiente" id="naturaleza"> Naturaleza
-                            </li>
-                            <li>
-                                <input type="radio" name="sonido-ambiente" id="ambiente"> Ambiente
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+                                {% for logro in logros.logros %}
+                                    {% if logro.recompensa_url|slice:":4" == "vid/" %}
+                                        <li class="hover:bg-neutral-700/20 rounded-md p-3 relative cursor-pointer"
+                                            onclick="{% if not logro.fecha_desbloqueo or not logro.reclamado %}
+                                                        return false;
+                                                     {% else %}
+                                                        title='Aplicar'
+                                                        seleccionarFondoParaSubmit('recompensa-{{ logro.id }}');
+                                                     {% endif %}"
+                                        >
+                                            <input type="radio"
+                                                name="recompensa_seleccionada"
+                                                id="recompensa-{{ logro.id }}"
+                                                value="{{ logro.id }}"
+                                                class="hidden peer">
 
-                <div id="modal-definir-tiempos" class="absolute inset-0 bg-black/40 flex items-center justify-center z-30 hidden">
-                    <form method="POST" action="{% url 'crear_sesion_estudio' %}" id="form-definir-tiempos" class="bg-neutral-900 p-6 rounded-md w-full max-w-xl mx-auto hidden">
-                        {% csrf_token %}
+                                            <div class="p-0 flex justify-stretch z-0">
+                                                <div class="relative">
+                                                    {% if not logro.fecha_desbloqueo or not logro.reclamado %}
+                                                        <div class="overlay-transparente absolute inset-0 flex justify-center items-center z-40">
+                                                            <img src="{% static 'img/lock-solid.svg' %}" alt="Icono recompensa no reclamada" class="w-6 h-6">
+                                                        </div>
+                                                    {% endif %}
+                                                    {% with recompensa_url=''|add:logro.recompensa_url %}
+                                                        <div>
+                                                            <video src="{% static recompensa_url %}" 
+                                                                   alt="{{ logro.recompensa_descripcion }}" 
+                                                                   class="w-28 h-24 object-cover rounded-sm"
+                                                                   loop muted playsinline>
+                                                                Tu navegador no soporta el formato del video.
+                                                            </video>
+                                                        </div>
+                                                    {% endwith %}
+                                                </div>
+                                                
+                                                <div class="pl-2 relative z-30">
+                                                    <p>{{ logro.recompensa_descripcion }}</p>
+                                                    {% if logro.fecha_desbloqueo and not logro.reclamado %}
+                                                        <p class="mt-1">
+                                                             <a href="{% url 'logros' %}"
+                                                             class="bg-indigo-700 text-xs hover:underline hover:bg-indigo-900 p-1 rounded-md text-white font-bold"
+                                                             title="Ir"
+                                                             onclick="event.stopPropagation();">
+                                                                 Recompensa disponible
+                                                             </a>
+                                                         </p>
+                                                    {% elif not logro.fecha_desbloqueo %}
+                                                        <p class="text-xs text-neutral-400">Logro necesario: {{ logro.nombre }}</p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </form>
 
-                        <div class="flex flex-col md:flex-row gap-6">
-                            <!-- Radios -->
-                            <div class="md:w-2/3">
-                                <label for="{{ form.opciones_radio.id_for_label }}" class="block text-sm font-medium text-white mb-2">
-                                    {{ form.opciones_radio.label }}
-                                </label>
-                                <div id="id_opciones_radio" class="space-y-1">
-                                    {% for radio in form.opciones_radio %}
-                                        <label class="flex items-center p-2 rounded-md border border-neutral-700 hover:bg-neutral-800 cursor-pointer w-full text-white">
-                                            {{ radio.tag }}
-                                            <span class="ml-2">{{ radio.choice_label }}</span>
-                                        </label>
+                        <div id="audios-personalizar" class="flex items-center justify-between hidden w-full">
+                            <ul id="lista-audios" class="w-full">
+                                <li>
+                                    <input type="radio" name="sonido-ambiente" id="lluvia"> Lluvia
+                                </li>
+                                {% if logros %}
+                                    {% for logro in logros.logros %}
+                                        {% if logro.recompensa_url|slice:":7" == "audios/" %}
+                                            
+                                            {% if not logro.fecha_desbloqueo or not logro.reclamado %}
+                                                <li class="flex justify-between items-center">
+                                                    <input type="radio" name="sonido-ambiente" id="{{ logro.recompensa_descripcion|lowfirst }}" class="hover:cursor-not-allowed" disabled title="Bloqueado"> 
+                                                    {{ logro.recompensa_descripcion }}
+                                                    
+                                                    {% if logro.fecha_desbloqueo and not logro.reclamado %}
+                                                        <p class="mt-1">
+                                                             <a href="{% url 'logros' %}"
+                                                             class="bg-indigo-700 text-xs hover:underline hover:bg-indigo-900 p-1 rounded-md text-white font-bold"
+                                                             title="Ir"
+                                                             onclick="event.stopPropagation();">
+                                                                 Recompensa disponible
+                                                             </a>
+                                                         </p>
+                                                    {% else %}
+                                                         <p class="text-xs text-neutral-400 mr-3">Logro necesario: {{ logro.nombre }}</p>
+                                                    {% endif %}
+                                                    <div class="flex justify-between items-center">
+                                                        <img src="{% static 'img/lock-solid.svg' %}" alt="Icono recompensa no reclamada" class="w-4 h-4">
+                                                    </div>
+                                                </li>
+                                            {% else %}
+                                                <li>
+                                                    <input type="radio" name="sonido-ambiente" id="{{ logro.recompensa_descripcion|lowfirst }}">
+                                                    {{ logro.recompensa_descripcion }}
+                                                </li>
+                                            {% endif %}
+                                            
+                                        {% endif %}
                                     {% endfor %}
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div id="modal-definir-tiempos" class="absolute inset-0 bg-black/40 flex items-center justify-center z-30 hidden">
+                        <form method="POST" action="{% url 'crear_sesion_estudio' %}" id="form-definir-tiempos" class="bg-neutral-900 p-6 rounded-md w-full max-w-xl mx-auto hidden">
+                            {% csrf_token %}
+
+                            <div class="flex flex-col md:flex-row gap-6">
+                                <div class="md:w-2/3">
+                                    <label for="{{ form.opciones_radio.id_for_label }}" class="block text-sm font-medium text-white mb-2">
+                                        {{ form.opciones_radio.label }}
+                                    </label>
+                                    <div id="id_opciones_radio" class="space-y-1">
+                                        {% for radio in form.opciones_radio %}
+                                            <label class="flex items-center p-2 rounded-md border border-neutral-700 hover:bg-neutral-800 cursor-pointer w-full text-white">
+                                                {{ radio.tag }}
+                                                <span class="ml-2">{{ radio.choice_label }}</span>
+                                            </label>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <div class="md:w-1/3">
+                                    <label for="{{ form.repeticiones.id_for_label }}" class="block text-sm font-medium text-white mb-2">
+                                        {{ form.repeticiones.label }}
+                                    </label>
+                                    {{ form.repeticiones|add_class:"w-full px-3 py-2 rounded-md bg-neutral-800 text-white border border-neutral-700 cursor-pointer" }}
                                 </div>
                             </div>
 
-                            <!-- Repeticiones -->
-                            <div class="md:w-1/3">
-                                <label for="{{ form.repeticiones.id_for_label }}" class="block text-sm font-medium text-white mb-2">
-                                    {{ form.repeticiones.label }}
-                                </label>
-                                {{ form.repeticiones|add_class:"w-full px-3 py-2 rounded-md bg-neutral-800 text-white border border-neutral-700 cursor-pointer" }}
+                            {% if form.errors %}
+                                <div class="text-red-500 text-sm mt-4">
+                                    {{ form.errors }}
+                                </div>
+                            {% endif %}
+
+                            <div class="pt-6 text-right">
+                                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded">
+                                    Aceptar
+                                </button>
+                                <button id="cerrar-form" class="bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-6 rounded">
+                                    Cancelar
+                                </button>
                             </div>
-                        </div>
-
-                        {% if form.errors %}
-                            <div class="text-red-500 text-sm mt-4">
-                                {{ form.errors }}
-                            </div>
-                        {% endif %}
-
-                        <div class="pt-6 text-right">
-                            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded">
-                                Aceptar
-                            </button>
-                            <button id="cerrar-form" class="bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-6 rounded">
-                                Cancelar
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <div 
-                id="cronometro-data"
-                data-tiempo-estudio="{{ tiempo_estudio_segundos }}"
-                data-tiempo-descanso="{{ tiempo_descanso_segundos }}"
-                data-repeticiones="{{ repeticiones }}"
-                data-sesion-id="{{ sesion }}"
-                data-csrf-token="{{ csrf_token }}"
-                data-finalizar-url="{% url 'finalizar_sesion' %}"
-            ></div>
-            <script src="{% static 'js/cronometro.js' %}"></script>
-            <script src="{% static 'js/mostrar-form-definir-tiempos.js' %}"></script>
-            <script src="{% static 'js/aplicar-fondo.js' %}"></script>
-            <script src="{% static 'js/recompensas/modal-personalizar.js' %}"></script>
+                        </form>
+                    </div>
+                    </div>
+            {% endwith %}
         </div>
-    {% endwith %}
+    </div>
+</div>
+
+<div
+    id="cronometro-data"
+    data-tiempo-estudio="{{ tiempo_estudio_segundos }}"
+    data-tiempo-descanso="{{ tiempo_descanso_segundos }}"
+    data-repeticiones="{{ repeticiones }}"
+    data-sesion-id="{{ sesion }}"
+    data-csrf-token="{{ csrf_token }}"
+    data-finalizar-url="{% url 'finalizar_sesion' %}"
+    data-static-url="{% static '' %}"
+></div>
+<script src="{% static 'js/cronometro.js' %}"></script>
+<script src="{% static 'js/mostrar-form-definir-tiempos.js' %}"></script>
+<script src="{% static 'js/aplicar-fondo.js' %}"></script>
+<script src="{% static 'js/recompensas/modal-personalizar.js' %}"></script>
 {% endblock %}

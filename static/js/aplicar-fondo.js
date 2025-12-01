@@ -1,8 +1,12 @@
 let form = null; 
 
+function isVideoUrl(url) {
+    return url && (url.startsWith('vid/') || url.endsWith('.mp4') || url.endsWith('.webm') || url.endsWith('.ogg'));
+}
+
 function seleccionarFondoParaSubmit(radioId) {
     if (!form) {
-        console.error('Error: El formulario form-fondos-personalizar fue inicializado');
+        console.error('Error: El formulario form-fondos-personalizar no fue inicializado');
         return;
     }
 
@@ -16,11 +20,13 @@ function seleccionarFondoParaSubmit(radioId) {
         return;
     }
 
+    const recompensaValue = radio.value; 
+
     radio.checked = true;
     
     const formData = new FormData();
     formData.append('csrfmiddlewaretoken', csrfToken);
-    formData.append('recompensa_seleccionada', radio.value);
+    formData.append('recompensa_seleccionada', recompensaValue); 
 
     fetch(aplicarFondoUrl, {
         method: 'POST',
@@ -36,7 +42,30 @@ function seleccionarFondoParaSubmit(radioId) {
     .then(data => {
         if (data.fondo_url) {
             const cronometroGrande = document.getElementById('cronometro-grande');
-            cronometroGrande.style.backgroundImage = `url(${data.fondo_url})`;
+            const videoFondo = document.getElementById('fondo-dinamico-video');
+            
+            const fullStaticUrl = data.fondo_url; 
+            
+            if (fullStaticUrl.includes('vid/')) { 
+                cronometroGrande.style.backgroundImage = 'none';
+                
+                if (videoFondo) {
+                    videoFondo.src = fullStaticUrl;
+                    videoFondo.classList.remove('hidden');
+                    videoFondo.classList.add('block');
+                    videoFondo.load(); 
+                    videoFondo.play().catch(e => console.log('Autoplay blocked:', e)); 
+                }
+
+            } else {
+                cronometroGrande.style.backgroundImage = `url('${fullStaticUrl}')`; 
+                
+                if (videoFondo) {
+                    videoFondo.classList.add('hidden'); 
+                    videoFondo.classList.remove('block');
+                    videoFondo.pause();
+                }
+            }
         }
     })
     .catch(error => console.error('Error al aplicar fondo:', error));
@@ -47,5 +76,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (!form) {
         console.error('El elemento #form-fondos-personalizar no se encontró');
+    }
+    
+    const videoFondo = document.getElementById('fondo-dinamico-video');
+    if (videoFondo && videoFondo.classList.contains('block') && videoFondo.src) {
+        videoFondo.play().catch(e => console.log('Autoplay inicial bloqueado:', e));
     }
 });

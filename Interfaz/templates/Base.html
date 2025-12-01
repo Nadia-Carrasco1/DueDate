@@ -24,8 +24,9 @@
             <audio id="sonido-chimenea" src="{% static 'audios/chimenea.mp3' %}" loop></audio>
             <audio id="sonido-naturaleza" src="{% static 'audios/naturaleza.mp3' %}" loop></audio>
             <audio id="sonido-ambiente" src="{% static 'audios/ambiente.mp3' %}" loop></audio>
+            <audio id="sonido-ambiente" src="{% static 'audios/lofi.mp3' %}" loop></audio>
+            <audio id="sonido-notificacion-recompensa" src="{% static 'audios/notificacion-recompensa.mp3' %}"></audio>
         </div>
-        <audio id="sonido-notificacion-recompensa" src="{% static 'audios/notificacion-recompensa.mp3' %}"></audio>
         <script>
             window.rutaConVolumen = "{% static 'img/con-volumen.svg' %}";
             window.rutaSinVolumen = "{% static 'img/sin-volumen.svg' %}";
@@ -41,11 +42,12 @@
         </script>
         <script src="{% static 'js/perfil.js' %}"></script>
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-        <script src="{% static 'js/cambiar-estado-tarea.js' %}"></script>
+        <script src="{% static 'js/lista-pendientes/cambiar-estado-tarea.js' %}"></script>
         <script src="{% static 'js/recompensas/notificaciones-recompensas.js' %}"></script>
         <script src="{% static 'js/sonidos-ambiente-cronometro.js' %}"></script>
         <script src="{% static 'js/cronometro.js' %}"></script>
         <script src="{% static 'js/recompensas/reclamar-recompensa.js' %}"></script>
+        <script src="{% static 'js/cronometro/ocultar-cronometro-min.js' %}"></script>
         {% if is_authenticated %}
             <script src="{% static 'js/dropdown-menu-perfil.js' %}"></script>        
         {% endif %}

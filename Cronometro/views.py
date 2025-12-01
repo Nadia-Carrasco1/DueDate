@@ -13,6 +13,7 @@ from datetime import date, timedelta
 from Recompensas.utils import verificar_desbloquear_logros, verificar_logros_us_debloqueados
 from Recompensas.models import Logro
 from django.templatetags.static import static 
+from Eventos.models import Tarea, ListaPendientes
 
 # Cronómetro
 def mostrar_cronometro(request):
@@ -132,7 +133,18 @@ def aplicar_fondo(request):
 # Estadísticas
 @login_required
 def mostrar_estadisticas(request):
-    return render(request, 'Estadisticas.html')
+    try:
+        sesiones = SesionEstudio.objects.filter(user=request.user)
+        listaPendientes_id = ListaPendientes.objects.get(user=request.user).id
+        tareas = Tarea.objects.filter(listaPendiente_id=listaPendientes_id).count
+    except ListaPendientes.DoesNotExist:
+        listaPendientes_id = None 
+        
+    return render(request, 'Estadisticas.html', {
+        'sesiones': sesiones,
+        'lista_pk': listaPendientes_id,
+        'tiene_tareas': tareas
+    })
 
 def sumar_min_estudio(usuario, inicio, fin):
     return SesionEstudio.objects.filter(
@@ -270,4 +282,25 @@ def datos_estadisticas_exito(request):
         "porcentajes": porcentajes,
         "total_sesiones": total,
         "exito_sesiones": exitosas
+    })
+
+@login_required
+def mostrar_cant_tareas_completadas(request, pk_lista):
+    tareas = Tarea.objects.filter(listaPendiente_id=pk_lista)
+
+    if tareas:
+        total_tareas = tareas.count()
+        tareas_completadas = 0
+        for tarea in tareas:
+            if tarea.completada:
+                tareas_completadas += 1
+            
+        labels = ['Progreso']
+        data = [tareas_completadas]
+
+    return JsonResponse({
+        "labels": labels,
+        "data": data,
+        "total_tareas": total_tareas,
+        "tareas_completadas": tareas_completadas
     })

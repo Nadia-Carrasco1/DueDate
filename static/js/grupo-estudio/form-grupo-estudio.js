@@ -7,16 +7,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (!form || !inputMeta || !fechaInicio || !fechaFin) return;
 
-  const ahora = new Date();
   const pad = n => String(n).padStart(2, '0');
   const toDatetimeLocal = date =>
     `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 
   const esCrear = form.id === 'form-crear-grupo';
-  const fechaOriginal = new Date(fechaInicio.value);
 
   if (esCrear) {
-    const defaultInicio = new Date(ahora.getTime() + 5 * 60 * 1000);
+    // ⚡ Default: ahora + 6 min
+    const ahora = new Date();
+    const defaultInicio = new Date(ahora.getTime() + 6 * 60 * 1000);
     const defaultFin = new Date(defaultInicio.getTime() + 60 * 60 * 1000);
 
     fechaInicio.min = toDatetimeLocal(defaultInicio);
@@ -24,10 +24,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     fechaFin.min = toDatetimeLocal(defaultFin);
     if (!fechaFin.value) fechaFin.value = toDatetimeLocal(defaultFin);
+
+    // ⚡ Meta por defecto = 1 hora
+    if (!inputMeta.value) inputMeta.value = 1;
   } else {
     if (fechaCreacionInput) {
       const fechaCreacion = new Date(fechaCreacionInput.value);
-      const fechaMinima = new Date(fechaCreacion.getTime() + 5 * 60 * 1000);
+      const fechaMinima = new Date(fechaCreacion.getTime() + 6 * 60 * 1000);
       fechaInicio.min = toDatetimeLocal(fechaMinima);
     }
   }
@@ -62,6 +65,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const meta = parseFloat(inputMeta.value);
     const inicio = new Date(fechaInicio.value);
     const fin = new Date(fechaFin.value);
+
+    // ⚡ recalcular "ahora" en el momento del submit
+    const ahora = new Date();
     let fechaMinimaInicio = new Date(ahora.getTime() + 5 * 60 * 1000);
 
     if (!esCrear && fechaCreacionInput) {

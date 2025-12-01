@@ -1,64 +1,100 @@
 {% extends 'Base.html' %}
 {% load static %}
 
-{% block title %}To-Do List{% endblock %}
+{% block title %}Lista de pendientes{% endblock %}
 
 {% block content %}
-<div class="flex justify-center min-h-fit md:p-6">
-    <div class="bg-neutral-700 p-4 rounded-md md:w-1/3">
-        <div class="flex justify-between">
-            <h1 class="p-1 pl-0 font-bold">{{ lista.titulo }}</h1>
-                <h2 class="pt-1">(
-                <span id="cant_tareas_pendientes">{{ cant_tareas_pendientes }} </span> /
-                <span id="tareas-totales">{{ tareas|length }}</span>
-                )</h2>        
-        </div>
-        <p class="text-sm pt-1">Creada el {{ lista.fechaCreacion|date:"d M, Y" }}</p>
-        {% if error_message %}
-            <span class="text-sm text-red p-1 pl-0">{{ error_message }}</span>
-        {% endif %}
-        <hr>
+<div class="flex justify-center">
+   {% include 'Panel.html' %}
 
-        {% if tareas %}
-            <ul class="*:pb-0 pt-2 *:p-2 *:pl-0 ">
-                {% for tarea in tareas %}
-                    <li>
-                        <label class="flex items-middle w-full hover:cursor-pointer">
-                            <input type="checkbox" 
-                                name="tarea" 
-                                class="tarea-checkbox mr-2 mt-1 hover:cursor-pointer" 
-                                data-tarea-id="{{ tarea.pk }}" 
-                                {% if tarea.completada %}checked{% endif %}
-                            >
-                            <span class="flex justify-between flex-grow items-end p-1" {% if tarea.completada %}style="text-decoration: line-through; color: gray;"{% endif %}>
-                                <span>{{ tarea.descripcion }}</span> 
-                                
-                                <a href="{% url 'eliminar_tarea' pk_lista=lista.pk pk_tarea=tarea.pk %}" 
-                                class="flex-shrink-0">
-                                    <img src="{% static 'img/icono-basura.svg' %}" alt="Icono borrar">
-                                </a>
-                            </span>
-                        </label>
-                        <hr class="border-neutral-600">
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>¡No hay tareas en esta lista!</p>
-        {% endif %}
-        <form method="POST" action="{% url 'mostrarLista' pk=lista.pk %}" class="mt-3">
-            {% csrf_token %}
-            
-            <div class="flex items-center space-x-2"> 
-                <div class="flex-grow pt-2"> 
-                    {{ form.descripcion }}
+  <div class="w-full p-4">
+    <div class="flex justify-center min-h-fit md:p-6">
+        <div class="bg-neutral-700 p-4 rounded-md md:w-1/3">
+            <div class="flex justify-between items-center">
+                <h1 class="p-1 pl-0 font-bold">{{ lista.titulo }}</h1>
+                <div class="flex justify-center items-center">
+                    <div class="mr-2">
+                        <h2>(
+                        <span id="cant_tareas_pendientes">{{ cant_tareas_pendientes }} </span> /
+                        <span id="tareas-totales">{{ tareas|length }}</span>
+                        )</h2>
+                    </div>
+                    {% if tareas %}
+                        <button type="button" id="btn-limpiar-lista" 
+                            data-url="{% url 'eliminar_todas_las_tareas' pk_lista=lista.pk %}" 
+                            class="mt-1 hover:cursor-pointer" 
+                            title="Limpiar lista"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m6 4.125 2.25 2.25m0 0 2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
+                            </svg>
+                        </button>
+                    {% endif %}
                 </div>
-                
-                <button type="submit" class="content-center bg-indigo-700 hover:bg-indigo-600 text-white font-bold py-1 px-2 rounded-full w-8 h-8">
-                    +
-                </button>
             </div>
-        </form>
+            <p class="text-sm pt-1">Creada el {{ lista.fechaCreacion|date:"d M, Y" }}</p>
+            {% if error_message %}
+                <span class="text-sm text-red p-1 pl-0">{{ error_message }}</span>
+            {% endif %}
+            <hr>
+
+            {% if tareas %}
+                <ul class="*:pb-0 pt-2 *:p-2 *:pl-0 ">
+                    {% for tarea in tareas %}
+                        <li>
+                            <label class="flex items-middle w-full hover:cursor-pointer">
+                                <input type="checkbox" 
+                                    name="tarea" 
+                                    class="tarea-checkbox mr-2 mt-1 hover:cursor-pointer" 
+                                    data-tarea-id="{{ tarea.pk }}" 
+                                    {% if tarea.completada %}checked{% endif %}
+                                >
+                                <span class="flex justify-between flex-grow items-end p-1" {% if tarea.completada %}style="text-decoration: line-through; color: gray;"{% endif %}>
+                                    <span>{{ tarea.descripcion }}</span> 
+                                    
+                                    <a href="{% url 'eliminar_tarea' pk_lista=lista.pk pk_tarea=tarea.pk %}" 
+                                        class="flex-shrink-0">
+                                        <img src="{% static 'img/icono-basura.svg' %}" alt="Icono borrar" title="Eliminar">
+                                    </a>
+                                </span>
+                            </label>
+                            <hr class="border-neutral-600">
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>¡No hay tareas en esta lista!</p>
+            {% endif %}
+            <form method="POST" action="{% url 'mostrarLista' pk=lista.pk %}" class="mt-3">
+                {% csrf_token %}
+                
+                <div class="flex items-center space-x-2"> 
+                    <div class="flex-grow pt-2"> 
+                        {{ form.descripcion }}
+                    </div>
+                    
+                    <button type="submit" title="Agregar tarea" class="content-center bg-indigo-700 hover:bg-indigo-600 text-white text-lg font-bold rounded-full w-8 h-8">
+                        +
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="confirmacion-limpiar-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+            <div class="bg-neutral-800 p-6 rounded-lg shadow-xl w-80">
+                <h3 class="text-xl font-bold mb-4">Confirmar limpieza</h3>
+                <p class="mb-6">¿Estás seguro de que deseas eliminar <span class="font-bold">todas</span> las tareas de esta lista?</p>
+                <div class="flex justify-end space-x-3">
+                    <button id="btn-cancelar" class="px-4 py-2 text-sm rounded bg-gray-600 hover:bg-gray-500">
+                        Cancelar
+                    </button>
+                    <button id="btn-confirmar-limpieza" class="px-4 py-2 text-sm rounded bg-red-700 hover:bg-red-600 font-bold">
+                        Eliminar todo
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+<script src="{% static 'js/lista-pendientes/eliminar-todas-las-tareas.js' %}"></script>
 {% endblock %}
