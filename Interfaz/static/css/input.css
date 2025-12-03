@@ -6,8 +6,24 @@
     @apply px-2 py-2 bg-indigo-700/50 hover:bg-indigo-700/80 rounded-md;
 }
 
+.boton-aceptar {
+    @apply bg-green-600 hover:bg-green-500 text-white text-semibold rounded;
+}
+
+.boton-cancelar {
+    @apply bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded;
+}
+
+.boton-eliminar {
+   @apply bg-red-700 hover:bg-red-600 text-white font-semibold rounded;
+}
+
 .boton-cronometro {
     @apply bg-black/70 text-white px-4 py-2 hover:bg-black/80;
+}
+
+.fondo-borroso {
+    @apply bg-opacity-60 backdrop-blur-sm bg-black fixed inset-0;
 }
 
 .overlay-transparente {
@@ -15,11 +31,16 @@
 }
 
 .btn-overlay-transparente {
-    @apply p-1 bg-indigo-700/50 hover:bg-indigo-700/80;
+    @apply p-1 bg-green-700/50 hover:bg-green-700/70;
 }
 
 .btn-menu-personalizar {
     @apply border border-neutral-500 p-1 hover:bg-black/50 hover:text-indigo-500 hover:border-indigo-500;
+}
+
+.panel-link {
+    @apply p-2 rounded w-full transition duration-150 ease-in-out font-medium;
+    @apply hover:bg-neutral-800; 
 }
 
 @layer components {
@@ -37,5 +58,18 @@
 @layer components {
     #volumenCrontrol {
         @apply accent-green-500;
+    }
+}
+
+@layer utilities {
+    /* Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* IE, Edge and Firefox */
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
 }

@@ -21,7 +21,7 @@
     const visorModo = document.getElementById('modo-actual');
     const cronometro = document.getElementById('cronometro');
     const btnIniciar = document.getElementById('btn-iniciar');
-    const btnPausar = document.getElementById('btn-pausar');
+    //const btnPausar = document.getElementById('btn-pausar');
     const audioFinEstudio = document.getElementById('audio-fin-estudio');
     const audioFinDescanso = document.getElementById('audio-fin-descanso');
     const audioFinSesionEstudio = document.getElementById('audio-fin-sesion-estudio');
@@ -35,7 +35,7 @@
         repeticionesSesionActual = estadoGuardado.repeticionesSesionActual;
         segundosEstudiados = estadoGuardado.segundosEstudiados + tiempoTranscurrido;
 
-        const ciclos = `<p>Ciclo ${repeticionesSesionActual}/${repeticionesTotales}</p>`
+        const ciclos = `<p>Ciclo ${repeticionesSesionActual}/${repeticionesTotales} -</p> `
         visorModo.innerHTML = esModoEstudio ? `${ciclos} Modo <span>estudio 📖</span>` : `${ciclos} Modo <span>descanso 😌</span>`;
 
         actualizarVista();
@@ -73,20 +73,23 @@
     function iniciarTemporizador() {
         if (!estaCorriendo) {
             estaCorriendo = true;
-            if (tiempoEstudioEnSegundos > 0) { btnIniciar.disabled = true; }
-            btnPausar.disabled = false;
+            if (tiempoEstudioEnSegundos > 0) { 
+                btnIniciar.disabled = true; 
+                btnIniciar.innerHTML = `<img src="${window.rutaPausar}" alt="Cronometro iniciado" class="h-4 w-4" title="Bloqueado"></img>`;
+            }
+            //btnPausar.disabled = false;
             intervaloTemporizador = setInterval(tic, 1000);
         }
     }
 
-    function pausarTemporizador() {
+    /*function pausarTemporizador() {
         if (estaCorriendo) {
             estaCorriendo = false;
             btnIniciar.disabled = false;
             btnPausar.disabled = true;
             clearInterval(intervaloTemporizador);
         }
-    }
+    }*/
 
     function cambiarModo() {
         esModoEstudio = !esModoEstudio;
@@ -96,13 +99,13 @@
                 audioFinDescanso.play();
             }
 
-            const ciclos = `<p>Ciclo ${repeticionesSesionActual}/${repeticionesTotales}</p>`
+            const ciclos = `<p>Ciclo ${repeticionesSesionActual}/${repeticionesTotales} -</p> `
             visorModo.innerHTML = `${ciclos} Modo <span>estudio 📖</span>`;
             tiempoRestante = tiempoEstudioInicial;
             iniciarTemporizador()
         } else {
             repeticionesSesionActual++;
-            const ciclos = `<p>Ciclo ${repeticionesSesionActual}/${repeticionesTotales}</p>`
+            const ciclos = `<p>Ciclo ${repeticionesSesionActual}/${repeticionesTotales} -</p> `
 
             if ((repeticionesSesionActual < repeticionesTotales) && repeticionesSesionActual != 0) {
                 audioFinEstudio.play();
@@ -119,8 +122,9 @@
                 if (repeticionesTotales) {
                     visorModo.innerHTML = `<p>${ciclos} Sesión finalizada 🙌</p>`;
                 }
+                btnIniciar.innerHTML = `<img src="${window.rutaPlay}" alt="Boton play" class="h-4 w-4"></img>`
                 btnIniciar.disabled = true;
-                btnPausar.disabled = true;
+                //btnPausar.disabled = true;
                 finalizarSesion();
             }
         }
@@ -128,7 +132,7 @@
     }
 
     if (btnIniciar) { btnIniciar.addEventListener('click', iniciarTemporizador); }
-    if (btnPausar) { btnPausar.addEventListener('click', pausarTemporizador); }
+    //if (btnPausar) { btnPausar.addEventListener('click', pausarTemporizador); }
 
     actualizarVista();
 

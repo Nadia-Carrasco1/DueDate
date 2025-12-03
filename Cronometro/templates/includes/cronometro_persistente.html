@@ -13,19 +13,25 @@
                    opacity-60 hover:opacity-100 cursor-pointer 
                    translate-x-full transition-transform" 
             title="Minimizar">
-            
-            <svg id="flecha-ocultar" class="w-6 h-6 p-1" xmlns="http://www.w3.org/2000/svg" height="14" width="14" viewBox="0 0 512 512">
+
+            <svg id="flecha-ocultar" 
+                class="w-6 h-6 p-1 transition-transform duration-300" 
+                xmlns="http://www.w3.org/2000/svg" 
+                height="14" width="14" viewBox="0 0 512 512"
+            >
                 <path fill="#ffffff" d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/>
             </svg>
         </button>
         <div class="w-full flex flex-col items-center justify-center relative rounded-full p-2 bg-gradient-to-r from-indigo-700 from-10% via-indigo-800 via-30% to-indigo-900 to-90%">
-            <a href="{% url 'cronometro' %}">
+                <a href="{% url 'cronometro' %}">
                 <p id="cronometro" class="hover:underline font-mono flex justify-center p-5 pb-1 text-4xl font-semibold text-[26px]">
                     00:00:00
                 </p>
             </a>
             {% if repeticiones > 0 %}
-                <p id="modo-actual" class="text-sm">Modo estudio</p>
+                <div class="flex justify-center">
+                    <p id="modo-actual" class="text-sm">Modo estudio</p>
+                </div>
             {% endif %}
 
             <!-- Audios -->
@@ -36,7 +42,7 @@
             <!-- Botones de control -->
             <div class="flex justify-center space-x-2 my-2">
                 <button id="btn-iniciar" class="bg-black/30 text-white px-3 py-2 hover:bg-black/60 rounded-full"><img src="{% static 'img/play.svg' %}" alt="Boton play" class="h-3 w-3"></button>
-                <button id="btn-pausar" class="bg-black/30 text-white px-3 py-2 hover:bg-black/60 rounded-full"><img src="{% static 'img/pausar.svg' %}" alt="Boton pausar" class="h-3 w-3"></button>
+                <!--<button id="btn-pausar" class="bg-black/30 text-white px-3 py-2 hover:bg-black/60 rounded-full"><img src="{% static 'img/pausar.svg' %}" alt="Boton pausar" class="h-3 w-3"></button>-->
                 <button id="toggle-sonido" class="hidden">
                     <img id="icono-sonido" src="{% static 'img/sin-volumen.svg' %}" alt="Icono sonido" class="h-5 w-5">
                 </button>

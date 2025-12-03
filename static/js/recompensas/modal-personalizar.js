@@ -1,11 +1,28 @@
-function mostrarFondosOAudios() {
-    const formFondos = document.getElementById('form-fondos-personalizar');
-    const divAudios = document.getElementById('audios-personalizar'); 
-    const btnFondos = document.getElementById('btn-fondos');
-    const btnAudios = document.getElementById('btn-audios');
+const formFondos = document.getElementById('form-fondos-personalizar');
+const divAudios = document.getElementById('audios-personalizar'); 
+const btnFondos = document.getElementById('btn-fondos');
+const btnAudios = document.getElementById('btn-audios');
+const modalPersonalizar = document.getElementById('modal-personalizar');
 
+function abrirModal(modal) {
+    modal.classList.remove('hidden');
+ 
+    setTimeout(() => {
+        modal.classList.remove('translate-x-full');
+    }, 10);
+}
+
+function cerrarModal(modal) {
+    modal.classList.add('translate-x-full');
+    
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 320); 
+}
+
+function mostrarFondosOAudios() {
     if (!formFondos || !divAudios || !btnFondos || !btnAudios) {
-        console.error("Faltan elementos DOM para la personalización");
+        console.error("Faltan elementos DOM para la personalización (fondos/audios/botones)");
         return; 
     }
 
@@ -22,7 +39,6 @@ function mostrarFondosOAudios() {
 
 function mostrarModalPersonalizar() {
     const btnPersonalizar = document.getElementById('btn-personalizar');
-    const modalPersonalizar = document.getElementById('modal-personalizar');
     const btnCerrarModalPersonalizar = document.getElementById('btn-cerrar-modal-personalizar');
 
     if (!btnPersonalizar || !modalPersonalizar || !btnCerrarModalPersonalizar) {
@@ -31,15 +47,24 @@ function mostrarModalPersonalizar() {
     }
 
     btnCerrarModalPersonalizar.addEventListener('click', () => {
-        modalPersonalizar.classList.add('hidden');
-    })
+        cerrarModal(modalPersonalizar);
+        
+        if (divAudios && formFondos && !divAudios.classList.contains('hidden')) {
+            divAudios.classList.add('hidden');
+            formFondos.classList.remove('hidden'); 
+        }
+    });
 
     btnPersonalizar.addEventListener('click', () => {
-        modalPersonalizar.classList.toggle('hidden');
-    })
+        if (modalPersonalizar.classList.contains('hidden')) {
+            abrirModal(modalPersonalizar);
+        } else {
+            cerrarModal(modalPersonalizar);
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    mostrarModalPersonalizar(); 
     mostrarFondosOAudios();
+    mostrarModalPersonalizar(); 
 });

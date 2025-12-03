@@ -14,13 +14,14 @@ function mostrarNotificacionRecompensa(logro) {
     notificacion.id = idNotificacion;
     notificacion.classList.add('notificacion-logro');
     notificacion.innerHTML = `
-        <div class="logro-texto fixed bottom-4 right-4 z-50 bg-neutral-900 p-1 rounded-full shadow-lg">
-            <div class="p-3">
-                <h4>¡Recompensa obtenida! 🏆</h4>
-                <p class="logro-nombre">${logro.nombre}</p>
-                <a href="${logrosUrl}" class="text-right">Ver</a>
+        <a href="${logrosUrl}">
+            <div class="logro-texto fixed bottom-4 left-32 z-50 p-1 rounded-full shadow-lg bg-gradient-to-r from-indigo-700 from-10% via-indigo-800 via-30% to-indigo-900 to-90%">
+                <div class="p-3 hover:underline">
+                    <h4 class="font-bold">¡Recompensa obtenida!</h4>
+                    <p class="logro-nombre">${logro.nombre}</p>
+                </div>
             </div>
-        </div>
+        </a>
     `;
     sonidoNotificacionRecompensa.play();
     contenedor.appendChild(notificacion);
@@ -52,7 +53,7 @@ function fetchVerificaLogros(data) {
         const tiempoExtraDeEspera = 5000;
 
         if (logros && logros.length > 0) {
-            const duracionNotificacion = 8200;
+            const duracionNotificacion = 6200;
             let tiempoAcumulado = 0;
 
             logros.forEach(logro => {

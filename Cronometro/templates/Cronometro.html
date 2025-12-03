@@ -6,7 +6,7 @@
 {% block title %}Cronómetro{% endblock %}
 
 {% block content %}
-<div class="flex justify-center">
+<div class="flex justify-center no-scrollbar scrollbar-hide">
     {% include 'Panel.html' %}
 
     <div class="w-full">
@@ -41,14 +41,14 @@
                             </p>
                             {% if repeticiones > 0 %}
                             <div class="flex justify-center min-h-50px] m-3 *:bg-black/70 *:rounded-full *:px-6 *:py-1">
-                                <p id="modo-actual" class="w-fit font-bold text-center">Ciclo 0/{{ repeticiones }} - Modo estudio 📖</p>
+                                <p id="modo-actual" class="flex justify-center w-fit font-bold text-center">Ciclo 0/{{ repeticiones }} - Modo estudio 📖</p>
                             </div>
                             {% endif %}
                         </div>
 
                         <div class="flex justify-center space-x-4 mb-6">
                             <button id="btn-iniciar" class="boton-cronometro rounded-full"><img src="{% static 'img/play.svg' %}" alt="Boton play" class="h-5 w-5"></button>
-                            <button id="btn-pausar" class="boton-cronometro rounded-full"><img src="{% static 'img/pausar.svg' %}" alt="Boton pausar" class="h-5 w-5"></button>
+                            <!--<button id="btn-pausar" class="boton-cronometro rounded-full"><img src="{% static 'img/pausar.svg' %}" alt="Boton pausar" class="h-5 w-5"></button>-->
                             <button id="btn-definir-tiempos" class="boton-cronometro rounded font-semibold">Definir tiempos</button>
                             <button id="btn-personalizar" class="boton-cronometro rounded font-semibold">Personalizar</button>
                         </div>
@@ -58,7 +58,11 @@
                     <audio id="audio-fin-descanso" src="{% static 'audios/fin-descanso.mp3' %}"></audio>
                     <audio id="audio-fin-sesion-estudio" src="{% static 'audios/fin-sesion-estudio.mp3' %}"></audio>
 
-                    <div id="modal-personalizar" class="absolute right-0 w-80 h-full bg-black/80 py-5 px-2 max-h-screen overflow-y-auto hidden z-20">
+                    <!-- Modal personalizar -->
+                    <div id="modal-personalizar" 
+                        class="absolute right-0 w-80 h-full bg-black/80 py-5 px-2 max-h-screen overflow-y-auto no-scrollbar scrollbar-hide hidden z-20
+                        transition-all duration-300 ease-in-out transform translate-x-full"         
+                    >
                         <div class="flex justify-between items-center rounded-md pl-3 text-sm text-neutral-400 mb-2">
                             <div>
                                 <button type="button" id="btn-fondos" class="btn-menu-personalizar rounded-tl-md rounded-bl-md">Fondos</button>
@@ -190,50 +194,61 @@
                             </ul>
                         </div>
                     </div>
-                    <div id="modal-definir-tiempos" class="absolute inset-0 bg-black/40 flex items-center justify-center z-30 hidden">
-                        <form method="POST" action="{% url 'crear_sesion_estudio' %}" id="form-definir-tiempos" class="bg-neutral-900 p-6 rounded-md w-full max-w-xl mx-auto hidden">
+
+                    <div id="modal-definir-tiempos" class="absolute bg-opacity-60 backdrop-blur-sm bg-black fixed inset-0 bg-black/40 flex items-center z-30 hidden">
+                        <form method="POST" action="{% url 'crear_sesion_estudio' %}" id="form-definir-tiempos" class="mb-12 bg-neutral-900 p-6 rounded-md md:w-1/2 md:max-w-md mx-auto hidden">
                             {% csrf_token %}
 
-                            <div class="flex flex-col md:flex-row gap-6">
-                                <div class="md:w-2/3">
-                                    <label for="{{ form.opciones_radio.id_for_label }}" class="block text-sm font-medium text-white mb-2">
-                                        {{ form.opciones_radio.label }}
-                                    </label>
-                                    <div id="id_opciones_radio" class="space-y-1">
-                                        {% for radio in form.opciones_radio %}
-                                            <label class="flex items-center p-2 rounded-md border border-neutral-700 hover:bg-neutral-800 cursor-pointer w-full text-white">
-                                                {{ radio.tag }}
-                                                <span class="ml-2">{{ radio.choice_label }}</span>
-                                            </label>
-                                        {% endfor %}
+                            <div>
+                                <div class="*:mt-">
+                                    <h3 class="text-lg font-semibold text-white mb-4">Definir Tiempos (Minutos)</h3>
+
+                                    <div>
+                                        <label for="{{ form.tiempo_estudio_input.id_for_label }}" class="block text-sm font-medium text-white my-2">
+                                            {{ form.tiempo_estudio_input.label }}
+                                            {% for error in form.tiempo_estudio_input.errors %}
+                                                <span class="text-red-500 text-xs ml-2">{{ error }}</span>
+                                            {% endfor %}
+                                        </label>
+                                        {{ form.tiempo_estudio_input|add_class:"w-full px-3 py-2 rounded-md bg-neutral-800 text-white border border-neutral-700" }}
+                                    </div>
+
+                                    <div>
+                                        <label for="{{ form.tiempo_descanso_input.id_for_label }}" class="block text-sm font-medium text-white my-2">
+                                            {{ form.tiempo_descanso_input.label }}
+                                            {% for error in form.tiempo_descanso_input.errors %}
+                                                <span class="text-red-500 text-xs ml-2">{{ error }}</span>
+                                            {% endfor %}
+                                        </label>
+                                        {{ form.tiempo_descanso_input|add_class:"w-full px-3 py-2 rounded-md bg-neutral-800 text-white border border-neutral-700" }}
+                                    </div>
+
+                                    <div >
+                                        <label for="{{ form.repeticiones.id_for_label }}" class="block text-sm font-medium text-white my-2">
+                                            {{ form.repeticiones.label }}
+                                        </label>
+                                        {{ form.repeticiones|add_class:"w-full px-3 py-2 rounded-md bg-neutral-800 text-white border border-neutral-700 cursor-pointer" }}
+                                    </div>
+
+                                    <div class="pt-6 text-right">
+                                        <button type="submit" class="boton-aceptar py-2 px-6 rounded">
+                                            Aceptar
+                                        </button>
+                                        <button id="cerrar-form" type="button" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded">
+                                            Cancelar
+                                        </button>
                                     </div>
                                 </div>
-
-                                <div class="md:w-1/3">
-                                    <label for="{{ form.repeticiones.id_for_label }}" class="block text-sm font-medium text-white mb-2">
-                                        {{ form.repeticiones.label }}
-                                    </label>
-                                    {{ form.repeticiones|add_class:"w-full px-3 py-2 rounded-md bg-neutral-800 text-white border border-neutral-700 cursor-pointer" }}
-                                </div>
                             </div>
 
-                            {% if form.errors %}
+                            {% if form.non_field_errors %}
                                 <div class="text-red-500 text-sm mt-4">
-                                    {{ form.errors }}
+                                    {{ form.non_field_errors }}
                                 </div>
                             {% endif %}
-
-                            <div class="pt-6 text-right">
-                                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded">
-                                    Aceptar
-                                </button>
-                                <button id="cerrar-form" class="bg-neutral-800 hover:bg-neutral-700 text-white font-bold py-2 px-6 rounded">
-                                    Cancelar
-                                </button>
-                            </div>
                         </form>
                     </div>
-                    </div>
+                </div>
             {% endwith %}
         </div>
     </div>

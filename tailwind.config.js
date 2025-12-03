@@ -8,9 +8,10 @@ module.exports = {
     './Usuarios/**/*.py',
     './Eventos/templates/**/*.html',
     './Cronometro/templates/**/*.html',
+    './Recompensas/templates/**/*.html'
   ],
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [require('tailwind-scrollbar-hide')],
 }

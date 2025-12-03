@@ -8,5 +8,8 @@
   "scripts": {
     "dev": "concurrently \"npm run tailwind\" \"python manage.py runserver\"",
     "tailwind": "tailwindcss -i ./Interfaz/static/css/input.css -o ./Interfaz/static/css/output.css --watch"
+  },
+  "dependencies": {
+    "tailwind-scrollbar-hide": "^4.0.0"
   }
 }

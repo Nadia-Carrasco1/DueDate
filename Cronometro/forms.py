@@ -3,54 +3,78 @@ from .models import SesionEstudio
 from datetime import timedelta
 
 class SesionEstudioForm(forms.ModelForm):
-    ESTUDIO_OPCIONES=[
-        ("1-1", "1m estudio - 1m descanso"),
-        ("10-5", "10m estudio - 5m descanso"),
-        ("20-5", "20m estudio - 5m descanso"),
-        ("40-8", "40m estudio - 8m descanso"),
-        ("60-10", "60m estudio - 10m descanso"),
-    ]
-
     REPETICIONES_OPCIONES=[(i, f"{i}") for i in range(1, 11)]
 
-    opciones_radio = forms.ChoiceField(
-        choices=ESTUDIO_OPCIONES,
-        widget=forms.RadioSelect,
-        label='Definir tiempos'
+    tiempo_estudio_input = forms.IntegerField(
+        label='Tiempo de Estudio (1-120 minutos)',
+        widget=forms.NumberInput(attrs={
+            'min': 1,
+            'max': 120,
+            'class': 'form-control',
+            'placeholder': 'De 1m a 120m'
+        }),
+        initial=20
+    )
+
+    tiempo_descanso_input = forms.IntegerField(
+        label='Tiempo de Descanso (1-30 minutos)',
+        widget=forms.NumberInput(attrs={
+            'min': 1,
+            'max': 30,
+            'class': 'form-control',
+            'placeholder': 'De 1m a 30m'
+        }),
+        initial=5
     )
 
     repeticiones = forms.ChoiceField(
         choices=REPETICIONES_OPCIONES,
         widget=forms.Select(attrs={'class': 'form-control'}),
-        label="Repeticiones"
+        label="Ciclos"
     )
 
     class Meta:
         model = SesionEstudio
-
+        
         fields = [
-            'opciones_radio',
+            'tiempo_estudio_input',
+            'tiempo_descanso_input',
             'repeticiones'
         ]
 
     def clean_repeticiones(self):
-        repeticiones = int(self.cleaned_data['repeticiones']) # convierte de str a int
+        repeticiones = int(self.cleaned_data['repeticiones'])
         if repeticiones < 1 or repeticiones > 10:
             raise forms.ValidationError('Selecciona las repeticiones entre 1 y 10')
         return repeticiones
+
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        estudio_min = cleaned_data.get('tiempo_estudio_input')
+        descanso_min = cleaned_data.get('tiempo_descanso_input')
+
+        if estudio_min is not None and (estudio_min < 1 or estudio_min > 120):
+            self.add_error('tiempo_estudio_input', 'El tiempo de estudio debe estar entre 1 y 120 minutos.')
+            
+        if descanso_min is not None and (descanso_min < 1 or descanso_min > 30):
+            self.add_error('tiempo_descanso_input', 'El tiempo de descanso debe estar entre 1 y 30 minutos.')
+            
+        return cleaned_data
     
     def save(self, commit=True):
-        # instancia de SesionEstudio (obj)
         sesion_estudio = super().save(commit=False)
 
-        # Valores de las opciones
-        preset_valor = self.cleaned_data['opciones_radio']
-        estudio_min, descanso_min = map(int, preset_valor.split('-'))
+        estudio_min = self.cleaned_data['tiempo_estudio_input']
+        descanso_min = self.cleaned_data['tiempo_descanso_input']
 
         sesion_estudio.tiempo_estudio = timedelta(minutes=estudio_min)
         sesion_estudio.tiempo_descanso = timedelta(minutes=descanso_min)
 
-        repeticiones = int(self.cleaned_data['repeticiones'])
+        repeticiones = self.cleaned_data['repeticiones']
+        if isinstance(repeticiones, str):
+            repeticiones = int(repeticiones)
+            
         sesion_estudio.repeticiones = repeticiones
 
         sesion_estudio.meta_en_minutos = estudio_min * repeticiones

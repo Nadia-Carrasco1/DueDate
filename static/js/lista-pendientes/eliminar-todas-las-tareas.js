@@ -3,6 +3,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnLimpiarLista = document.getElementById('btn-limpiar-lista');
     const btnConfirmar = document.getElementById('btn-confirmar-limpieza');
     const btnCancelar = document.getElementById('btn-cancelar');
+    
+    if (!btnLimpiarLista) {
+        return;
+    }
 
     btnLimpiarLista.addEventListener('click', () => {
         modalLimpiarLista.classList.remove('hidden');
