@@ -1,7 +1,7 @@
         {% load static %}
         <nav class="bg-neutral-900 h-16 flex items-center font-normal">
             <ul class="flex w-full items-center *:inline-block">
-                <li class="px-4 py-4"><a href="{% url 'home' %}">🟣</a></li>
+                <li class="px-4 py-4"><a href="{% url 'home' %}"><img src="{% static 'img/logo.png' %}" class="w-6 h-6" alt="logo"> </a></li>
                 
                 {% if is_authenticated %}
                     <li class="ml-auto relative mr-4">

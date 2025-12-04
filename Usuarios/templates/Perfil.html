@@ -13,8 +13,11 @@
     {% endfor %}
   </div>
 {% endif %}
+<div class="flex justify-center">
 
-<div class="max-w-4xl mx-auto mt-10 p-8 bg-neutral-900 rounded-lg shadow-md text-white">
+{% include 'Panel.html' %}
+<div class="w-full">
+<div class="max-w-4xl mx-auto mb-4 mt-10 p-8 bg-neutral-900 rounded-lg shadow-md text-white">
     <h2 class="text-3xl font-bold text-indigo-400 mb-6 text-center">Tu perfil</h2>
 
     <div class="flex flex-col md:flex-row gap-8">
@@ -96,9 +99,8 @@
 
         <!-- Eliminar cuenta -->
         <div class="border-t pt-6 text-center mb-4">
-            <h3 class="text-lg font-semibold text-red-400 mb-2">Eliminar cuenta</h3>
             <button type="button" onclick="mostrarModal()" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded">
-            Confirmar
+            Eliminar cuenta
             </button>
         </div>
     </div>
@@ -168,7 +170,7 @@
     </div>
   </div>
 </div>
-
+</div></div>
 
 <script>
 function toggleEdit(field) {
