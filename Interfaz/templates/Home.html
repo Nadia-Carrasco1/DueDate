@@ -27,8 +27,16 @@
                 </div>
 
                 {% if eventos_mes %}
-              
-                    <div class="relative" style="min-height: 18rem; max-height: 36rem; overflow: hidden;">
+                    <div class="relative" 
+                        style=" 
+                            {% if eventos_mes|length > 6 %} 
+                                min-height: 18rem; 
+                                max-height: 36rem; 
+                            {% else %} 
+                                min-height: auto; 
+                                max-height: none; 
+                            {% endif %}
+                            overflow: hidden;">
                        
                         <div class="absolute top-0 left-0 right-0 flex items-center justify-between h-full">
                             <button @click="prev()" x-show="start > 0"
