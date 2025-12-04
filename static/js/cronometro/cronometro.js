@@ -17,6 +17,15 @@
     let repeticionesSesionActual = 0;
     let sesionFinalizada = false;
     let segundosEstudiados = 0
+    let fondoUrl = document.getElementById('fondo-url');
+
+    if (fondoUrl) {
+        const urlValue = fondoUrl.textContent.trim(); 
+        localStorage.setItem('fondoUrl', urlValue);
+
+        
+        console.log("Fondo URL guardada en localStorage:", urlValue);
+    }
 
     const visorModo = document.getElementById('modo-actual');
     const cronometro = document.getElementById('cronometro');
@@ -198,7 +207,7 @@
             repeticionesSesionActual,
             segundosEstudiados,
             timestamp: Date.now(),
-            sesionId
+            sesionId,
         };
         localStorage.setItem('estado_cronometro', JSON.stringify(estado));
     }

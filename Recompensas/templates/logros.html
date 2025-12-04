@@ -10,16 +10,14 @@
     <div class="flex-grow p-8">
         
         <ul id="logros" class="w-full max-w-4xl mx-auto"> 
-            <div class="flex justify-between items-center mb-4">
-                <div class="flex justify-center items-center border border-neutral-600 px-3 p-2 rounded-full">
-                    <h2 class="text-lg italic font-semibold">Logros</h2>
-                </div>
-
+            <div class="flex justify-between items-center mb-4 mt-5">
+                <h1 class="text-2xl font-bold">Logros</h1>
                 <div class="flex justify-center items-center italic">
                     <span class="border border-neutral-600 p-2 rounded-full rounded-full mr-1">Completados {{ cant_logros_completados}}/{{ logros.count }}</span>
                     <span class="border border-neutral-600 p-2 rounded-full rounded-full">Reclamados {{ cant_logros_reclamados }}/{{ logros.count }}</span>
                 </div>
             </div>
+            <hr class="border-neutral-600 mb-12"> 
             
             {% for logro in logros %}
                 <li class="flex justify-between w-full border border-neutral-700 rounded-md mt-3 items-center bg-neutral-900 shadow-lg">

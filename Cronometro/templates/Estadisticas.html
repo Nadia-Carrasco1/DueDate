@@ -6,11 +6,12 @@
 {% block content %}
 <div class="flex justify-center">
     {% include 'Panel.html' %}
-  <div class="flex justify-center w-full p-4">
+  <div class="flex justify-center w-full p-8">
     <div class="flex min-h-screen">
         <!-- Contenido principal -->
         <div class="w-full min-h-screen">
-            <h2 class="w-fit text-lg italic font-semibold border border-neutral-600 px-3 p-2 rounded-full {% if not sesiones %}text-center{% endif %}">Estadísticas</h2>
+            <h1 class="text-2xl font-bold mb-6 mt-12 {% if not sesiones %}text-center{% endif %}">Estadísticas</h1>
+            <hr class="border-neutral-600">            
             {% if sesiones %}
                 <!-- Botones de periodo -->
                 <div class="w-full flex flex-col items-start py-6 *:bg-indigo-700 *:rounded-full">

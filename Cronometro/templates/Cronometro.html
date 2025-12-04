@@ -20,6 +20,8 @@
                     loop autoplay muted playsinline>
                 </video>
 
+                <span id="fondo-url" class="hidden">{% static fondo_url %}</span>
+
                 <div id="cronometro-grande"
                     class="w-full min-h-full flex flex-col items-center justify-center relative p-4 bg-cover bg-center z-10"
                     style="{% if fondo_url|slice:":4" == "vid/" %}background-image: none;{% else %}background-image: url('{% static fondo_url %}');{% endif %}"
@@ -264,7 +266,7 @@
     data-finalizar-url="{% url 'finalizar_sesion' %}"
     data-static-url="{% static '' %}"
 ></div>
-<script src="{% static 'js/cronometro.js' %}"></script>
+<script src="{% static 'js/cronometro/cronometro.js' %}"></script>
 <script src="{% static 'js/mostrar-form-definir-tiempos.js' %}"></script>
 <script src="{% static 'js/aplicar-fondo.js' %}"></script>
 <script src="{% static 'js/recompensas/modal-personalizar.js' %}"></script>
