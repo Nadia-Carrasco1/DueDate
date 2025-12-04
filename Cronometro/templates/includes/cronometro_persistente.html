@@ -23,14 +23,14 @@
             </svg>
         </button>
         <div class="w-full flex flex-col items-center justify-center relative rounded-full p-2 bg-gradient-to-r from-indigo-700 from-10% via-indigo-800 via-30% to-indigo-900 to-90%">
-                <a href="{% url 'cronometro' %}">
+            <a href="{% url 'cronometro' %}">
                 <p id="cronometro" class="hover:underline font-mono flex justify-center p-5 pb-1 text-4xl font-semibold text-[26px]">
                     00:00:00
                 </p>
             </a>
             {% if repeticiones > 0 %}
-                <div class="flex justify-center">
-                    <p id="modo-actual" class="text-sm">Modo estudio</p>
+                <div>
+                    <p id="modo-actual" class="flex flex-col text-center text-sm">Estudio</p>
                 </div>
             {% endif %}
 
@@ -58,6 +58,6 @@
             data-csrf-token="{{ csrf_token }}"
             data-finalizar-url="{% url 'finalizar_sesion' %}"
         ></div>
-        <script src="{% static 'js/cronometro.js' %}"></script>
+        <script src="{% static 'js/cronometro/cronometro.js' %}"></script>
         <script src="{% static 'js/sonidos-ambiente-cronometro.js' %}"></script>
 </div>

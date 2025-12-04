@@ -12,7 +12,7 @@
     <body class="bg-neutral-800 text-white flex flex-col min-h-screen relative">
         {% csrf_token %}
         {% include 'Header.html' %}
-        <main class="flex-grow min-h-screen">
+        <main class="flex-grow">
             {% block content %}{% endblock %}
         </main>
         {% include 'Footer.html' %}

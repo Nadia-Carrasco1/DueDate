@@ -39,14 +39,17 @@
                     <div class="z-20">
                         <div class="mb-36">
                             <p id="cronometro" class="bg-black/70 rounded-full w-fit font-mono flex justify-center md:px-20 px-7 py-6 font-semibold text-7xl">
-                                00:00:00
-                            </p>
-                            {% if repeticiones > 0 %}
-                            <div class="flex justify-center min-h-50px] m-3 *:bg-black/70 *:rounded-full *:px-6 *:py-1">
-                                <p id="modo-actual" class="flex justify-center w-fit font-bold text-center">Ciclo 0/{{ repeticiones }} - Modo estudio 📖</p>
+                            00:00:00
+                        </p>
+                        {% if repeticiones > 0 %}
+                            <div class="flex justify-center m-3 *:bg-black/70 *:rounded-full *:px-6 *:py-1">
+                                <p id="modo-actual" class="w-fit font-bold text-center">Ciclo 0/{{ repeticiones }} - Estudio 📖</p>
                             </div>
-                            {% endif %}
+                        {% endif %}
                         </div>
+
+
+                        
 
                         <div class="flex justify-center space-x-4 mb-6">
                             <button id="btn-iniciar" class="boton-cronometro rounded-full"><img src="{% static 'img/play.svg' %}" alt="Boton play" class="h-5 w-5"></button>

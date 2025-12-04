@@ -44,8 +44,9 @@
         repeticionesSesionActual = estadoGuardado.repeticionesSesionActual;
         segundosEstudiados = estadoGuardado.segundosEstudiados + tiempoTranscurrido;
 
-        const ciclos = `<p>Ciclo ${repeticionesSesionActual}/${repeticionesTotales} -</p> `
-        visorModo.innerHTML = esModoEstudio ? `${ciclos} Modo <span>estudio 📖</span>` : `${ciclos} Modo <span>descanso 😌</span>`;
+        const ciclos = `<span>Ciclo ${repeticionesSesionActual}/${repeticionesTotales} -</span>`;
+        visorModo.innerHTML = esModoEstudio ? `${ciclos} <span>Estudio 📖</span>` : `${ciclos} <span>Descanso 😌</span>`;
+
 
         actualizarVista();
         iniciarTemporizador();
@@ -108,19 +109,19 @@
                 audioFinDescanso.play();
             }
 
-            const ciclos = `<p>Ciclo ${repeticionesSesionActual}/${repeticionesTotales} -</p> `
-            visorModo.innerHTML = `${ciclos} Modo <span>estudio 📖</span>`;
+            const ciclos = `<span>Ciclo ${repeticionesSesionActual}/${repeticionesTotales} -</span> `
+            visorModo.innerHTML = `${ciclos} <span>Estudio 📖</span>`;
             tiempoRestante = tiempoEstudioInicial;
             iniciarTemporizador()
         } else {
             repeticionesSesionActual++;
-            const ciclos = `<p>Ciclo ${repeticionesSesionActual}/${repeticionesTotales} -</p> `
+            const ciclos = `<span>Ciclo ${repeticionesSesionActual}/${repeticionesTotales} -</span> `
 
             if ((repeticionesSesionActual < repeticionesTotales) && repeticionesSesionActual != 0) {
                 audioFinEstudio.play();
 
                 tiempoRestante = tiempoDescansoInicial;
-                visorModo.innerHTML = `${ciclos} Modo <span>descanso 😌</span>`;
+                visorModo.innerHTML = `${ciclos} <span>Descanso 😌</span>`;
                 iniciarTemporizador()
             } else {
                 if (repeticionesSesionActual == repeticionesTotales) {
@@ -129,7 +130,7 @@
 
                 cronometro.innerHTML = "00:00:00";
                 if (repeticionesTotales) {
-                    visorModo.innerHTML = `<p>${ciclos} Sesión finalizada 🙌</p>`;
+                    visorModo.innerHTML = `<p>${ciclos} Sesión finalizada 🙌`;
                 }
                 btnIniciar.innerHTML = `<img src="${window.rutaPlay}" alt="Boton play" class="h-4 w-4"></img>`
                 btnIniciar.disabled = true;
