@@ -38,11 +38,6 @@
     @apply border border-neutral-500 p-1 hover:bg-black/50 hover:text-indigo-500 hover:border-indigo-500;
 }
 
-.panel-link {
-    @apply p-2 rounded w-full transition duration-150 ease-in-out font-medium;
-    @apply hover:bg-neutral-800; 
-}
-
 @layer components {
     #lista-audios > li {
         @apply flex items-center py-2 px-3 hover:bg-neutral-700/20 rounded-md;
