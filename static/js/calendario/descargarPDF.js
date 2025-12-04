@@ -85,7 +85,7 @@ export function cargarSemanasDelMes(calendar) {
 
 export async function exportEvents(calendar, range = 'week') {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  const doc = new jsPDF("p", "mm", "a4");
   const calendarApi = calendar;
 
   let start, end, label;
@@ -103,97 +103,128 @@ export async function exportEvents(calendar, range = 'week') {
       end.setDate(start.getDate() + 6);
       end.setHours(23, 59, 59, 999);
 
-      label = 'Semana actual';
-    } else if (range === 'month') {
+      label = "Semana actual";
+    } 
+    else if (range === 'month') {
       start = calendarApi.view.currentStart;
       end = new Date(calendarApi.view.currentEnd.getTime() - 1);
-      label = 'Mes actual';
+      label = "Mes actual";
     }
-  } else if (range.customRange) {
+  } 
+  else if (range.customRange) {
     start = range.start;
     end = range.end;
-    label = range.label || 'Rango personalizado';
-  } else {
-    start = calendarApi.view.activeStart;
-    end = calendarApi.view.activeEnd;
-    label = 'Vista actual';
+    label = range.label || "Rango personalizado";
   }
 
-  const eventosFiltrados = calendarApi.getEvents().filter(event => {
-    const startDate = new Date(event.start);
-    return startDate >= start && startDate <= end;
-  });
-
-  const mensajeDiv = document.getElementById('mensaje-pdf');
-  if (mensajeDiv) mensajeDiv.remove();
+  const eventosFiltrados = calendarApi
+    .getEvents()
+    .filter(event => new Date(event.start) >= start && new Date(event.start) <= end);
 
   if (eventosFiltrados.length === 0) {
-    const contenedor = document.querySelector('#calendar').parentElement;
-    const mensaje = document.createElement('div');
-    mensaje.id = 'mensaje-pdf';
-    mensaje.className = 'text-red-600 font-semibold mb-4 text-center';
-    mensaje.innerText = `No hay eventos en ${label.toLowerCase()} para exportar.`;
-    contenedor.prepend(mensaje);
-    setTimeout(() => {
-      mensaje.remove();
-    }, 3000);
+    mostrarMensajeExportacion("No hay eventos en el período seleccionado.", "error");
     return;
   }
 
+
   const eventosPorDia = {};
+
   eventosFiltrados.forEach(event => {
     const fecha = new Date(event.start);
-    fecha.setHours(0, 0, 0, 0);
-    const clave =
-      fecha.getFullYear() + '-' +
-      String(fecha.getMonth() + 1).padStart(2, '0') + '-' +
-      String(fecha.getDate()).padStart(2, '0');
+    fecha.setHours(0,0,0,0);
+
+    const clave = fecha.toISOString().split("T")[0];
 
     if (!eventosPorDia[clave]) eventosPorDia[clave] = [];
     eventosPorDia[clave].push(event);
   });
 
-  const opcionesFecha = { day: '2-digit', month: '2-digit', year: 'numeric' };
-  const opcionesHora = { hour: '2-digit', minute: '2-digit', hour12: false };
+  const opcionesFecha = { day: "2-digit", month: "2-digit", year: "numeric" };
+  const opcionesHora = { hour: "2-digit", minute: "2-digit", hour12: false };
 
-  let y = 20;
-  doc.setFontSize(16);
-  doc.text(`Due Date: Eventos - ${label}`, 10, y);
-  y += 4;
+  doc.setFillColor(70, 60, 140);
+  doc.rect(0, 0, 210, 25, "F");
+
+  doc.setFontSize(18);
+  doc.setTextColor(255, 255, 255);
+  doc.text(`Due Date – ${label}`, 10, 16);
+
+  doc.setDrawColor(140, 120, 200);
+  doc.setLineWidth(1);
+  doc.line(10, 28, 200, 28);
+
+  let y = 40;
 
   const fechasOrdenadas = Object.keys(eventosPorDia).sort();
 
-  fechasOrdenadas.forEach(fechaStr => {
-    const fechaObj = new Date(fechaStr + 'T00:00:00');
+  fechasOrdenadas.forEach((fechaStr, index) => {
+    const fechaObj = new Date(fechaStr + "T00:00:00");
 
     if (fechaObj >= start && fechaObj <= end) {
-      const fechaFormateada = fechaObj.toLocaleDateString('es-AR', opcionesFecha);
-      const nombreDia = fechaObj.toLocaleDateString('es-AR', { weekday: 'long' });
+      const fecha = fechaObj.toLocaleDateString("es-AR", opcionesFecha);
+      const dia = fechaObj.toLocaleDateString("es-AR", { weekday: "long" });
+      const tituloDia = `${dia.charAt(0).toUpperCase() + dia.slice(1)} – ${fecha}`;
 
-      doc.setFontSize(14);
-      doc.setTextColor(92, 38, 151);
-      y += 8;
-      doc.text(`${nombreDia.charAt(0).toUpperCase() + nombreDia.slice(1)} - ${fechaFormateada}`, 10, y);
-      y += 2;
+      doc.setFillColor(240, 240, 255);
+      doc.roundedRect(10, y - 5, 190, 12, 2, 2, "F");
+      
+      doc.setFontSize(13);
+      doc.setTextColor(50, 40, 120);
+      doc.text(tituloDia, 14, y + 3);
+
+      y += 10;
 
       eventosPorDia[fechaStr].forEach(evt => {
-        const horaInicio = new Date(evt.start).toLocaleTimeString('es-AR', opcionesHora);
-        const horaFin = evt.end ? new Date(evt.end).toLocaleTimeString('es-AR', opcionesHora) : horaInicio;
+        const inicio = new Date(evt.start).toLocaleTimeString("es-AR", opcionesHora);
+        const fin = evt.end ? new Date(evt.end).toLocaleTimeString("es-AR", opcionesHora) : inicio;
 
-        const linea = `${horaInicio} - ${horaFin}  |  ${evt.title}`;
+        const line = `${inicio} - ${fin}  |  ${evt.title}`;
+
         doc.setFontSize(11);
         doc.setTextColor(0, 0, 0);
-        y += 6;
 
+        y += 6;
         if (y > 270) {
           doc.addPage();
           y = 20;
         }
 
-        doc.text(linea, 14, y);
+        doc.text(line, 16, y);
       });
+
+      y += 8;
+    }
+
+    if (y > 270 && index < fechasOrdenadas.length - 1) {
+      doc.addPage();
+      y = 20;
     }
   });
 
   doc.save(`${label.replace(/\s+/g, '_').toLowerCase()}_eventos.pdf`);
+  mostrarMensajeExportacion("PDF descargado correctamente.", "success");
+
+}
+
+function mostrarMensajeExportacion(texto, tipo = "error") {
+    const contenedor = document.getElementById("mensaje-exportacion");
+    const mensaje = document.getElementById("texto-mensaje-exportacion");
+
+    if (!contenedor || !mensaje) return;
+
+    mensaje.textContent = texto;
+
+    mensaje.className =
+        "px-4 py-2 rounded shadow text-white " +
+        (tipo === "success"
+            ? "bg-green-600"
+            : "bg-red-600");
+
+    contenedor.classList.remove("hidden", "opacity-0");
+    contenedor.classList.add("opacity-100");
+
+    setTimeout(() => {
+        contenedor.classList.add("opacity-0");
+        setTimeout(() => contenedor.classList.add("hidden"), 300);
+    }, 3000);
 }

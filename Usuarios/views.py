@@ -190,108 +190,126 @@ def verPerfil(request):
 
 
 
+# -------------------------------
+# Vista principal de grupo
+# -------------------------------
 @login_required
 def vista_grupo_estudio(request):
     perfil = request.user.perfil
     tiene_grupo = perfil.grupo is not None
 
-    if not tiene_grupo:
-        return render(request, 'GrupoEstudio.html', {
-            'tiene_grupo': False,
-            'perfil': perfil,
-            'miembros': [],
-        })
+    form_crear = GrupoEstudioForm()
+    form_editar = None
+    grupo = None
 
-    grupo = perfil.grupo
+    if tiene_grupo:
+        grupo = perfil.grupo
+        form_editar = GrupoEstudioForm(instance=grupo, modo_edicion=True)
 
-    miembros_raw = Perfil.objects.filter(
-        grupo=grupo,
-        user__is_active=True
-    ).select_related('user')
+    if request.method == 'POST':
+        accion = request.POST.get('accion')
 
+        if accion == 'crear_grupo':
+            form_crear = GrupoEstudioForm(request.POST)
+            if form_crear.is_valid():
+                grupo = form_crear.save(commit=False)
+                grupo.idPlanificadorLider = request.user
+                grupo.save()
+                perfil.grupo = grupo
+                perfil.fecha_union_grupo = timezone.now()
+                perfil.save()
+                messages.success(request, "Grupo creado correctamente.")
+                return redirect('vista_grupo_estudio')
+
+        elif accion == 'editar_grupo' and tiene_grupo:
+            form_editar = GrupoEstudioForm(request.POST, instance=grupo, modo_edicion=True)
+            if form_editar.is_valid():
+                form_editar.save()
+                messages.success(request, "Grupo actualizado correctamente.")
+                return redirect('vista_grupo_estudio')
+
+
+    # -------------------------------
+    # Calcular miembros y puntos
+    # -------------------------------
     miembros = []
     mi_puntos = 0
 
-    for p in miembros_raw:
-        
-        if not p.fecha_union_grupo:
-            inicio_valido = grupo.plazoInicioEstudio
-        else:
-            inicio_valido = max(p.fecha_union_grupo, grupo.plazoInicioEstudio)
+    if grupo:
+        miembros_raw = Perfil.objects.filter(grupo=grupo, user__is_active=True).select_related('user')
+        for p in miembros_raw:
+            inicio_valido = max(p.fecha_union_grupo or grupo.plazoInicioEstudio, grupo.plazoInicioEstudio)
+            sesiones_usuario = SesionEstudio.objects.filter(
+                user=p.user,
+                fecha_creacion__gte=inicio_valido,
+                fecha_creacion__lte=grupo.plazoFinEstudio
+            ).order_by('fecha_creacion')
 
-        sesiones_usuario = SesionEstudio.objects.filter(
-            user=p.user,
-            fecha_creacion__gte=inicio_valido,
-            fecha_creacion__lte=grupo.plazoFinEstudio
-        )
-
-        meta_individual = grupo.metaCantHoras * 60
-        sesiones_ordenadas = sesiones_usuario.order_by('fecha_creacion')
-
-        acumulado = 0
-        for s in sesiones_ordenadas:
-            if acumulado >= meta_individual:
-                break
-            restante = meta_individual - acumulado
-            acumulado += min(s.meta_minutos_alcanzados, restante)
-
-        puntos_usuario = acumulado
-        puntos_usuario = int(puntos_usuario)
-        p.puntos_calculados = puntos_usuario
-        p.tiempo_formateado = formatear_minutos(puntos_usuario)
-
-        
-        if p.user == request.user:
-            mi_puntos = puntos_usuario
-
-        
-        if puntos_usuario > 0:
-            sesiones_ordenadas = sesiones_usuario.order_by('fecha_creacion')
+            meta_individual = grupo.metaCantHoras * 60
             acumulado = 0
-            fecha_llegada = None
-            for s in sesiones_ordenadas:
-                acumulado += s.meta_minutos_alcanzados
-                if acumulado >= puntos_usuario:
-                    fecha_llegada = s.fecha_creacion.replace(microsecond=0)
+            for s in sesiones_usuario:
+                if acumulado >= meta_individual:
                     break
-            p.fecha_llegada_puntos = fecha_llegada
+                acumulado += min(s.meta_minutos_alcanzados, meta_individual - acumulado)
+
+            puntos_usuario = int(acumulado)
+            p.puntos_calculados = puntos_usuario
+            p.tiempo_formateado = formatear_minutos(puntos_usuario)
+
+            if p.user == request.user:
+                mi_puntos = puntos_usuario
+
+            if puntos_usuario > 0:
+                acumulado = 0
+                fecha_llegada = None
+                for s in sesiones_usuario:
+                    acumulado += s.meta_minutos_alcanzados
+                    if acumulado >= puntos_usuario:
+                        fecha_llegada = s.fecha_creacion.replace(microsecond=0)
+                        break
+                p.fecha_llegada_puntos = fecha_llegada
+            else:
+                p.fecha_llegada_puntos = None
+
+            ultima_sesion = sesiones_usuario.order_by('-fecha_creacion').first()
+            fecha_final = ultima_sesion.fecha_creacion if ultima_sesion else inicio_valido
+            p.fecha_final = fecha_final.replace(microsecond=0)
+            p.sesion_id = ultima_sesion.id if ultima_sesion else 0
+
+            miembros.append(p)
+
+        if all(m.puntos_calculados == 0 for m in miembros):
+            lider = [m for m in miembros if m.user.id == grupo.idPlanificadorLider.id]
+            resto = [m for m in miembros if m.user.id != grupo.idPlanificadorLider.id]
+            resto.sort(key=lambda x: x.fecha_union_grupo or grupo.plazoInicioEstudio)
+            miembros_ordenados = lider + resto
         else:
-            p.fecha_llegada_puntos = None
+            miembros_ordenados = sorted(
+                miembros,
+                key=lambda x: (-x.puntos_calculados, x.fecha_llegada_puntos or grupo.plazoFinEstudio)
+            )
 
-       
-        ultima_sesion = sesiones_usuario.order_by('-fecha_creacion').first()
-        fecha_final = ultima_sesion.fecha_creacion if ultima_sesion else inicio_valido
-        fecha_final = fecha_final.replace(microsecond=0)
+        for i, m in enumerate(miembros_ordenados, start=1):
+            m.puesto = i
 
-        p.fecha_final = fecha_final
-        p.sesion_id = ultima_sesion.id if ultima_sesion else 0
-
-        miembros.append(p)
-  
-    if all(m.puntos_calculados == 0 for m in miembros):
-        lider = [m for m in miembros if m.user.id == grupo.idPlanificadorLider.id]
-        resto = [m for m in miembros if m.user.id != grupo.idPlanificadorLider.id]
-        resto.sort(key=lambda x: x.fecha_union_grupo or grupo.plazoInicioEstudio)
-        miembros_ordenados = lider + resto
+        meta_minutos = grupo.metaCantHoras * 60
+        porcentaje = min(int((mi_puntos / meta_minutos) * 100), 100) if meta_minutos > 0 else 100
+        meta_alcanzada = mi_puntos >= meta_minutos
+        todos_cero = all(m.puntos_calculados == 0 for m in miembros_ordenados)
+        plazo_finalizado = timezone.now() > grupo.plazoFinEstudio
+        miembro_actual = next((m for m in miembros_ordenados if m.user == request.user), None)
+        puesto_actual = miembro_actual.puesto if miembro_actual else None
     else:
-        miembros_ordenados = sorted(
-            miembros,
-            key=lambda x: (-x.puntos_calculados, x.fecha_llegada_puntos or grupo.plazoFinEstudio)
-        )
-
-    for i, m in enumerate(miembros_ordenados, start=1):
-        m.puesto = i
-
-    meta_minutos = grupo.metaCantHoras * 60
-    porcentaje = min(int((mi_puntos / meta_minutos) * 100), 100) if meta_minutos > 0 else 100
-    meta_alcanzada = mi_puntos >= meta_minutos
-    todos_cero = all(m.puntos_calculados == 0 for m in miembros_ordenados)
-    plazo_finalizado = timezone.now() > grupo.plazoFinEstudio
-    miembro_actual = next((m for m in miembros_ordenados if m.user == request.user), None)
-    puesto_actual = miembro_actual.puesto if miembro_actual else None
+        miembros_ordenados = []
+        meta_minutos = 0
+        porcentaje = 0
+        meta_alcanzada = False
+        todos_cero = True
+        plazo_finalizado = False
+        puesto_actual = None
 
     return render(request, 'GrupoEstudio.html', {
-        'tiene_grupo': True,
+        'tiene_grupo': tiene_grupo,
         'perfil': perfil,
         'miembros': miembros_ordenados[:10],
         'total_minutos': mi_puntos,
@@ -303,8 +321,14 @@ def vista_grupo_estudio(request):
         'meta_formateada': formatear_minutos(meta_minutos),
         'plazo_finalizado': plazo_finalizado,
         'puesto_actual': puesto_actual,
+        'form_crear': form_crear,
+        'form_editar': form_editar,
     })
 
+
+# -------------------------------
+# Función auxiliar para minutos
+# -------------------------------
 def formatear_minutos(minutos):
     horas = minutos // 60
     resto = minutos % 60
@@ -319,6 +343,7 @@ def formatear_minutos(minutos):
         return f"{horas}hs"
     else:
         return f"{resto}min"
+
 
 @login_required
 @require_POST
@@ -412,7 +437,9 @@ def sugerencias_usuarios(request):
 
     return JsonResponse(data, safe=False)
 
-
+# -------------------------------
+# Crear grupo (no modal, por si se necesita)
+# -------------------------------
 @login_required
 def crear_grupo(request):
     perfil = request.user.perfil
@@ -436,6 +463,10 @@ def crear_grupo(request):
 
     return render(request, 'CrearGrupo.html', {'form': form})
 
+
+# -------------------------------
+# Salir del grupo
+# -------------------------------
 @login_required
 def salir_grupo(request):
     perfil = request.user.perfil
@@ -447,7 +478,6 @@ def salir_grupo(request):
 
     if grupo.idPlanificadorLider == perfil.user:
         miembros_restantes = Perfil.objects.filter(grupo=grupo).exclude(user=perfil.user)
-
         if not miembros_restantes.exists():
             grupo.delete()
             perfil.grupo = None
@@ -455,10 +485,9 @@ def salir_grupo(request):
             perfil.save()
             messages.success(request, "Saliste del grupo y el grupo fue eliminado porque no quedaban miembros.")
             return redirect('vista_grupo_estudio')
-
         nuevo_lider = sorted(
             miembros_restantes,
-            key=lambda p: p.puntos,
+            key=lambda p: p.puntos_calculados,
             reverse=True
         )[0].user
         grupo.idPlanificadorLider = nuevo_lider
@@ -467,12 +496,13 @@ def salir_grupo(request):
     perfil.fecha_union_grupo = None
     perfil.save()
     grupo.save()
-
     messages.success(request, "Saliste del grupo.")
     return redirect('vista_grupo_estudio')
 
 
-
+# -------------------------------
+# Editar grupo
+# -------------------------------
 @login_required
 def editar_grupo(request):
     perfil = request.user.perfil
@@ -487,20 +517,20 @@ def editar_grupo(request):
         return redirect('vista_grupo_estudio')
 
     if request.method == 'POST':
-        form = GrupoEstudioForm(request.POST, instance=grupo, modo_edicion=True)  # ← ¡acá está la clave!
+        form = GrupoEstudioForm(request.POST, instance=grupo, modo_edicion=True)
         if form.is_valid():
             form.save()
-            for perfil in grupo.miembros.select_related('user').all():
-                perfil.puntos = perfil.calcular_puntos_grupo()
-                perfil.save(update_fields=['puntos'])
             messages.success(request, "Grupo actualizado correctamente.")
             return redirect('vista_grupo_estudio')
     else:
-        form = GrupoEstudioForm(instance=grupo, modo_edicion=True)  # ← también acá
+        form = GrupoEstudioForm(instance=grupo, modo_edicion=True)
 
     return render(request, 'EditarGrupo.html', {'form': form, 'grupo': grupo})
 
 
+# -------------------------------
+# Eliminar grupo
+# -------------------------------
 @login_required
 def eliminar_grupo(request):
     perfil = request.user.perfil

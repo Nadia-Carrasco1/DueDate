@@ -7,8 +7,6 @@ export function abrirModalEditarEvento(evento, calendar) {
       const wrapper = document.querySelector('#modalEditarEvento .form-wrapper');
       wrapper.innerHTML = html;
       const form = wrapper.querySelector('form');
-      const originalData = new FormData(form);
-      form.dataset.original = JSON.stringify(Object.fromEntries(originalData));
 
       const fiInput = form.querySelector('input[name="fecha_inicio"]');
       const ffInput = form.querySelector('input[name="fecha_fin"]');
@@ -16,40 +14,26 @@ export function abrirModalEditarEvento(evento, calendar) {
 
       if (fiInput && ffInput) {
         ffInput.min = fiInput.value;
-
-        if (ffInput.value < fiInput.value) {
-          ffInput.value = fiInput.value;
-        }
-
         fiInput.addEventListener('change', () => {
           ffInput.min = fiInput.value;
-          if (ffInput.value < fiInput.value) {
-            ffInput.value = fiInput.value;
-          }
-
-          if (recInput) {
-            recInput.max = fiInput.value;
-            if (recInput.value > fiInput.value) {
-              recInput.value = fiInput.value;
-            }
-          }
+          if (ffInput.value < fiInput.value) ffInput.value = fiInput.value;
+          if (recInput && recInput.value > fiInput.value) recInput.value = fiInput.value;
+          if (recInput) recInput.max = fiInput.value;
         });
       }
 
       if (recInput && fiInput) {
         recInput.max = fiInput.value;
-
         recInput.addEventListener('change', () => {
-          if (recInput.value > fiInput.value) {
-            recInput.value = fiInput.value;
-          }
+          if (recInput.value > fiInput.value) recInput.value = fiInput.value;
         });
       }
 
-      form.addEventListener('submit', function (e) {
+      form.addEventListener('submit', function(e) {
         e.preventDefault();
         const csrftoken = getCookie('csrftoken');
         const formData = new FormData(form);
+
         const mensajeError = document.getElementById('mensajeErrorEditar');
         const mensajeSinCambios = document.getElementById('mensajeSinCambios');
 
@@ -67,7 +51,9 @@ export function abrirModalEditarEvento(evento, calendar) {
         .then(data => {
           if (data.status === 'ok') {
             document.getElementById('modalEditarEvento').classList.add('hidden');
-            calendar.refetchEvents();
+
+            window.location.reload();
+
           } else {
             if (data.message === 'sin_cambios') {
               mensajeSinCambios.textContent = 'No se realizaron cambios en el evento.';

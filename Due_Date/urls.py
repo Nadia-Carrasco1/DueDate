@@ -16,7 +16,6 @@ urlpatterns = [
     path('IniciarSesion/', views.IniciarSesion, name='IniciarSesion'),
     path('CerrarSesion/', views.CerrarSesion, name='CerrarSesion'),
     path('Perfil/', views.verPerfil, name='Perfil'),
-    path('grupo-estudio/', views.vista_grupo_estudio, name='grupo_estudio'),
     path('sugerencias-usuarios/', views.sugerencias_usuarios, name='sugerencias_usuarios'),
     path('invitar-usuario/', views.invitar_usuario_ajax, name='invitar_usuario'),
     path('invitar-usuario-ajax/', views.invitar_usuario_ajax, name='invitar_usuario_ajax'),

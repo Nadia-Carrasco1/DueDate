@@ -64,19 +64,61 @@ export function initCalendar() {
       actualizarFechaEvento(info.event);
     },
     eventDidMount: function(info) {
+      const colorEvento = info.event.backgroundColor || info.event.extendedProps.color;
+
+      if (info.view.type === 'listWeek') {
+          const originalBg = info.el.style.backgroundColor;
+
+          info.el.addEventListener('mouseenter', () => {
+              info.el.style.backgroundColor = 'rgba(79,70,229,0.5)'; // Indigo-700/80
+
+              const hora = info.el.querySelector('.fc-list-event-time');
+              const titulo = info.el.querySelector('.fc-list-event-title a');
+              if (hora) hora.style.color = 'white';
+              if (titulo) titulo.style.color = 'white';
+          });
+
+          info.el.addEventListener('mouseleave', () => {
+              info.el.style.backgroundColor = originalBg;
+              const hora = info.el.querySelector('.fc-list-event-time');
+              const titulo = info.el.querySelector('.fc-list-event-title a');
+              if (hora) hora.style.color = '';
+              if (titulo) titulo.style.color = '';
+          });
+      }
+
+      if (info.view.type === 'timeGridDay' || info.view.type === 'timeGridWeek') {
+          if (colorEvento === "#FFEB3B") {
+              const hora = info.el.querySelector('.fc-event-time');
+              const titulo = info.el.querySelector('.fc-event-title');
+              if (hora) hora.style.color = 'black';
+              if (titulo) titulo.style.color = 'black';
+          }
+      }
+
       if (info.event.extendedProps.descripcion) {
-        tippy(info.el, {
-          content: info.event.extendedProps.descripcion,
-          placement: 'top',
-          theme: 'light'
-        });
+          tippy(info.el, {
+              content: info.event.extendedProps.descripcion,
+              placement: 'top',
+              theme: 'light',
+              onShow(instance) {
+                  const contenido = instance.popper.querySelector('.tippy-content');
+                  if (contenido && colorEvento === "#FFEB3B") {
+                      contenido.style.color = 'black';
+                  }
+              }
+          });
       }
     }
+
+
+  
   });
 
   calendar.render();
 
   cargarSemanasDelMes(calendar);
+  mostrarMensajesDjango();
   
   function actualizarFechaEvento(event) {
     fetch(`/actualizar-fecha/${event.id}/`, {
@@ -94,4 +136,18 @@ export function initCalendar() {
   
 
   return calendar;
+}
+export function mostrarMensajesDjango() {
+    const djangoMessages = document.getElementById('djangoMessages');
+
+    if (djangoMessages) {
+
+        djangoMessages.offsetHeight;  
+
+        djangoMessages.style.opacity = '1';
+
+        setTimeout(() => {
+            djangoMessages.style.opacity = '0';
+        }, 3000); 
+    }
 }

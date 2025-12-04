@@ -13,6 +13,8 @@ from django.contrib import messages
 import json
 from .scheduler import programar_recordatorio, scheduler
 from datetime import datetime
+from django.views.decorators.cache import never_cache
+
 
 maxTareas = 10 
 
@@ -131,10 +133,10 @@ def editar_evento(request):
         if form.is_valid():
             if 'recordatorio_fecha_hora' in form.changed_data:
                 evento.recordatorio_enviado = False
-
-            evento = form.save()
+            evento.save()
             programar_recordatorio(evento)
 
+            messages.success(request, "Evento editado correctamente.")
             return JsonResponse({'status': 'ok'})
         else:
             errors = form.errors.as_json()
@@ -194,6 +196,7 @@ def timedelta_to_iso(duration):
     return f"PT{hours}H{minutes:02d}M{seconds:02d}S"
 
 
+@never_cache
 @login_required
 def eventos_json(request):
     eventos = Evento.objects.filter(usuario=request.user)
@@ -204,9 +207,9 @@ def eventos_json(request):
             if not evento.fecha_inicio:
                 continue
 
-            color = '#2563eb'
+            color = "#FFB13B"
             if evento.recordatorio_fecha_hora:
-                color = '#dc2626'
+                color = "#af2020"
 
             if evento.repetir_anualmente:
                 if not evento.fecha_inicio:
@@ -221,7 +224,7 @@ def eventos_json(request):
                         "dtstart": localtime(evento.fecha_inicio).isoformat()
                     },
                     "duration": duration,
-                    "color": "#9333ea",
+                    "color": "#8a3ed1",
                     "descripcion": evento.descripcion,
                     "recordatorio_fecha_hora": evento.recordatorio_fecha_hora.isoformat() if evento.recordatorio_fecha_hora else None,
                 })

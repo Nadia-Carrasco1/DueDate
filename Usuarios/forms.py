@@ -116,10 +116,15 @@ class FotoPerfilForm(forms.ModelForm):
             }),
         }
 
+
 class GrupoEstudioForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.modo_edicion = kwargs.pop('modo_edicion', False)
         super().__init__(*args, **kwargs)
+
+        for field in ['plazoInicioEstudio', 'plazoFinEstudio']:
+            if self.instance and getattr(self.instance, field):
+                self.fields[field].initial = getattr(self.instance, field).strftime('%Y-%m-%dT%H:%M')
 
     class Meta:
         model = GrupoEstudio
@@ -146,16 +151,22 @@ class GrupoEstudioForm(forms.ModelForm):
                 'min': 1,
                 'id': 'id_metaCantHoras',
             }),
-            'plazoInicioEstudio': forms.DateTimeInput(attrs={
-                'type': 'datetime-local',
-                'class': 'w-full px-3 py-2 border border-neutral-700 rounded text-white bg-neutral-900',
-                'id': 'id_plazoInicioEstudio',
-            }),
-            'plazoFinEstudio': forms.DateTimeInput(attrs={
-                'type': 'datetime-local',
-                'class': 'w-full px-3 py-2 border border-neutral-700 rounded text-white bg-neutral-900',
-                'id': 'id_plazoFinEstudio',
-            }),
+            'plazoInicioEstudio': forms.DateTimeInput(
+                attrs={
+                    'type': 'datetime-local',
+                    'class': 'w-full px-3 py-2 border border-neutral-700 rounded text-white bg-neutral-900',
+                    'id': 'id_plazoInicioEstudio',
+                },
+                format='%Y-%m-%dT%H:%M'
+            ),
+            'plazoFinEstudio': forms.DateTimeInput(
+                attrs={
+                    'type': 'datetime-local',
+                    'class': 'w-full px-3 py-2 border border-neutral-700 rounded text-white bg-neutral-900',
+                    'id': 'id_plazoFinEstudio',
+                },
+                format='%Y-%m-%dT%H:%M'
+            ),
         }
 
     def clean(self):
@@ -187,4 +198,3 @@ class GrupoEstudioForm(forms.ModelForm):
             self.add_error('plazoFinEstudio', f"El plazo entre inicio y fin no alcanza para cumplir la meta de {meta} horas.")
 
         return cleaned_data
-

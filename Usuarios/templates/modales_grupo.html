@@ -1,0 +1,33 @@
+{% load static %}
+
+<div id="modal-crear" class="fixed inset-0 hidden flex items-center justify-center bg-black backdrop-blur-sm bg-opacity-50 z-50">
+    <div class="bg-neutral-900 rounded-lg w-96 max-w-full p-6 relative">
+        <button id="btn-cerrar-crear" class="absolute top-3 right-3 text-white hover:text-red-500">&times;</button>
+        <h2 class="text-xl font-semibold text-white mb-4 text-center">Crear grupo de estudio</h2>
+        <form id="form-crear-grupo" method="POST" class="flex flex-col gap-4" action="{% url 'vista_grupo_estudio' %}">
+            {% csrf_token %}
+            <input type="hidden" name="accion" value="crear_grupo">
+            {{ form_crear.as_p }}
+            <button type="submit" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded shadow transition">
+                Crear grupo
+            </button>
+            <p id="mensaje-crear" class="text-sm mt-2 text-center text-red-500"></p>
+        </form>
+    </div>
+</div>
+
+<div id="modal-editar" class="fixed inset-0 hidden flex items-center justify-center backdrop-blur-sm bg-black bg-opacity-50 z-50">
+    <div class="bg-neutral-900 rounded-lg w-96 max-w-full p-6 relative">
+        <button id="btn-cerrar-editar" class="absolute top-3 right-3 text-white hover:text-red-500">&times;</button>
+        <h2 class="text-xl font-semibold text-white mb-4 text-center">Editar grupo de estudio</h2>
+        <form id="form-editar-grupo" method="POST" class="flex flex-col gap-4" action="{% url 'vista_grupo_estudio' %}">
+            {% csrf_token %}
+            <input type="hidden" name="accion" value="editar_grupo">
+            {{ form_editar.as_p }}
+            <button type="submit" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded shadow transition">
+                Guardar cambios
+            </button>
+            <p id="mensaje-editar" class="text-sm mt-2 text-center text-red-500"></p>
+        </form>
+    </div>
+</div>
